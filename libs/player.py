@@ -3,19 +3,15 @@ import math
 
 class Player:
 
-    def set_character(self):
-        print("in set_character\n")
-        # get and set sex, race, game_class
-
-    def __init__(self, id, username, nickname):
+    def __init__(self, id, username, nickname, sex, race, game_class):
         self.id = id
         self.username = username
         self.nickname = nickname
-        self.set_character()
 
-        self.sex = None
-        self.race = None
-        self.game_class = None
+
+        self.sex = sex
+        self.race = race
+        self.game_class = game_class
         self.set_character()
 
         self.exp = 0
