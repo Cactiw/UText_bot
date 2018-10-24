@@ -19,17 +19,17 @@ class Player:
         self.free_points = 0
         self.fatigue = 0
 
-        self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "intelligence" : 5, "mana_points" : 5,\
+        self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "intelligence" : 5, "mana_points" : 5,
                       "accuracy": 5, "agility" : 5, }
 
         self.mana = self.stats["mana_points"] * 15
         self.hp = self.stats["endurance"] * 15
 
-        self.location = 0;
+        self.location = 0
 
         self.resources = {"gold" : 0, "metal" : 0, "wood" : 0}
 
-        self.on_character = {"head": None, "body": None, "shoulders": None, "legs": None, "feet": None,\
+        self.on_character = {"head": None, "body": None, "shoulders": None, "legs": None, "feet": None,
                         "left_arm": None, "right_arm": None, "mount": None, }
 
         self.eq_backpack = {}
