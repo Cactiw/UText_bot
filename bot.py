@@ -27,6 +27,7 @@ print("Enter password for database:")
 passwd = input()
 print(passwd)
 conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
+
 cursor = conn.cursor()
 conn.set_character_set('utf8')
 #conn.set_character_set('utf8mb4')
@@ -64,7 +65,6 @@ def start(bot, update, user_data):
     reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3))
     bot.send_message(chat_id=update.message.chat_id, text="Выберите фракцию, за которую вы будете сражаться!", reply_markup = reply_markup)
     return
-    #player = Player(update.message.chat_id, update.message.user_from.username, update.message.user_from.username, )
 
 def fraction_select(bot, update, user_data):
     type = user_data.get('type')
@@ -73,43 +73,71 @@ def fraction_select(bot, update, user_data):
             user_data.update({'fraction': update.message.text, 'type': 2})
 
             button_list = [
-                KeyboardButton("Воин"),
-                KeyboardButton("Маг"),
-                KeyboardButton("Лучник"),
-                KeyboardButton("Клирик"),
+                KeyboardButton("Люди"),
+                KeyboardButton("Орки"),
+                KeyboardButton("Эльфы")
             ]
-            reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2))
+            reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3))
 
             bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали фракцию <b>{0}</b>\n"
-                                                                  "Теперь необходимо выбрать класс!".format(
+                                                                  "Теперь необходимо выбрать расу!".format(
                 user_data.get('fraction')), parse_mode='HTML', reply_markup=reply_markup)
+            return
+        elif type is 2:
+            race_select(bot, update, user_data)
+    text_message(bot, update, user_data)
+
+def race_select(bot, update, user_data):
+    user_data.update({'race': update.message.text, 'type': 3})
+
+    button_list = [
+        KeyboardButton("Воин"),
+        KeyboardButton("Маг"),
+        KeyboardButton("Лучник"),
+        KeyboardButton("Клирик"),
+    ]
+    reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2))
+
+    bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали расу <b>{0}</b>\n"
+                                                          "Теперь необходимо выбрать класс!".format(
+        user_data.get('race')), parse_mode='HTML', reply_markup=reply_markup)
+    return
 
 def class_select(bot, update, user_data):
     type = user_data.get('type')
     if type is not None:
-        if type is 2:
-            user_data.update({'class' : update.message.text, 'type' : 3})
+        if type is 3:
+            user_data.update({'class' : update.message.text, 'type' : 4})
+            button_list = [
+                KeyboardButton("Мужской"),
+                KeyboardButton("Женский"),
+            ]
+            reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=1))
             bot.send_message(
                 chat_id=update.message.chat_id,
                 text="Отлично, вы выбрали класс <b>{0}</b>\n"
-                     "Осталось всего лишь выбрать имя, "
-                     "под которым вас будут знать другие игроки!".format(user_data.get('class')),
-                parse_mode = 'HTML', reply_markup = ReplyKeyboardRemove())
+                     "Выберите пол:".format(user_data.get('class')),
+                parse_mode = 'HTML', reply_markup = reply_markup)
+            return
+    text_message(bot, update, user_data)
 
 
 def text_message(bot, update, user_data):
     type = user_data.get('type')
     if type is not None:
-        if type is 3:
-            user_data.update(username = update.message.text, type = 4)
-            request = "INSERT INTO PLAYERS(id, username, fraction, class) VALUES('{0}', '{1}', '{2}', '{3}')".format(
-                update.message.from_user.id, user_data.get('username'), user_data.get('fraction'),
-                user_data.get('class'))
-            cursor.execute(request)
-            conn.commit()
-            row = cursor.fetchone()
-            if row is not None:
-                print(row)
+        if type is 4:
+            user_data.update(sex = update.message.text, type = 5)
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Отлично, осталось всего лишь выбрать имя, "
+                     "под которым вас будут знать другие игроки!".format(user_data.get('class')),
+                parse_mode='HTML', reply_markup=ReplyKeyboardRemove())
+            return
+        if type is 5:
+            user_data.update(username = update.message.text, type = 6)
+            player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
+                            user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
+            player.add_to_database(conn, cursor)
             bot.send_message(chat_id=update.message.chat_id,
                              text="Вы выбрали имя <b>{0}</b>\n" 
                                   "И можете приступить к игре!".format(user_data.get('username')),
@@ -134,5 +162,5 @@ updater.start_polling(clean=True)
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()
-# Разрываем подключение.
-#conn.close()
+# Разрываем подключение к базе данных
+conn.close()
