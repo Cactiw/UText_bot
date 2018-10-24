@@ -15,9 +15,25 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 import sys
 sys.path.append('../')
 
+import MySQLdb
+
 from libs.player import *
 from work_materials.class_filters import *
 from work_materials.fraction_filters import *
+
+
+#Подключаем базу данных, выставляем кодировку
+print("Enter password for database:")
+passwd = input()
+print(passwd)
+conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
+cursor = conn.cursor()
+conn.set_character_set('utf8')
+#conn.set_character_set('utf8mb4')
+#cursor.execute('SET NAMES utf8mb4;')
+#cursor.execute('SET CHARACTER SET utf8mb4;')
+#cursor.execute('SET character_set_connection=utf8mb4;')
+print("Connection successful, starting bot")
 
 def build_menu(buttons,
                n_cols,
@@ -32,9 +48,14 @@ def build_menu(buttons,
 
 
 def start(bot, update, user_data):
-    print(user_data)
     user_data.update(type = 1)
-    print(user_data)
+    request = "SELECT * FROM PLAYERS WHERE id = '{0}'".format(update.message.from_user.id)
+    cursor.execute(request)
+    row = cursor.fetchone()
+    if row is not None:
+        bot.send_message(chat_id=update.message.chat_id, text="Вы уже в игре!")
+        return
+
     button_list = [
         KeyboardButton("Люди"),
         KeyboardButton("Орки"),
@@ -68,16 +89,33 @@ def class_select(bot, update, user_data):
     if type is not None:
         if type is 2:
             user_data.update({'class' : update.message.text, 'type' : 3})
+            bot.send_message(
+                chat_id=update.message.chat_id,
+                text="Отлично, вы выбрали класс <b>{0}</b>\n"
+                     "Осталось всего лишь выбрать имя, "
+                     "под которым вас будут знать другие игроки!".format(user_data.get('class')),
+                parse_mode = 'HTML', reply_markup = ReplyKeyboardRemove())
 
 
 def text_message(bot, update, user_data):
-    print(user_data, 'type' in user_data)
     type = user_data.get('type')
     if type is not None:
-        if type is 1:
-            user_data.update(username = update.message.text, type = 2)
-            bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали имя <b>{0}</b>\n"
-                                                                  "Теперь необходимо выбрать класс!".format(user_data.get('username')), parse_mode = 'HTML')
+        if type is 3:
+            user_data.update(username = update.message.text, type = 4)
+            request = "INSERT INTO PLAYERS(id, username, fraction, class) VALUES('{0}', '{1}', '{2}', '{3}')".format(
+                update.message.from_user.id, user_data.get('username'), user_data.get('fraction'),
+                user_data.get('class'))
+            cursor.execute(request)
+            conn.commit()
+            row = cursor.fetchone()
+            if row is not None:
+                print(row)
+            bot.send_message(chat_id=update.message.chat_id,
+                             text="Вы выбрали имя <b>{0}</b>\n" 
+                                  "И можете приступить к игре!".format(user_data.get('username')),
+                             parse_mode = 'HTML')
+            print(user_data)
+
 
 
 
@@ -85,6 +123,8 @@ def text_message(bot, update, user_data):
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
 
 dispatcher.add_handler(MessageHandler(filter_classes, class_select, pass_user_data=True))
+
+dispatcher.add_handler(MessageHandler(filter_fractions, fraction_select, pass_user_data=True))
 
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data=True))
 

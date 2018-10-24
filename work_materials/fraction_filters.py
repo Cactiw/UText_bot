@@ -24,8 +24,8 @@ filter_elves= Filter_Elves()
 
 
 
-class Filter_Races(BaseFilter):
+class Filter_fractions(BaseFilter):
     def filter(self, message):
         return filter_human(message) or filter_orcs(message) or filter_elves(message)
 
-filter_races = Filter_Races()
+filter_fractions = Filter_fractions()
