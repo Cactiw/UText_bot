@@ -3,6 +3,8 @@ import math
 
 class Player:
 
+    stats = {}
+
     def __init__(self, id, username, nickname, sex, race, game_class):
         self.id = id
         self.username = username
@@ -12,15 +14,14 @@ class Player:
         self.sex = sex
         self.race = race
         self.game_class = game_class
-        self.set_character()
 
         self.exp = 0
         self.lvl = 1
         self.free_points = 0
         self.fatigue = 0
 
-        self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "intelligence" : 5, "mana_points" : 5,
-                      "accuracy": 5, "agility" : 5, }
+        self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "mana_points" : 5,
+                    "agility" : 5, }
 
         self.mana = self.stats["mana_points"] * 15
         self.hp = self.stats["endurance"] * 15
