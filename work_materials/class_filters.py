@@ -1,4 +1,6 @@
 from telegram.ext import BaseFilter
+from work_materials.globals import *
+
 
 
 
@@ -36,6 +38,7 @@ filter_cleric= Filter_Cleric()
 
 class Filter_Classes(BaseFilter):
     def filter(self, message):
-        return filter_warrior(message) or filter_mage(message) or filter_archer(message) or filter_cleric(message)
+        return (filter_warrior(message) or filter_mage(message) or filter_archer(message) or filter_cleric(message)) and \
+               dispatcher.user_data[message.from_user.id].get('type') == 3
 
 filter_classes = Filter_Classes()

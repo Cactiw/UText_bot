@@ -1,8 +1,8 @@
 # Настройки
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter
-updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
+#updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
 
-dispatcher = updater.dispatcher
+#dispatcher = updater.dispatcher
 
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
@@ -21,6 +21,9 @@ import MySQLdb
 from libs.player import *
 from work_materials.class_filters import *
 from work_materials.fraction_filters import *
+from work_materials.other_initiate_filters import *
+
+from work_materials.globals import *
 
 
 
@@ -71,24 +74,22 @@ def start(bot, update, user_data):
 
 def fraction_select(bot, update, user_data):
     type = user_data.get('type')
-    if type is not None:
-        if type is 1:
-            user_data.update({'fraction': update.message.text, 'type': 2})
+    if type is 1:   # Выбор фракции
+        user_data.update({'fraction': update.message.text, 'type': 2})
 
-            button_list = [
-                KeyboardButton("Люди"),
-                KeyboardButton("Орки"),
-                KeyboardButton("Эльфы")
-            ]
-            reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3))
+        button_list = [
+            KeyboardButton("Люди"),
+            KeyboardButton("Орки"),
+            KeyboardButton("Эльфы")
+        ]
+        reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3))
 
-            bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали фракцию <b>{0}</b>\n"
-                                                                  "Теперь необходимо выбрать расу!".format(
-                user_data.get('fraction')), parse_mode='HTML', reply_markup=reply_markup)
-            return
-        elif type is 2:
-            race_select(bot, update, user_data)
-    text_message(bot, update, user_data)
+        bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали фракцию <b>{0}</b>\n"
+                                                              "Теперь необходимо выбрать расу!".format(
+            user_data.get('fraction')), parse_mode='HTML', reply_markup=reply_markup)
+        return
+    elif type is 2:    # Выбор расы
+        race_select(bot, update, user_data)
 
 def race_select(bot, update, user_data):
     user_data.update({'race': update.message.text, 'type': 3})
@@ -107,45 +108,42 @@ def race_select(bot, update, user_data):
     return
 
 def class_select(bot, update, user_data):
-    type = user_data.get('type')
-    if type is not None:
-        if type is 3:
-            user_data.update({'class' : update.message.text, 'type' : 4})
-            button_list = [
-                KeyboardButton("Мужской"),
-                KeyboardButton("Женский"),
-            ]
-            reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=1))
-            bot.send_message(
-                chat_id=update.message.chat_id,
-                text="Отлично, вы выбрали класс <b>{0}</b>\n"
-                     "Выберите пол:".format(user_data.get('class')),
-                parse_mode = 'HTML', reply_markup = reply_markup)
-            return
-    text_message(bot, update, user_data)
+    user_data.update({'class' : update.message.text, 'type' : 4})
+    button_list = [
+        KeyboardButton("Мужской"),
+        KeyboardButton("Женский"),
+    ]
+    reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=1))
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        text="Отлично, вы выбрали класс <b>{0}</b>\n"
+             "Выберите пол:".format(user_data.get('class')),
+        parse_mode = 'HTML', reply_markup = reply_markup)
+    return
+
+def sex_select(bot, update, user_data):
+    user_data.update(sex=update.message.text, type=5)
+    bot.send_message(
+        chat_id=update.message.chat_id,
+        text="Отлично, осталось всего лишь выбрать имя, "
+             "под которым вас будут знать другие игроки!".format(user_data.get('class')),
+        parse_mode='HTML', reply_markup=ReplyKeyboardRemove())
+    return
+
+def nickname_select(bot, update, user_data):
+    user_data.update(username=update.message.text, type=6)
+    player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
+                    user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
+    player.add_to_database(conn, cursor)
+    bot.send_message(chat_id=update.message.chat_id,
+                     text="Вы выбрали имя <b>{0}</b>\n"
+                          "И можете приступить к игре!".format(user_data.get('username')),
+                     parse_mode='HTML')
+    print(user_data)
 
 
 def text_message(bot, update, user_data):
-    type = user_data.get('type')
-    if type is not None:
-        if type is 4:
-            user_data.update(sex = update.message.text, type = 5)
-            bot.send_message(
-                chat_id=update.message.chat_id,
-                text="Отлично, осталось всего лишь выбрать имя, "
-                     "под которым вас будут знать другие игроки!".format(user_data.get('class')),
-                parse_mode='HTML', reply_markup=ReplyKeyboardRemove())
-            return
-        if type is 5:
-            user_data.update(username = update.message.text, type = 6)
-            player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
-                            user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
-            player.add_to_database(conn, cursor)
-            bot.send_message(chat_id=update.message.chat_id,
-                             text="Вы выбрали имя <b>{0}</b>\n" 
-                                  "И можете приступить к игре!".format(user_data.get('username')),
-                             parse_mode = 'HTML')
-            print(user_data)
+    pass
 
 
 def loadData():
@@ -153,6 +151,7 @@ def loadData():
         f = open('backup/userdata', 'rb')
         dispatcher.user_data = pickle.load(f)
         f.close()
+        print("Data picked up")
     except FileNotFoundError:
         logging.error("Data file not found")
     except:
@@ -178,6 +177,10 @@ dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(filter_classes, class_select, pass_user_data=True))
 
 dispatcher.add_handler(MessageHandler(filter_fractions, fraction_select, pass_user_data=True))
+
+dispatcher.add_handler(MessageHandler(filter_sex_select, sex_select, pass_user_data=True))
+
+dispatcher.add_handler(MessageHandler(filter_nickname_select, nickname_select, pass_user_data=True))
 
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data=True))
 
