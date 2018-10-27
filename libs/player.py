@@ -1,5 +1,5 @@
 import math
-
+from work_materials.globals import dispatcher
 
 class Player:
 
@@ -10,6 +10,7 @@ class Player:
         self.username = username
         self.nickname = nickname
 
+        self.status = "Rest"
 
         self.sex = sex
         self.race = race
@@ -19,13 +20,21 @@ class Player:
         self.exp = 0
         self.lvl = 1
         self.free_points = 0
+        self.free_skill_points = 0 #TODO add to database
         self.fatigue = 0
+
+        self.first_skill_lvl = 1  # TODO add to database
+        self.second_skill_lvl = 1# TODO add to database
+        self.third_skill_lvl = 0# TODO add to database
+        self.fourth_skill_lvl = 0# TODO add to database
+        self.fifth_skill_lvl = 0# TODO add to database
 
         self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "mana_points" : 5,
                     "agility" : 5, }
 
         self.mana = self.stats["mana_points"] * 15
         self.hp = self.stats["endurance"] * 15
+        self.take_damage_by_armor = 0
 
         self.location = 0
 
@@ -41,8 +50,11 @@ class Player:
     def add_to_(self, list, item): # Добавление item в рюкзак list
         list.update([item.name, item.id])
 
+
     def lvl_up(self):
         self.lvl += 1
+        self.free_points += 5 #TODO balance
+        self.free_skill_points += 1
         self.stats["endurance"] += 1
         self.stats["power"] += 1
         self.stats["armor"] += 1
@@ -59,9 +71,8 @@ class Player:
         elif self.game_class == "Archer":
             self.stats["accuracy"] += 1
             self.stats["agility"] += 1
-        else:
-            a = None
-            # class name error
+        dispatcher.bot.sendmessage(chat_id = self.id, text = "LEVELUP!")
+        #TODO send message + choose_skill
 
     def lvl_check(self):
         if self.exp >= int(((self.lvl + 1) ** 4) * math.log(self.lvl + 1, math.e)):
