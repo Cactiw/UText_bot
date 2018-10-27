@@ -79,6 +79,8 @@ class Player:
     def change_location(self, location):
         a = None
 
+
+
     def add_to_database(self, conn, cursor):
         if self.sex == "Мужской":
             self.sex = 0
@@ -106,6 +108,8 @@ class Player:
                                                            self.on_character['mount'])
         cursor.execute(request)
         conn.commit()
-        row = cursor.fetchone()
-        if row is not None:
-            print(row)
+        request = "CREATE TABLE 'inv_{0}'".format(self.id)#TODO протестировать
+        cursor.execute(request)
+        conn.commit()
+
+

@@ -31,7 +31,13 @@ import work_materials.globals
 
 work_materials.globals.processing = 1
 
+players = {}
 
+def get_player(id):
+    player = players.get(id)
+    if player is not None:
+        return player
+    request = "SELECT "
 
 def text_message(bot, update, user_data):
     pass
@@ -55,6 +61,7 @@ loadData()
 #print(dispatcher.user_data)
 threading.Thread(target=saveData).start()
 updater.start_polling(clean=True)
+
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()
