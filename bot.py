@@ -34,7 +34,10 @@ work_materials.globals.processing = 1
 players = {}
 
 def get_player(id):
-    pass
+    player = players.get(id)
+    if player is not None:
+        return player
+    request = "SELECT "
 
 def text_message(bot, update, user_data):
     pass
@@ -93,6 +96,7 @@ def choose_skill(bot, update):
 def lvl_up_skill():
     pass #TODO
 
+
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data = True))
 
 dispatcher.add_handler(MessageHandler(filter_classes, class_select, pass_user_data = True))
@@ -104,7 +108,7 @@ dispatcher.add_handler(MessageHandler(filter_sex_select, sex_select, pass_user_d
 dispatcher.add_handler(MessageHandler(filter_nickname_select, nickname_select, pass_user_data = True))
 
 dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data = False))
-dispatcher.add_handler(MessageHandler(filter_lvl_up_skill, lvl_up_skill, pass_user_data = False))
+#dispatcher.add_handler(MessageHandler(filter_lvl_up_skill, lvl_up_skill, pass_user_data = False))
 
 #-------------------
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data = True))

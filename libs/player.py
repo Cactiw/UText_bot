@@ -117,6 +117,10 @@ class Player:
                                                            self.on_character['mount'])
         cursor.execute(request)
         conn.commit()
-        row = cursor.fetchone()
-        if row is not None:
-            print(row)
+        request = "CREATE TABLE inv_{0} (" \
+                  "item_id varchar(5)," \
+                  "quanty int(4)" \
+                  ");".format(self.id)  # TODO протестировать
+        cursor.execute(request)
+        conn.commit()
+
