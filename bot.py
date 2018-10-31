@@ -37,7 +37,10 @@ def get_player(id):
     player = players.get(id)
     if player is not None:
         return player
-    request = "SELECT "
+    player = Player(id, 0, 0, 0, 0, 0, 0)
+    if player.update_from_database(cursor) is None:
+        return None
+    return player
 
 def text_message(bot, update, user_data):
     pass
@@ -109,6 +112,7 @@ dispatcher.add_handler(MessageHandler(filter_nickname_select, nickname_select, p
 
 dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data = False))
 #dispatcher.add_handler(MessageHandler(filter_lvl_up_skill, lvl_up_skill, pass_user_data = False))
+
 
 #-------------------
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data = True))
