@@ -17,6 +17,8 @@ sys.path.append('../')
 import threading
 import time, pickle
 import MySQLdb
+import multiprocessing
+from multiprocessing import Process, Queue
 
 from libs import player, mage, warrior
 from work_materials.class_filters import *
@@ -34,6 +36,26 @@ import work_materials.globals
 work_materials.globals.processing = 1
 
 players = {}
+players_need_update = Queue()
+
+def players_update(q):
+    try:
+        data = q.get()
+        while data is not None:
+            data.update_to_database(conn, cursor)
+            data = q.get()
+        return
+    except KeyboardInterrupt:
+        if q.empty:
+            print("No users need to be updated, rerturn")
+            return
+        print("Writing all updated users to database, wait...")
+        data = q.get(timeout=0.1)
+        while data is not None:
+            data.update_to_database(conn, cursor)
+            data = q.get()
+        print("All users are in database and updated")
+        return
 
 def update_status(status, id, user_data):
     player = get_player(id)
@@ -70,6 +92,7 @@ def choose_points(bot, update, user_data):
             player.stats.get("mana_points")),
                          parse_mode = "HTML", reply_markup = ReplyKeyboardRemove())
         players.update({id: player})
+        players_need_update.put(player)
         update_status("Rest", id, user_data)
         return
 
@@ -113,6 +136,7 @@ def choose_points(bot, update, user_data):
                                                        player.stats.get("mana_points"), free_points),
                          parse_mode='HTML', reply_markup=buttons)
     players.update({id: player})
+    players_need_update.put(player)
 
 def lvl_up_points(bot, update, user_data):
     id = update.message.from_user.id
@@ -126,6 +150,7 @@ def lvl_up_points(bot, update, user_data):
         player.lvl_up_point(update.message.text)
         player.free_points -= 1
         players.update({id: player})
+        players_need_update.put(player)
         if(update.message.text == "Очки маны"):
             bot.send_message(chat_id=update.message.chat_id,
                              text="Увеличины <b>{0}</b>".format(update.message.text),
@@ -159,6 +184,7 @@ def choose_skill(bot, update, user_data): #Сюда игрок попадает 
         #user_data.update({"status": "Lvl_up_points"})
         update_status("Lvl_up_points", id, user_data)
         players.update({id: player})
+        players_need_update.put(player)
         choose_points(bot, update, user_data)
         return
 
@@ -201,6 +227,7 @@ def choose_skill(bot, update, user_data): #Сюда игрок попадает 
                                                                   player.fourth_skill_lvl, player.fifth_skill_lvl),
                         parse_mode='HTML', reply_markup = buttons)
     players.update({id: player})
+    players_need_update.put(player)
 
 def lvl_up_skill(bot, update, user_data):
     id = update.message.from_user.id
@@ -215,6 +242,7 @@ def lvl_up_skill(bot, update, user_data):
         player.lvl_up_skill(update.message.text)
         player.free_skill_points -= 1
         players.update({id : player})
+        players_need_update.put(player)
         bot.send_message(chat_id = update.message.chat_id, text = "Улучшен <b>{0}</b> скилл".format(update.message.text), parse_mode = 'HTML')
         choose_skill(bot, update, user_data)
 
@@ -276,8 +304,17 @@ loadData()
 threading.Thread(target=saveData).start()
 updater.start_polling(clean=False)
 
+#Запуск процесса обновления игроков в бд
+multiprocessing.log_to_stderr()
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+updating_to_database = Process(target = players_update, args = (players_need_update,))
+updating_to_database.start()
+
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()
 work_materials.globals.processing = 0
 # Разрываем подключение к базе данных
 conn.close()
+players_need_update.put(None)
+updating_to_database.join()

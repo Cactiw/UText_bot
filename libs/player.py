@@ -137,6 +137,27 @@ class Player:
                                  left_arm = row[27], right_arm = row[28], mount = row[29])
         return self
 
+    def update_to_database(self, conn, cursor):
+        request = "UPDATE PLAYERS SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
+                  "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', fatigue = '{10}', " \
+                  "endurance = '{11}', power = '{12}', armor = '{13}', mana_points = '{14}', agility = '{15}', " \
+                  "mana = '{16}', hp = '{17}', location = '{18}', gold = '{19}', metal = '{20}', wood = '{21}', " \
+                  "head = '{22}', body = '{23}', shoulders = '{24}', legs = '{25}', feet = '{26}', left_arm = '{27}', " \
+                  "right_arm = '{28}', mount = '{29}' WHERE id = '{30}'".format(self.id, self.username, self.nickname, self.sex,
+                                                           self.fraction, self.race, self.game_class, self.exp, self.lvl,
+                                                           self.free_points, self.fatigue, self.stats['endurance'],
+                                                           self.stats['power'], self.stats['armor'],
+                                                           self.stats['mana_points'], self.stats['agility'],
+                                                           self.mana, self.hp, self.location,
+                                                           self.resources['gold'], self.resources['metal'],
+                                                           self.resources['wood'], self.on_character['head'],
+                                                           self.on_character['body'], self.on_character['shoulders'],
+                                                           self.on_character['legs'], self.on_character['feet'],
+                                                           self.on_character['left_arm'], self.on_character['right_arm'],
+                                                           self.on_character['mount'], self.id)
+        cursor.execute(request)
+        conn.commit()
+
     def add_to_database(self, conn, cursor):
         if self.sex == "Мужской":
             self.sex = 0
