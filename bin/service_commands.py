@@ -7,14 +7,18 @@ def sql(bot, update, user_data):
     try:
         cursor.execute(request)
     except:
-        response = sys.exc_info()[0]
-        bot.send_message(chat_id = mes.from_user.id, text = response)
+        error = sys.exc_info()
+        response = ""
+        for i in range(0, len(error)):
+            response += str(sys.exc_info()[i]) + '\n'
+        bot.send_message(chat_id=mes.from_user.id, text=response)
+        return
     conn.commit()
     row = cursor.fetchone()
     response = ""
     while row:
         for i in range(0, len(row)):
-            response += str(row[i])
+            response += str(row[i]) + " "
         row = cursor.fetchone()
         response += "\n\n"
     bot.send_message(chat_id=mes.from_user.id, text=response)
