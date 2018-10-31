@@ -48,7 +48,7 @@ class Player:
         self.res_backpack = {}
 
     def add_to_(self, list, item): # Добавление item в рюкзак list
-        list.update([item.name, item.id])
+        list.update({item.name: item.id})
 
 
     def lvl_up(self):
