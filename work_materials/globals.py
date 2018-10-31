@@ -19,6 +19,7 @@ conn.set_character_set('utf8')
 print("Connection successful, starting bot")
 
 processing = 1
+admin_id_list = [231900398, 212657053]
 
 def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]

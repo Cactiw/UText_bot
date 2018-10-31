@@ -22,7 +22,9 @@ from libs import player, mage, warrior
 from work_materials.class_filters import *
 from work_materials.fraction_filters import *
 from work_materials.other_initiate_filters import *
+from work_materials.service_filters import *
 
+from bin.service_commands import *
 from bin.starting_player import *
 from bin.save_load_user_data import *
 
@@ -239,7 +241,7 @@ dispatcher.add_handler(MessageHandler(filter_lvl_up_skill, lvl_up_skill, pass_us
 dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
-
+dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
 
 #-------------------
 
