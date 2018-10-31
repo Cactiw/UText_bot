@@ -41,7 +41,6 @@ def update_status(status, id, user_data):
     players.update({id: player})
     user_data.update({"status": status})
 
-
 def get_player(id):
     player = players.get(id)
     if player is not None:
@@ -51,7 +50,6 @@ def get_player(id):
         return None
     players.update({player.id : player})
     return player
-
 
 def choose_points(bot, update, user_data):
     id = update.message.from_user.id
@@ -116,7 +114,6 @@ def choose_points(bot, update, user_data):
                          parse_mode='HTML', reply_markup=buttons)
     players.update({id: player})
 
-
 def lvl_up_points(bot, update, user_data):
     id = update.message.from_user.id
     player = get_player(id)
@@ -138,7 +135,6 @@ def lvl_up_points(bot, update, user_data):
                              text="Улучшена <b>{0}</b>".format(update.message.text),
                              parse_mode='HTML')
         choose_points(bot, update, user_data)
-
 
 def choose_skill(bot, update, user_data): #Сюда игрок попадает при нажатии /lvl_up, ему предлагается выбрать скилл, который он хочет вкачать
     id = update.message.from_user.id
@@ -206,7 +202,6 @@ def choose_skill(bot, update, user_data): #Сюда игрок попадает 
                         parse_mode='HTML', reply_markup = buttons)
     players.update({id: player})
 
-
 def lvl_up_skill(bot, update, user_data):
     id = update.message.from_user.id
     player = get_player(id)
@@ -223,10 +218,32 @@ def lvl_up_skill(bot, update, user_data):
         bot.send_message(chat_id = update.message.chat_id, text = "Улучшен <b>{0}</b> скилл".format(update.message.text), parse_mode = 'HTML')
         choose_skill(bot, update, user_data)
 
-
+def print_player(bot, update, user_data):
+    id = update.message.from_user.id
+    player = get_player(id)
+    if(player is None):
+        return
+    bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nClass - <b>{4}</b>"
+                                                          "\n\nStatus - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
+                                                          "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
+                                                          "Первый навык - <b>{11}</b>-го уровня\nВторой навык - <b>{12}</b>-го уровня"
+                                                          "\nТретий навык - <b>{13}</b>-го уровня\n"
+                                                          "Четвертый навык - <b>{14}</b>-го уровня\n"
+                                                          "Пятый навык - <b>{15}</b>-го уровня\n\nВыносливость - <b>{16}</b>\n"
+                                                          "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nЛовкость - <b>{19}</b>\n"
+                                                          "Очки маны - <b>{20}</b>".format(
+        player.nickname, player.sex, player.race, player.fraction, 
+        player.game_class, player.status, player.exp, player.lvl, 
+        player.free_points, player.free_skill_points, player.fatigue, 
+        player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl, 
+        player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"], 
+        player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["mana_points"]),
+        parse_mode="HTML")
 
 
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data = True))
+
+dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data = True))
 
 dispatcher.add_handler(MessageHandler(filter_classes, class_select, pass_user_data = True))
 
@@ -242,6 +259,7 @@ dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_
 dispatcher.add_handler(MessageHandler(filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
+
 
 #-------------------
 
