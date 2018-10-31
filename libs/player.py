@@ -89,6 +89,37 @@ class Player:
 
     def change_location(self, location):
         a = None
+        
+    def update_from_database(self, cursor):
+        request = "SELECT id, username, nickname, sex, fraction, race, game_class," \
+                  " exp, lvl, free_points, fatigue, endurance, power, armor, mana_points, agility, mana, hp," \
+                  " location, gold, metal, wood, " \
+                  "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM PLAYERS WHERE id = {0}".format(self.id)
+        cursor.execute(request)
+        row = cursor.fetchone()
+        print(row)
+        if row is None:
+            return None
+        self.id = row[0]
+        self.username = row[1]
+        self.nickname = row[2]
+        self.sex = row[3]
+        self.fraction = row[4]
+        self.race = row[5]
+        self.game_class = row[6]
+        self.exp = row[7]
+        self.lvl = row[8]
+        self.free_points = row[9]
+        self.fatigue = row[10]
+        self.stats.update(endurance = row[11], power = row[12], armor = row[13], mana_points = row[14], agility = row[15])
+        self.mana = row[16]
+        self.hp = row[17]
+        self.location = row[18]
+        self.resources.update(gold = row[19], metal = row[20], wood = row[21])
+
+        self.on_character.update(head = row[22], body = row[23], shoulders = row[24], legs = row[25], feet = row[26],
+                                 left_arm = row[27], right_arm = row[28], mount = row[29])
+        return self
 
     def add_to_database(self, conn, cursor):
         if self.sex == "Мужской":
@@ -96,7 +127,7 @@ class Player:
         else:
             self.sex = 1
 
-        request = "INSERT INTO PLAYERS(id, username, nickname, sex, fraction, race, class," \
+        request = "INSERT INTO PLAYERS(id, username, nickname, sex, fraction, race, game_class," \
                   " exp, lvl, free_points, fatigue, endurance, power, armor, mana_points, agility, mana, hp," \
                   " location, gold, metal, wood, " \
                   "head, body, shoulders, legs, feet, left_arm, right_arm, mount)" \
