@@ -19,7 +19,7 @@ class Player:
 
         self.exp = 0
         self.lvl = 1
-        self.free_points = 0
+        self.free_points = 5
         self.free_skill_points = 2 #TODO add to database
         self.fatigue = 0
 
@@ -49,6 +49,23 @@ class Player:
 
     def add_to_(self, list, item): # Добавление item в рюкзак list
         list.update({item.name: item.id})
+
+
+    def lvl_up_skill(self, skill_number):
+        if(skill_number == '1'): self.first_skill_lvl += 1
+        elif(skill_number == "2"): self.second_skill_lvl += 1
+        elif(skill_number == "3"): self.third_skill_lvl += 1
+        elif(skill_number == "4"): self.fourth_skill_lvl += 1
+        elif(skill_number == "5"): self.fifth_skill_lvl += 1
+        else: return None
+
+    def lvl_up_point(self, stat):
+        if(stat == "Выносливость"): self.stats["endurance"] += 1
+        elif(stat == "Броня"): self.stats["armor"] += 1
+        elif(stat == "Сила"): self.stats["power"] += 1
+        elif(stat == "Ловкость"): self.stats["agility"] += 1
+        elif(stat == "Очки маны"): self.stats["mana_points"] += 1
+        else: return None
 
 
     def lvl_up(self):

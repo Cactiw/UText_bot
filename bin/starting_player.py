@@ -87,4 +87,5 @@ def nickname_select(bot, update, user_data):
                      text="Вы выбрали имя <b>{0}</b>\n"
                           "И можете приступить к игре!".format(user_data.get('username')),
                      parse_mode='HTML')
+
     print(user_data)
