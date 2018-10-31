@@ -52,7 +52,7 @@ def choose_skill(bot, update):
         return
     free_skill = player.free_skill_points
     if free_skill == 0:
-        bot.sendmessage(chat_id = update.message.chat_id, text = "У вас нет очков навыков")
+        bot.send_message(chat_id = update.message.chat_id, text = "У вас нет очков навыков")
         return
 
     player.status = "Lvl_up_skill"
@@ -67,32 +67,33 @@ def choose_skill(bot, update):
     buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True, one_time_keyboard = True)
 
     if free_skill == 1:
-        bot.sendmessage(chat_id=update.message.chat_id,
+        bot.send_message(chat_id=update.message.chat_id,
                         text = "Вы можете улучшить <b>1</b> навык\nВыберите навык, который хотите улучшить\n"
                                "Первый навык - {0}-го уровня\nВторой навык - {1}-го уровня\n"
                                "Третий навык - {2}-го уровня\nЧетвертый навык - {3}-го уровня\n"
                                "Пятый навык - {4}-го уровня".format(player.first_skill_lvl, player.second_skill_lvl,
                                                                     player.third_skill_lvl, player.fourth_skill_lvl,
-                                                                    player.fifth),
+                                                                    player.fifth_skill_lvl),
                         parse_mode = 'HTML', reply_markup = buttons)
 
+
     elif free_skill >= 2 and free_skill <= 4:
-        bot.sendmessage(chat_id=update.message.chat_id,
+        bot.send_message(chat_id=update.message.chat_id,
                         text="Вы можете улучшить <b>{0}</b> навыкa\nВыберите навык, который хотите улучшить\n"
                              "Первый навык - {1}-го уровня\nВторой навык - {2}-го уровня\n"
                              "Третий навык - {3}-го уровня\nЧетвертый навык - {4}-го уровня\n"
                              "Пятый навык - {5}-го уровня".format(free_skill, player.first_skill_lvl,
                                                                   player.second_skill_lvl, player.third_skill_lvl,
-                                                                  player.fourth_skill_lvl, player.fifth),
+                                                                  player.fourth_skill_lvl, player.fifth_skill_lvl),
                         parse_mode='HTML', reply_markup = buttons)
     elif free_skill >= 5:
-        bot.sendmessage(chat_id=update.message.chat_id,
+        bot.send_message(chat_id=update.message.chat_id,
                         text="Вы можете улучшить <b>{0}</b> навыков\nВыберите навык, который хотите улучшить\n"
                              "Первый навык - {1}-го уровня\nВторой навык - {2}-го уровня\n"
                              "Третий навык - {3}-го уровня\nЧетвертый навык - {4}-го уровня\n"
                              "Пятый навык - {5}-го уровня".format(free_skill, player.first_skill_lvl,
                                                                   player.second_skill_lvl, player.third_skill_lvl,
-                                                                  player.fourth_skill_lvl, player.fifth),
+                                                                  player.fourth_skill_lvl, player.fifth_skill_lvl),
                         parse_mode='HTML', reply_markup = buttons)
 
 
@@ -122,7 +123,7 @@ dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data
 loadData()
 #print(dispatcher.user_data)
 threading.Thread(target=saveData).start()
-updater.start_polling(clean=True)
+updater.start_polling(clean=False)
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()

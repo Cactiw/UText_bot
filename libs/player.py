@@ -20,7 +20,7 @@ class Player:
         self.exp = 0
         self.lvl = 1
         self.free_points = 0
-        self.free_skill_points = 0 #TODO add to database
+        self.free_skill_points = 2 #TODO add to database
         self.fatigue = 0
 
         self.first_skill_lvl = 1  # TODO add to database
