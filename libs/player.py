@@ -48,7 +48,7 @@ class Player:
         self.res_backpack = {}
 
     def add_to_(self, list, item): # Добавление item в рюкзак list
-        list.update([item.name, item.id])
+        list.update({item.name: item.id})
 
 
     def lvl_up(self):
@@ -65,13 +65,13 @@ class Player:
         if self.game_class == "Warrior":
             self.stats["power"] += 1
             self.stats["armor"] += 1
-        elif self.game_class == "Mage" or self.game_class == "Cliric":
+        elif self.game_class == "Mage" or self.game_class == "Cleric":
             self.stats["intelligence"] += 1
             self.stats["mana_points"] += 1
         elif self.game_class == "Archer":
             self.stats["accuracy"] += 1
             self.stats["agility"] += 1
-        dispatcher.bot.sendmessage(chat_id = self.id, text = "LEVELUP!")
+        dispatcher.bot.send_message(chat_id = self.id, text = "LEVELUP!\nUse /lvl_up to choose a skill to upgrade")
         #TODO send message + choose_skill
 
     def lvl_check(self):
@@ -97,7 +97,6 @@ class Player:
                   "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM PLAYERS WHERE id = {0}".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()
-        print(row)
         if row is None:
             return None
         self.id = row[0]
