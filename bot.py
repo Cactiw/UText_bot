@@ -20,7 +20,7 @@ import MySQLdb
 import multiprocessing
 from multiprocessing import Process, Queue
 
-from libs import player, mage, warrior
+from libs import player
 from work_materials.class_filters import *
 from work_materials.fraction_filters import *
 from work_materials.other_initiate_filters import *
@@ -50,10 +50,9 @@ def players_update(q):
             print("No users need to be updated, rerturn")
             return
         print("Writing all updated users to database, wait...")
-        data = q.get(timeout=0.1)
-        while data is not None:
-            data.update_to_database(conn, cursor)
+        while not q.empty():
             data = q.get()
+            data.update_to_database(conn, cursor)
         print("All users are in database and updated")
         return
 
@@ -273,18 +272,18 @@ dispatcher.add_handler(CommandHandler("start", start, pass_user_data = True))
 
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data = True))
 
-dispatcher.add_handler(MessageHandler(filter_classes, class_select, pass_user_data = True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_select, pass_user_data = True))
 
-dispatcher.add_handler(MessageHandler(filter_fractions, fraction_select, pass_user_data = True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fraction_select, pass_user_data = True))
 
-dispatcher.add_handler(MessageHandler(filter_sex_select, sex_select, pass_user_data = True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data = True))
 
-dispatcher.add_handler(MessageHandler(filter_nickname_select, nickname_select, pass_user_data = True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data = True))
 
 dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data = True))
-dispatcher.add_handler(MessageHandler(filter_lvl_up_skill, lvl_up_skill, pass_user_data = True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data = True))
 dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(filter_lvl_up_points, lvl_up_points, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
 
