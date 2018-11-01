@@ -47,7 +47,7 @@ def players_update(q):
         return
     except KeyboardInterrupt:
         if q.empty:
-            print("No users need to be updated, rerturn")
+            print("No users need to be updated, return")
             return
         print("Writing all updated users to database, wait...")
         while not q.empty():
@@ -127,7 +127,7 @@ def choose_points(bot, update, user_data):
                          parse_mode='HTML', reply_markup=buttons)
     elif free_points >= 5:
         bot.send_message(chat_id=update.message.chat_id,
-                         text="Вы можете улучшить <b>{5}</b> характеристику\n\nВыберите характеристику, которую хотите улучшить\n"
+                         text="Вы можете улучшить <b>{5}</b> характеристик\n\nВыберите характеристику, которую хотите улучшить\n"
                               "Выносливость - <b>{0}</b>\nБроня - <b>{1}</b>\n"
                               "Сила - <b>{2}</b>\nЛовкость - <b>{3}</b>\n"
                               "Очки маны - <b>{4}</b>".format(player.stats.get("endurance"), player.stats.get("armor"),
@@ -307,6 +307,7 @@ updater.start_polling(clean=False)
 multiprocessing.log_to_stderr()
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
+
 updating_to_database = Process(target = players_update, args = (players_need_update,))
 updating_to_database.start()
 
