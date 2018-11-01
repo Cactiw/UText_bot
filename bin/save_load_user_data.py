@@ -14,14 +14,25 @@ def loadData():
 
 def saveData():
     global processing
-    while work_materials.globals.processing:
-        time.sleep(30)
-        # Before pickling
+    try:
+        while True:
+            time.sleep(30)
+            # Before pickling
+            print("Writing data, do not shutdown bot...")
+            try:
+                f = open('backup/userdata', 'wb+')
+                pickle.dump(work_materials.globals.dispatcher.user_data, f)
+                f.close()
+                print("Data write completed")
+            except:
+                work_materials.globals.logging.error(work_materials.globals.sys.exc_info()[0])
+    except KeyboardInterrupt:
         print("Writing data, do not shutdown bot...")
         try:
             f = open('backup/userdata', 'wb+')
             pickle.dump(work_materials.globals.dispatcher.user_data, f)
             f.close()
-            print("Completed")
+            print("Data write completed")
         except:
             work_materials.globals.logging.error(work_materials.globals.sys.exc_info()[0])
+        return

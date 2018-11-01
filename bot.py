@@ -10,10 +10,7 @@ from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
 
 import logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
-
 import sys
-sys.path.append('../')
 import threading
 import time, pickle
 import MySQLdb
@@ -32,8 +29,13 @@ from bin.save_load_user_data import *
 
 import work_materials.globals
 
+sys.path.append('../')
 
-work_materials.globals.processing = 1
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
+#Подключение логгирования процессов
+multiprocessing.log_to_stderr()
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
 
 players = {}
 players_need_update = Queue()
@@ -300,21 +302,24 @@ dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data
 
 loadData()
 #print(dispatcher.user_data)
-threading.Thread(target=saveData).start()
+#threading.Thread(target=saveData).start()
+saving_data = Process(target = saveData, name = "Writing user data to disk").start()
 updater.start_polling(clean=False)
 
 #Запуск процесса обновления игроков в бд
-multiprocessing.log_to_stderr()
-logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
 
-updating_to_database = Process(target = players_update, args = (players_need_update,))
-updating_to_database.start()
+updating_to_database = Process(target = players_update, args = (players_need_update,), name = "Database_cloud_updating").start()
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()
-work_materials.globals.processing = 0
 # Разрываем подключение к базе данных
 conn.close()
 players_need_update.put(None)
-updating_to_database.join()
+try:
+    saving_data.join()
+except:
+    pass
+try:
+    updating_to_database.join()
+except:
+    pass

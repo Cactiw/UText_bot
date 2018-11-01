@@ -18,7 +18,6 @@ conn.set_character_set('utf8')
 # cursor.execute('SET character_set_connection=utf8mb4;')
 print("Connection successful, starting bot")
 
-processing = 1
 admin_id_list = [231900398, 212657053]
 
 def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
