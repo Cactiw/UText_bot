@@ -80,7 +80,7 @@ def sex_select(bot, update, user_data):
 
 def nickname_select(bot, update, user_data):
     user_data.update(username=update.message.text, type=6)
-    player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'), #TODO create class
+    player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
                     user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
     player.add_to_database(conn, cursor)
     bot.send_message(chat_id=update.message.chat_id,

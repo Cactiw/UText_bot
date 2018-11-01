@@ -20,14 +20,14 @@ class Player:
         self.exp = 0
         self.lvl = 1
         self.free_points = 5
-        self.free_skill_points = 2 #TODO add to database
+        self.free_skill_points = 2
         self.fatigue = 0
 
-        self.first_skill_lvl = 1  # TODO add to database
-        self.second_skill_lvl = 1# TODO add to database
-        self.third_skill_lvl = 0# TODO add to database
-        self.fourth_skill_lvl = 0# TODO add to database
-        self.fifth_skill_lvl = 0# TODO add to database
+        self.first_skill_lvl = 1
+        self.second_skill_lvl = 1
+        self.third_skill_lvl = 0
+        self.fourth_skill_lvl = 0
+        self.fifth_skill_lvl = 0
 
         self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "mana_points" : 5,
                     "agility" : 5, }
@@ -109,7 +109,8 @@ class Player:
         
     def update_from_database(self, cursor):
         request = "SELECT id, username, nickname, sex, fraction, race, game_class," \
-                  " exp, lvl, free_points, fatigue, endurance, power, armor, mana_points, agility, mana, hp," \
+                  " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
+                  "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, mana_points, agility, mana, hp," \
                   " location, gold, metal, wood, " \
                   "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM PLAYERS WHERE id = {0}".format(self.id)
         cursor.execute(request)
@@ -126,26 +127,35 @@ class Player:
         self.exp = row[7]
         self.lvl = row[8]
         self.free_points = row[9]
-        self.fatigue = row[10]
-        self.stats.update(endurance = row[11], power = row[12], armor = row[13], mana_points = row[14], agility = row[15])
-        self.mana = row[16]
-        self.hp = row[17]
-        self.location = row[18]
-        self.resources.update(gold = row[19], metal = row[20], wood = row[21])
+        self.free_skill_points = row[10]
+        self.fatigue = row[11]
+        self.first_skill_lvl = row[12]
+        self.second_skill_lvl = row[13]
+        self.third_skill_lvl = row[14]
+        self.fourth_skill_lvl = row[15]
+        self.fifth_skill_lvl = row[16]
+        self.stats.update(endurance = row[17], power = row[18], armor = row[19], mana_points = row[20], agility = row[21])
+        self.mana = row[22]
+        self.hp = row[23]
+        self.location = row[24]
+        self.resources.update(gold = row[25], metal = row[26], wood = row[27])
 
-        self.on_character.update(head = row[22], body = row[23], shoulders = row[24], legs = row[25], feet = row[26],
-                                 left_arm = row[27], right_arm = row[28], mount = row[29])
+        self.on_character.update(head = row[28], body = row[29], shoulders = row[30], legs = row[31], feet = row[32],
+                                 left_arm = row[33], right_arm = row[34], mount = row[35])
         return self
 
     def update_to_database(self, conn, cursor):
         request = "UPDATE PLAYERS SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
-                  "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', fatigue = '{10}', " \
-                  "endurance = '{11}', power = '{12}', armor = '{13}', mana_points = '{14}', agility = '{15}', " \
-                  "mana = '{16}', hp = '{17}', location = '{18}', gold = '{19}', metal = '{20}', wood = '{21}', " \
-                  "head = '{22}', body = '{23}', shoulders = '{24}', legs = '{25}', feet = '{26}', left_arm = '{27}', " \
-                  "right_arm = '{28}', mount = '{29}' WHERE id = '{30}'".format(self.id, self.username, self.nickname, self.sex,
+                  "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', free_skill_points = '{10}', fatigue = '{11}', " \
+                  "first_skill_lvl = '{12}', second_skill_lvl = '{13}', third_skill_lvl = '{14}', fourth_skill_lvl = '{15}', " \
+                  "fifth_skill_lvl = '{16}', endurance = '{17}', power = '{18}', armor = '{19}', mana_points = '{20}', agility = '{21}', " \
+                  "mana = '{22}', hp = '{23}', location = '{24}', gold = '{25}', metal = '{26}', wood = '{27}', " \
+                  "head = '{28}', body = '{29}', shoulders = '{30}', legs = '{31}', feet = '{32}', left_arm = '{33}', " \
+                  "right_arm = '{34}', mount = '{35}' WHERE id = '{36}'".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.fatigue, self.stats['endurance'],
+                                                           self.free_points, self.free_skill_points, self.fatigue,
+                                                           self.first_skill_lvl,self.second_skill_lvl, self.third_skill_lvl,
+                                                           self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['mana_points'], self.stats['agility'],
                                                            self.mana, self.hp, self.location,
@@ -165,15 +175,17 @@ class Player:
             self.sex = 1
 
         request = "INSERT INTO PLAYERS(id, username, nickname, sex, fraction, race, game_class," \
-                  " exp, lvl, free_points, fatigue, endurance, power, armor, mana_points, agility, mana, hp," \
+                  " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
+                  "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, mana_points, agility, mana, hp," \
                   " location, gold, metal, wood, " \
                   "head, body, shoulders, legs, feet, left_arm, right_arm, mount)" \
                   " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', " \
                   "'{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}'," \
                   "'{16}', '{17}','{18}','{19}', '{20}', '{21}', '{22}', '{23}', '{24}'," \
-                  "'{25}', '{26}', '{27}', '{28}', '{29}')".format(self.id, self.username, self.nickname, self.sex,
+                  "'{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}', '{33}', '{34}', '{35}')".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.fatigue, self.stats['endurance'],
+                                                           self.free_points, self.free_skill_points, self.fatigue, self.first_skill_lvl,
+                                                           self.second_skill_lvl, self.third_skill_lvl, self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['mana_points'], self.stats['agility'],
                                                            self.mana, self.hp, self.location,
@@ -188,7 +200,7 @@ class Player:
         request = "CREATE TABLE inv_{0} (" \
                   "item_id varchar(5)," \
                   "quanty int(4)" \
-                  ");".format(self.id)  # TODO протестировать
+                  ");".format(self.id)
         cursor.execute(request)
         conn.commit()
 

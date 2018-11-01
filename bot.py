@@ -291,7 +291,7 @@ dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters =
 #-------------------
 
 def text_message(bot, update, user_data):
-    print(user_data)
+    #print(user_data)
     bot.send_message(chat_id=update.message.chat_id, text = "Некорректный ввод")
 
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data = True))
