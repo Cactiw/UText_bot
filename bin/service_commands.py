@@ -15,7 +15,7 @@ def sql(bot, update, user_data):
         return
     conn.commit()
     row = cursor.fetchone()
-    response = ""
+    response = "Что-то пошло не так в базе данных"
     while row:
         for i in range(0, len(row)):
             response += str(row[i]) + " "
