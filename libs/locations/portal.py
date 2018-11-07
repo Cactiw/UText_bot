@@ -8,3 +8,4 @@ class Portal(Location):
 		self.avaliable = 0
 
 portal = Portal(1, "Портал", None)
+portal.roads = [2, 3, 4]

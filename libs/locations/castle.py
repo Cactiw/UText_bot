@@ -8,5 +8,8 @@ class Castle(Location):
 
 
 human_castle = Castle(2, "Замок людей", "humans")
+human_castle.roads = [1, 11, 13, 5, 6]
 elf_castle = Castle(3, "Замок эльфов", "elves")
+elf_castle.roads = [1, 11, 12, 7, 8]
 orc_castle = Castle(4, "Замок орков", "orcs")
+orc_castle.roads = [1, 12, 13, 9, 10]
