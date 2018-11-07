@@ -38,6 +38,14 @@ class Player:
         self.take_damage_by_armor = 0
 
         self.location = 0
+        if fraction == "Люди":
+            self.location = 14
+        elif fraction == "Эльфы":
+            self.location = 15
+        elif fraction == "Орки":
+            self.location = 16
+        else:
+            print("INCORRECT FRACTION, player.py in init\n")
 
         self.resources = {"gold" : 0, "metal" : 0, "wood" : 0}
 
@@ -144,7 +152,7 @@ class Player:
         self.on_character[equipment.place] = None
 
     def change_location(self, location):
-        pass
+        self.location = location
         
     def update_from_database(self, cursor):
         request = "SELECT id, username, nickname, sex, fraction, race, game_class," \

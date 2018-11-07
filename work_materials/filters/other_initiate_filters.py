@@ -2,7 +2,6 @@ from telegram.ext import BaseFilter
 from work_materials.globals import *
 
 
-
 class Filter_Sex_Select(BaseFilter):
     def filter(self, message):
         return dispatcher.user_data[message.from_user.id].get('type') == 4
