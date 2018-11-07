@@ -1,11 +1,15 @@
 from libs.locations.location import *
 
+
 class Resource_Loc(Location):
 
-	def __init__(self, id, name, fraction):
-		super(Resource_Loc, self).__init__(id, name)
-		self.type = None
-		self.fraction = fraction #фракция, которая контроллирует точку
+    def __init__(self, id, name, fraction):
+        super(Resource_Loc, self).__init__(id, name)
+        self.type = None
+        self.fraction = fraction #фракция, которая контроллирует точку
+
+    def change_fraction(self, new_fraction):
+        self.fraction = new_fraction
 
 
 resources_btw_HE = Resource_Loc(11, "Ресурсы между людьми и эльфами", None)

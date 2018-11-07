@@ -1,10 +1,14 @@
 from libs.locations.location import *
 
+
 class Castle(Location):
 
-	def __init__(self, id, name, fraction):
-		super(Castle, self).__init__(id, name)
-		self.fraction = fraction  #фракция, которая контроллирует точку
+    def __init__(self, id, name, fraction):
+        super(Castle, self).__init__(id, name)
+        self.fraction = fraction  #фракция, которая контроллирует точку
+
+    def change_fraction(self, new_fraction):
+        self.fraction = new_fraction
 
 
 human_castle = Castle(2, "Замок людей", "humans")

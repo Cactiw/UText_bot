@@ -69,7 +69,6 @@ class Player:
         print("Item quanty edited in database")
         return 0
 
-
     def remove_item(self, list, item, count):
         quanty = list.get(item.id)
         if quanty is None:
@@ -91,8 +90,6 @@ class Player:
         conn.commit()
         return 0
 
-
-
     def lvl_up_skill(self, skill_number):
         if(skill_number == '1'): self.first_skill_lvl += 1
         elif(skill_number == "2"): self.second_skill_lvl += 1
@@ -109,7 +106,7 @@ class Player:
         elif(stat == "Очки маны"): self.stats["mana_points"] += 1
         else: return None
 
-
+    @staticmethod
     def lvl_up(self):
         self.lvl += 1
         self.free_points += 5 #TODO balance
@@ -135,7 +132,7 @@ class Player:
 
     def lvl_check(self):
         if self.lvl < 50 and self.exp >= int(((self.lvl + 1) ** 3) * math.log(self.lvl + 1, math.e)):
-            self.lvl_up()
+            self.lvl_up(self)
 
     def equip(self, equipment): # Надевание предмета
         if self.on_character[equipment.place] != None:
@@ -147,7 +144,7 @@ class Player:
         self.on_character[equipment.place] = None
 
     def change_location(self, location):
-        a = None
+        pass
         
     def update_from_database(self, cursor):
         request = "SELECT id, username, nickname, sex, fraction, race, game_class," \
