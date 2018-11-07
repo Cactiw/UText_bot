@@ -10,12 +10,14 @@ def start(bot, update, user_data):
     if row is not None:
         bot.send_message(chat_id=update.message.chat_id, text="Вы уже в игре!")
         return
-
+    user_data.clear()
+    user_data.update(type = 1)
     button_list = [
         KeyboardButton("Люди"),
         KeyboardButton("Орки"),
         KeyboardButton("Эльфы")
     ]
+    print(user_data)
     reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3), resize_keyboard=True)
     bot.send_message(chat_id=update.message.chat_id, text="Выберите фракцию, за которую вы будете сражаться!", reply_markup = reply_markup)
     return

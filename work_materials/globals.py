@@ -20,6 +20,8 @@ print("Connection successful, starting bot")
 
 admin_id_list = [231900398, 212657053]
 
+processing = 1
+
 def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
     menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
     if header_buttons:

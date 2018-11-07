@@ -1,5 +1,6 @@
 import math
-from work_materials.globals import dispatcher
+from work_materials.globals import dispatcher, cursor, conn
+from libs.item import *
 
 class Player:
 
@@ -47,8 +48,49 @@ class Player:
         self.al_backpack = {}
         self.res_backpack = {}
 
-    def add_to_(self, list, item): # Добавление item в рюкзак list
-        list.update({item.name: item.id})
+    def add_item(self, list, item, count): # Добавление item в рюкзак list  #TODO Сделать проверку на существование такого предмета
+        quanty = list.get(item.id)
+        if quanty is None:
+            quanty = int(count)
+            list.update({item.id: quanty})
+            print(list)
+            request = "INSERT INTO inv_{0}(type, id, quanty) VALUES('{1}', '{2}', '{3}')".format(self.id, item.type,
+                                                                                                 item.id, quanty)
+            cursor.execute(request)
+            conn.commit()
+            print("Item added to database")
+            return
+        quanty += int(count)
+        list.update({item.id: quanty})
+        print(list)
+        request = "UPDATE inv_{0} SET type = '{1}', quanty = '{3}' WHERE id = '{2}'".format(self.id, item.type, item.id, quanty)
+        cursor.execute(request)
+        conn.commit()
+        print("Item quanty edited in database")
+        return 0
+
+
+    def remove_item(self, list, item, count):
+        quanty = list.get(item.id)
+        if quanty is None:
+            return -1
+        if quanty < count:
+            return 1
+        if quanty == count:
+            list.pop(item.id)
+            request = "DELETE FROM inv_{0} WHERE id = '{1}'".format(self.id, item.id)
+            cursor.execute(request)
+            conn.commit()
+            return 0
+        quanty -= int(count)
+        list.update({item.id: quanty})
+        print(list)
+        request = "UPDATE inv_{0} SET type = '{1}', quanty = '{3}' WHERE id = '{2}'".format(self.id, item.type, item.id,
+                                                                                       quanty)
+        cursor.execute(request)
+        conn.commit()
+        return 0
+
 
 
     def lvl_up_skill(self, skill_number):
@@ -97,11 +139,11 @@ class Player:
 
     def equip(self, equipment): # Надевание предмета
         if self.on_character[equipment.place] != None:
-            self.add_to_(self.eq_backpack, equipment)
+            self.add_item(self.eq_backpack, equipment)
         self.on_character[equipment.place] = equipment.id
 
     def unequip(self, equipment): # Снятие предмета
-        self.add_to_(self.eq_backpack, equipment)
+        self.add_item(self.eq_backpack, equipment)
         self.on_character[equipment.place] = None
 
     def change_location(self, location):
@@ -142,6 +184,20 @@ class Player:
 
         self.on_character.update(head = row[28], body = row[29], shoulders = row[30], legs = row[31], feet = row[32],
                                  left_arm = row[33], right_arm = row[34], mount = row[35])
+        request = "SELECT * FROM inv_{0}".format(self.id)
+        cursor.execute(request)
+        row = cursor.fetchone()
+        while row:
+            type = row[0]
+            id = row[1]
+            quanty = row[2]
+            if type == "a":
+                self.al_backpack.update({id: quanty})
+            elif type == "r":
+                self.res_backpack.update({id: quanty})
+            else:
+                self.eq_backpack.update({id: quanty})
+            row = cursor.fetchone()
         return self
 
     def update_to_database(self, conn, cursor):
@@ -198,9 +254,9 @@ class Player:
         cursor.execute(request)
         conn.commit()
         request = "CREATE TABLE inv_{0} (" \
-                  "item_id varchar(5)," \
+                  "type varchar(2)," \
+                  "id int(4)," \
                   "quanty int(4)" \
-                  ");".format(self.id)
+                  ");".format(self.id) #TODO сделать ключ к таблице с экипировкой
         cursor.execute(request)
         conn.commit()
-

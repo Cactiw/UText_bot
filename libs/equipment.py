@@ -1,7 +1,9 @@
-class Equipment:
+from libs.item import *
 
-    def __init__(self, id, name,  place, endurance, power, armor, intelligence, accuracy, agility):
-        self.id = id
+class Equipment(Item):
+
+    def __init__(self, type, id, name,  place, endurance, power, armor, intelligence, accuracy, agility):
+        super(Equipment, self).__init__(type, id)
         self.name = name
         self.place = place
         self.endurance = endurance
@@ -10,4 +12,3 @@ class Equipment:
         self.intelligence = intelligence
         self.accuracy = accuracy
         self.agility = agility
-
