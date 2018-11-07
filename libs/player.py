@@ -134,7 +134,7 @@ class Player:
         #TODO send message + choose_skill
 
     def lvl_check(self):
-        if self.exp >= int(((self.lvl + 1) ** 4) * math.log(self.lvl + 1, math.e)):
+        if self.lvl < 50 and self.exp >= int(((self.lvl + 1) ** 3) * math.log(self.lvl + 1, math.e)):
             self.lvl_up()
 
     def equip(self, equipment): # Надевание предмета
