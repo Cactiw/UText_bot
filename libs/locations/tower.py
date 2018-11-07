@@ -18,4 +18,4 @@ elf_north_tower.roads = [12, 3, 7, 18]
 orcs_south_tower = Tower(9, "Южная башня орков", "orcs")
 orcs_south_tower.roads = [13, 4, 10, 19]
 orcs_north_tower = Tower(10, "Северная башня орков", "orcs")
-orcs_north_tower.roads = [13, 4, 9, 19]
+orcs_north_tower.roads = [12, 4, 9, 19]
