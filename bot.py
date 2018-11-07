@@ -122,10 +122,14 @@ def travel(bot, update, user_data):
     #через show_general_buttons и их обработку через bot.py
 
 
-
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data = True))
 
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data = True))
+
+dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data = True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data = True))
+dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 #Фильтры для главных кнопок на локациях
 dispatcher.add_handler(MessageHandler(Filters.text and capital_location_filter, show_general_buttons, pass_user_data=True))
@@ -146,11 +150,6 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fractio
 dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data = True))
 
 dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data = True))
-
-dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data = True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data = True))
-dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
