@@ -94,6 +94,7 @@ def nickname_select(bot, update, user_data):
     player.status = 'In capital'  #TODO сделать статус "starting" и сделать начальный квест
     user_data.update({'status': 'In Capital'})
     print("status = {0}".format(user_data.get('status')))
+    user_data.update({'location': 'In Capital'})
     show_general_buttons(bot, update, user_data)  #Проверить, что работает
     player.add_to_database(conn, cursor)
     bot.send_message(chat_id=update.message.chat_id,
