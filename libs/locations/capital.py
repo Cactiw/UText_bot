@@ -42,9 +42,9 @@ class Capital(Location):
 
 
 human_capital = Capital(14, "Столица людей")
-human_capital.roads = [26, 27]
+human_capital.roads = {26: 3, 27: 5}
 elf_capital = Capital(15, "Столица эльфов")
-elf_capital.roads = [31, 32]
+elf_capital.roads = {31: 3, 32: 5}
 orc_capital = Capital(16, "Столица орков")
-orc_capital.roads = [36, 37]
+orc_capital.roads = {36: 3, 37: 5}
 

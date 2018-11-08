@@ -13,4 +13,4 @@ class Portal(Location):
 
 
 portal = Portal(1, "Портал", None)
-portal.roads = [2, 3, 4]
+portal.roads = {2: 8, 3: 8, 4: 8}

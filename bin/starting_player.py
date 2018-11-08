@@ -92,15 +92,25 @@ def nickname_select(bot, update, user_data):
     player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
                     user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
     player.status = 'In capital'  #TODO сделать статус "starting" и сделать начальный квест
-    user_data.update({'status': 'In Capital'})
-    print("status = {0}".format(user_data.get('status')))
-    user_data.update({'location': 'In Capital'})
+    if player.race == "Люди":
+        player.location = 14
+        user_data.update({'location_name': locations.get(14).name})
+        user_data.update({'location': 14})
+    elif player.race == "Эльфы":
+        player.location = 15
+        user_data.update({'location_name': locations.get(15).name})
+        user_data.update({'location': 15})
+    elif player.race == "Орки":
+        player.location = 16
+        user_data.update({'location_name': locations.get(16).name})
+        user_data.update({'location': 16})
+    user_data.update({'status': 'In Location'})
+    player.status = 'In Location'
     show_general_buttons(bot, update, user_data)  #Проверить, что работает
     player.add_to_database(conn, cursor)
     bot.send_message(chat_id=update.message.chat_id,
                      text="Вы выбрали имя <b>{0}</b>\n"
                           "И можете приступить к игре!".format(user_data.get('username')),
                      parse_mode='HTML')
-    #print(user_data)
     user_data.pop('type')
     print(user_data)

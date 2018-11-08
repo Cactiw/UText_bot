@@ -1,6 +1,7 @@
 from libs.locations.location import *
 import math
 
+
 class Guild_Castle(Location):
 
     def __init__(self, id, name):
@@ -38,8 +39,8 @@ class Guild_Castle(Location):
 
 
 human_guild_castle = Guild_Castle(17, "Замок гильдии")
-human_guild_castle.roads = [5, 6, 28, 29, 30]
+human_guild_castle.roads = {5: 10, 6: 10, 28: 10, 29: 5, 30: 5}
 elf_guild_castle = Guild_Castle(18, "Замок Гильдии")
-elf_guild_castle.roads = [7, 8, 33, 34, 35]
+elf_guild_castle.roads = {7: 10, 8: 10, 33: 10, 34: 5, 35: 5}
 orc_guild_castle = Guild_Castle(19, "Замок Гильдии")
-orc_guild_castle.roads = [9, 10, 38, 39, 40]
+orc_guild_castle.roads = {9: 10, 10: 10, 38: 10, 39: 5, 40: 5}

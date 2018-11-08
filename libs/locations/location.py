@@ -5,5 +5,5 @@ class Location:
 		self.id = id
 		self.name = name
 		self.quest_list = []
-		self.roads = []
+		self.roads = {}
 

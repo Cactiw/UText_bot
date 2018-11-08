@@ -1,63 +1,69 @@
 from telegram.ext import BaseFilter
-from work_materials.globals import dispatcher
+from work_materials.globals import *
 
 
 class CapitalLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Capital"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 14 and location_id <= 16 and dispatcher.user_data[message.from_user.id].get(
+            'status') == 'In Location'
 
 
 class GuildCastleLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Guild Castle"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 17 and location_id <= 19 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class TowerLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Tower"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 5 and location_id <= 10 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class FarmLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Farm Location"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 26 and location_id <= 40 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class ResourceLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Resource Location"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 20 and location_id <= 25 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class ResourceOffIslandLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Resource Off Island Location"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 11 and location_id <= 13 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class CastleLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Castle"
+        location_id = players.get(message.from_user.id).location
+        return location_id >= 2 and location_id <= 4 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class PortalLocationFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status')\
-               == "In Portal Location"
+        location_id = players.get(message.from_user.id).location
+        return location_id == 1 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class LocationFilter(BaseFilter):
     def filter(self, message):
-        status = dispatcher.user_data[message.from_user.id].get('status')
-        a = ["In Capital", "In Guild Castle", "In Tower", "In Farm Location", "In Resource Location",
-             "In Resource Off Island Location", "In Castle", "In Portal Location"]
-        return status in a  #Проверить работает или нет
+        return dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
+class TravelFilter(BaseFilter):
+    def filter(self, message):
+        return message.text == 'Отправиться'
+
+
+class ChoosingWayFilter(BaseFilter):
+    def filter(self, message):
+        return dispatcher.user_data[message.from_user.id].get('status') == "Choosing Way"
 
 
 capital_location_filter = CapitalLocationFilter()
@@ -69,4 +75,6 @@ resource_offIsland_location_filter = ResourceOffIslandLocationFilter()
 castle_location_filter = CastleLocationFilter()
 portal_location_filter = PortalLocationFilter()
 location_filter = LocationFilter()
+travel_filter = TravelFilter()
+choosing_way_filter = ChoosingWayFilter()
 

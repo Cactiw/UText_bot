@@ -8,14 +8,14 @@ class Tower(Location):
 
 
 human_south_tower = Tower(5, "Южная башня людей", "humans")
-human_south_tower.roads = [6, 2, 11, 17]
+human_south_tower.roads = {6: 3, 2: 5, 11: 7, 17: 10}
 human_north_tower = Tower(6, "Северная башня людей", "humans")
-human_north_tower.roads = [5, 2, 13, 17]
+human_north_tower.roads = {5: 3, 2: 5, 13: 7, 17: 10}
 elf_south_tower = Tower(7, "Южная башня эльфов", "elves")
-elf_south_tower.roads = [11, 3, 8, 18]
+elf_south_tower.roads = {11: 7, 3: 5, 8: 3, 18: 10}
 elf_north_tower = Tower(8, "Северная башня эльфов", "elves")
-elf_north_tower.roads = [12, 3, 7, 18]
+elf_north_tower.roads = {12: 7, 3: 5, 7: 3, 18: 10}
 orcs_south_tower = Tower(9, "Южная башня орков", "orcs")
-orcs_south_tower.roads = [13, 4, 10, 19]
+orcs_south_tower.roads = {13: 7, 4: 5, 10: 3, 19: 10}
 orcs_north_tower = Tower(10, "Северная башня орков", "orcs")
-orcs_north_tower.roads = [12, 4, 9, 19]
+orcs_north_tower.roads = {12: 7, 4: 5, 9: 3, 19: 10}

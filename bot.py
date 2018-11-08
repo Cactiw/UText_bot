@@ -117,43 +117,66 @@ def remove_resource(bot, update, args):
     
 def travel(bot, update, user_data):
     player = get_player(update.message.from_user.id)
-    #TODO Добавить процедурное генерирование кнопок исходя из связей конкретной точки, вывод этих кнопок
-    #через show_general_buttons и их обработку через bot.py
+    current_location = locations.get(player.location)
+    paths = current_location.roads
+    path_buttons = []
+    for i in paths:
+        path_buttons.append(KeyboardButton(locations.get(i).name))
+    path_buttons.append(KeyboardButton("Назад"))
+    road_buttons = ReplyKeyboardMarkup(build_menu(path_buttons, n_cols=2), resize_keyboard=True)
+    bot.send_message(chat_id=update.message.chat_id, text="Вы в локации: {0}".format(current_location.name), reply_markup=road_buttons)
+    update_status('Choosing way', player.id, user_data)
 
 
-dispatcher.add_handler(CommandHandler("start", start, pass_user_data = True))
+def choose_way(bot, update, user_data):
+    if update.message.text == 'Назад':
+        update_status('In Location', update.message.from_user.id, user_data)
+        show_general_buttons(bot, update, user_data)
+    player = players.get(update.message.from_user.id)
+    current_location = locations.get(player.location)
+    paths = current_location.roads
+    loc_name = update.message.text
+    new_loc_id = 0
+    for i in paths:
+        tmp_location = locations.get(paths.get(i))
+        if tmp_location.name == loc_name:
+            new_loc_id = tmp_location.id
+            break
+    if new_loc_id == 0:
+        print('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
+    else:
+        update_status('Traveling', player.id, user_data)
+        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}")
+        #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
+        update_location(new_loc_id, player.id, user_data)
+        show_general_buttons(bot, update, user_data)
 
-dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data = True))
 
-dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data = True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data = True))
+#Фильтр на старт игры
+dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fraction_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data=True))
+
+#Фильтр для вывода инфаормации об игроке
+dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
+
+#Фильтры для повышения уровня игрока
+dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
-#Фильтры для главных кнопок на локациях
-dispatcher.add_handler(MessageHandler(Filters.text and capital_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and guildCastle_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and tower_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and farm_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and resource_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and resource_offIsland_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and castle_location_filter, show_general_buttons, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and portal_location_filter, show_general_buttons, pass_user_data=True))
+#Фильтр для перемещения
+dispatcher.add_handler(MessageHandler(travel_filter and location_filter, travel, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(choosing_way_filter, choose_way, pass_user_data=True))
 
-dispatcher.add_handler(MessageHandler(Filters.text and location_filter, travel, pass_user_data=True))
-
-dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_select, pass_user_data = True))
-
-dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fraction_select, pass_user_data = True))
-
-dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data = True))
-
-dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data = True))
-
+#Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
 
-
+#Команды для админов
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
 
 
@@ -166,7 +189,7 @@ def text_message(bot, update, user_data):
 
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data = True))
 
-
+#-------------------
 
 loadData()
 #sys.stdout.flush()

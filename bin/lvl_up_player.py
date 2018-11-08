@@ -63,7 +63,7 @@ def choose_points(bot, update, user_data):
                          parse_mode = "HTML", reply_markup = ReplyKeyboardRemove())
         players.update({id: player})
         players_need_update.put(player)
-        update_status("Rest", id, user_data)
+        update_status("In Location", id, user_data)
         return
 
     update_status("Lvl_up_points", id, user_data)
@@ -114,7 +114,7 @@ def lvl_up_points(bot, update, user_data):
     if player is None:
         return
     if update.message.text == "Готово":
-        update_status("Rest", id, user_data)
+        update_status("In Location", id, user_data)
         return
     else:
         player.lvl_up_point(update.message.text)
