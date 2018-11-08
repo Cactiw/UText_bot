@@ -31,8 +31,7 @@ multiprocessing.log_to_stderr()
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 
-players = {}
-players_need_update = Queue()
+
 
 work_materials.globals.processing = 1
 
