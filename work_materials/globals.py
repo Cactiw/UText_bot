@@ -1,6 +1,7 @@
 from telegram.ext import Updater
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 import MySQLdb, sys, logging
+from multiprocessing import Process, Queue
 
 updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
 
