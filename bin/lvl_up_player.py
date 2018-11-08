@@ -1,4 +1,4 @@
-from bot import players, players_need_update
+
 from work_materials.globals import *
 from libs.player import Player
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
