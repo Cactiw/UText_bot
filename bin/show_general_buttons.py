@@ -43,7 +43,7 @@ def show_general_buttons(bot, update, user_data):
     status = user_data.get('status')
     if status != 'In Location':
         return
-    loc_id = players.get(update.message.from_user.id)
+    loc_id = players.get(update.message.from_user.id).location
     if loc_id >= 14 and loc_id <= 16:
         show_capital_buttons(bot, update, user_data)
     elif loc_id >= 17 and loc_id <= 19:
