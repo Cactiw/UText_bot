@@ -4,6 +4,7 @@ from libs.player import Player
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import CommandHandler, MessageHandler, Filters
 from work_materials.filters.other_initiate_filters import *
+from bin.show_general_buttons import show_general_buttons
 
 
 def players_update(q):
@@ -64,6 +65,7 @@ def choose_points(bot, update, user_data):
         players.update({id: player})
         players_need_update.put(player)
         update_status("In Location", id, user_data)
+        show_general_buttons(bot, update, user_data)
         return
 
     update_status("Lvl_up_points", id, user_data)
@@ -115,6 +117,7 @@ def lvl_up_points(bot, update, user_data):
         return
     if update.message.text == "Готово":
         update_status("In Location", id, user_data)
+        show_general_buttons(bot, update, user_data)
         return
     else:
         player.lvl_up_point(update.message.text)
@@ -151,12 +154,11 @@ def choose_skill(bot, update, user_data): #Сюда игрок попадает 
                                                                         player.fifth_skill_lvl),
                          reply_markup = ReplyKeyboardRemove()
                          )
-        #player.status = "Lvl_up_point"
-        #user_data.update({"status": "Lvl_up_points"})
         update_status("Lvl_up_points", id, user_data)
         players.update({id: player})
         players_need_update.put(player)
         choose_points(bot, update, user_data)
+        show_general_buttons(bot, update, user_data)
         return
 
     update_status("Lvl_up_skill", id, user_data)

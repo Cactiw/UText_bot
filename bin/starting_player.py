@@ -40,8 +40,10 @@ def fraction_select(bot, update, user_data):
         bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали фракцию <b>{0}</b>\n"
                                                               "Теперь необходимо выбрать расу!".format(
             user_data.get('fraction')), parse_mode='HTML', reply_markup=reply_markup)
+        print(user_data)
         return
     elif type is 2:    # Выбор расы
+        print(user_data)
         race_select(bot, update, user_data)
 
 
@@ -59,6 +61,7 @@ def race_select(bot, update, user_data):
     bot.send_message(chat_id=update.message.chat_id, text="Вы выбрали расу <b>{0}</b>\n"
                                                           "Теперь необходимо выбрать класс!".format(
         user_data.get('race')), parse_mode='HTML', reply_markup=reply_markup)
+    print(user_data)
     return
 
 
@@ -74,6 +77,7 @@ def class_select(bot, update, user_data):
         text="Отлично, вы выбрали класс <b>{0}</b>\n"
              "Выберите пол:".format(user_data.get('class')),
         parse_mode = 'HTML', reply_markup = reply_markup)
+    print(user_data)
     return
 
 
@@ -84,6 +88,7 @@ def sex_select(bot, update, user_data):
         text="Отлично, осталось всего лишь выбрать имя, "
              "под которым вас будут знать другие игроки!".format(user_data.get('class')),
         parse_mode='HTML', reply_markup=ReplyKeyboardRemove())
+    print(user_data)
     return
 
 
@@ -106,6 +111,7 @@ def nickname_select(bot, update, user_data):
         user_data.update({'location': 16})
     user_data.update({'status': 'In Location'})
     player.status = 'In Location'
+    players.update({player.id: player})
     show_general_buttons(bot, update, user_data)  #Проверить, что работает
     player.add_to_database(conn, cursor)
     bot.send_message(chat_id=update.message.chat_id,
