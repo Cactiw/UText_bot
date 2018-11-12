@@ -107,3 +107,4 @@ __tower_button_list = [
     KeyboardButton('Отправиться')
 ]
 tower_buttons = ReplyKeyboardMarkup(build_menu(__tower_button_list, n_cols=2), resize_keyboard=True)
+
