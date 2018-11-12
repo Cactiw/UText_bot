@@ -31,7 +31,7 @@ conn.set_character_set('utf8')
 # cursor.execute('SET character_set_connection=utf8mb4;')
 print("Connection successful, starting bot")
 
-admin_id_list = [231900398, 212657053]
+admin_id_list = [231900398, 212657053, 307125511]
 
 processing = 1
 
