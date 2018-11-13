@@ -58,12 +58,19 @@ class LocationFilter(BaseFilter):
 
 class TravelFilter(BaseFilter):
     def filter(self, message):
+        #print(message.text)
         return message.text == 'Отправиться'
 
 
 class ChoosingWayFilter(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('status') == 'Choosing way'
+        print("status = ", dispatcher.user_data[message.from_user.id].get('status'))
+        if dispatcher.user_data[message.from_user.id].get('status') == 'Choosing way':
+            print("choosing way OK")
+            return 1
+        else:
+            print("choosing way not ok")
+            return 0
 
 
 capital_location_filter = CapitalLocationFilter()

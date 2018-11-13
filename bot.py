@@ -55,6 +55,31 @@ def players_update(q):
         return
 
 
+def set_status(bot, update, user_data, args):
+    print('printing status')
+    status = ''
+    j = 0
+    for i in args:
+        status += i
+        if j != len(args) - 1:
+            status += ' '
+        j += 1
+    print(status)
+    update_status(status, update.message.from_user.id, user_data)
+    print(user_data)
+
+
+def show_data(bot, update, user_data):
+    print(user_data)
+    msg = ''
+    for i in user_data.keys():
+        msg += str(i)
+        msg += ' - '
+        msg += str(user_data.get(i))
+        msg += "\n"
+    bot.send_message(chat_id=update.message.chat_id, text=msg)
+
+
 def update_status(status, id, user_data):
     player = get_player(id)
     player.status = status
@@ -67,7 +92,6 @@ def update_location(location, id, user_data):
     player.location = location
     players.update({id: player})
     user_data.update({"location": location})
-
 
 
 def get_player(id):
@@ -117,6 +141,8 @@ def remove_resource(bot, update, args):
     
     
 def travel(bot, update, user_data):
+    print("in travel")
+    print(update.message.text)
     player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
@@ -131,6 +157,8 @@ def travel(bot, update, user_data):
 
 
 def choose_way(bot, update, user_data):
+    print("in choose way")
+    print(user_data)
     if update.message.text == 'Назад':
         update_status('In Location', update.message.from_user.id, user_data)
         show_general_buttons(bot, update, user_data)
@@ -157,6 +185,7 @@ def choose_way(bot, update, user_data):
         #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
         update_status('In Location', player.id, user_data)
         update_location(new_loc_id, player.id, user_data)
+        print("Переместился в новую локацию - ", player.location)
         players_need_update.put(player)
         show_general_buttons(bot, update, user_data)
 
@@ -169,7 +198,9 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_se
 dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data=True))
 
 #Команды для админов
+dispatcher.add_handler(CommandHandler("setstatus", set_status, pass_user_data=True, filters = filter_is_admin, pass_args=True))
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
+dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
@@ -181,7 +212,7 @@ dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_
 dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 #Фильтр для перемещения
-dispatcher.add_handler(MessageHandler(Filters.text and travel_filter and location_filter, travel, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter and not Filters.command, choose_way, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
