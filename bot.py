@@ -25,15 +25,40 @@ from libs.resorses import *
 
 sys.path.append('../')
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 #Подключение логгирования процессов
 multiprocessing.log_to_stderr()
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
 
-
-
 work_materials.globals.processing = 1
+
+def get_player(id):
+    player = players.get(id)
+    if player is not None:
+        return player
+    player = Player(id, 0, 0, 0, 0, 0, 0)
+    if player.update_from_database(cursor) is None:
+        return None
+    players.update({player.id: player})
+    return player
+
+
+where_admin_go = {}
+
+
+
+def move_player(bot, job):
+    player = job.context.get('player')
+    if where_admin_go.get(player.id) == -1:
+        bot.send_message(chat_id=job.context.get('update').message.chat_id, text="Админ уже пришел")
+        print("Админ уже пришел")
+        return
+    update_status('In Location', player.id, job.context.get('user_data'))
+    update_location(job.context.get('location_id'), player.id, job.context.get('user_data'))
+    print("Переместился в новую локацию - ", player.location)
+    players_need_update.put(player)
+    show_general_buttons(bot, job.context.get('update'), job.context.get('user_data'))
 
 
 def players_update(q):
@@ -94,22 +119,15 @@ def update_location(location, id, user_data):
     user_data.update({"location": location})
 
 
-def get_player(id):
-    player = players.get(id)
-    if player is not None:
-        return player
-    player = Player(id, 0, 0, 0, 0, 0, 0)
-    if player.update_from_database(cursor) is None:
-        return None
-    players.update({player.id : player})
-    return player
-
-
 def print_player(bot, update, user_data):
     id = update.message.from_user.id
     player = get_player(id)
-    if(player is None):
+    if player is None:
         return
+    if player.sex == 0:
+        sex = 'Мужской'
+    else:
+        sex = 'Женский'
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nClass - <b>{4}</b>"
                                                           "\n\nStatus - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
                                                           "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
@@ -119,7 +137,7 @@ def print_player(bot, update, user_data):
                                                           "Пятый навык - <b>{15}</b>-го уровня\n\nВыносливость - <b>{16}</b>\n"
                                                           "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nЛовкость - <b>{19}</b>\n"
                                                           "Очки маны - <b>{20}</b>".format(
-        player.nickname, player.sex, player.race, player.fraction,
+        player.nickname, sex, player.race, player.fraction,
         player.game_class, player.status, player.exp, player.lvl,
         player.free_points, player.free_skill_points, player.fatigue,
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
@@ -141,8 +159,6 @@ def remove_resource(bot, update, args):
     
     
 def travel(bot, update, user_data):
-    print("in travel")
-    print(update.message.text)
     player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
@@ -150,15 +166,12 @@ def travel(bot, update, user_data):
     for i in paths:
         path_buttons.append(KeyboardButton(locations.get(i).name))
     path_buttons.append(KeyboardButton("Назад"))
-    road_buttons = ReplyKeyboardMarkup(build_menu(path_buttons, n_cols=2), resize_keyboard=True)
+    road_buttons = ReplyKeyboardMarkup(build_menu(path_buttons, n_cols=2), resize_keyboard=True, one_time_keyboard=True)
     bot.send_message(chat_id=update.message.chat_id, text="Вы в локации: {0}".format(current_location.name), reply_markup=road_buttons)
     update_status('Choosing way', player.id, user_data)
-    print(user_data)
 
 
 def choose_way(bot, update, user_data):
-    print("in choose way")
-    print(user_data)
     if update.message.text == 'Назад':
         update_status('In Location', update.message.from_user.id, user_data)
         show_general_buttons(bot, update, user_data)
@@ -166,28 +179,38 @@ def choose_way(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
-    print(paths)
     loc_name = update.message.text
-    print(loc_name)
     new_loc_id = 0
     for i in paths.keys():
         tmp_location = i
-        print(tmp_location, " - ", locations.get(tmp_location).name)
         if locations.get(tmp_location).name == loc_name:
             new_loc_id = tmp_location
-            print("new_loc = ", new_loc_id)
             break
     if new_loc_id == 0:
         work_materials.globals.logging.error('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
     else:
         update_status('Traveling', player.id, user_data)
-        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}".format(locations.get(new_loc_id).name))
+        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)))
         #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
-        update_status('In Location', player.id, user_data)
-        update_location(new_loc_id, player.id, user_data)
-        print("Переместился в новую локацию - ", player.location)
-        players_need_update.put(player)
-        show_general_buttons(bot, update, user_data)
+        contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
+                   'update': update, 'user_data': user_data}
+        if filter_is_admin(update.message):
+            where_admin_go.update({player.id: new_loc_id})
+        job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)
+        return
+
+
+def fast_travel(bot, update, user_data):
+    bot.send_message(chat_id=update.message.chat_id, text="Fast Travel")
+    player = get_player(update.message.from_user.id)
+    update_status('In Location', player.id, user_data)
+    new_loc_id = where_admin_go.get(player.id)
+    update_location(new_loc_id, player.id, user_data)
+    print("Переместился в новую локацию - ", player.location)
+    players_need_update.put(player)
+    where_admin_go.update({player.id: -1})
+    show_general_buttons(bot, update, user_data)
+
 
 
 #Фильтр на старт игры
@@ -202,6 +225,7 @@ dispatcher.add_handler(CommandHandler("setstatus", set_status, pass_user_data=Tr
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
+dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
@@ -225,6 +249,7 @@ dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_u
 
 def text_message(bot, update, user_data):
     bot.send_message(chat_id=update.message.chat_id, text="Некорректный ввод")
+    show_general_buttons(bot, update, user_data)
 
 
 dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data = True))

@@ -38,7 +38,7 @@ class Player:
         self.take_damage_by_armor = 0
 
         self.location = 0
-        #print(fraction)
+
         if self.fraction == 'Люди':
             self.location = 14
         elif self.fraction == 'Эльфы':
@@ -46,8 +46,7 @@ class Player:
         elif self.fraction == 'Орки':
             self.location = 16
         else:
-            pass
-            #print('INCORRECT FRACTION, player.py in init\n')
+            print('INCORRECT FRACTION, player.py in init\n')
 
         self.resources = {'gold' : 0, 'metal' : 0, 'wood' : 0}
 

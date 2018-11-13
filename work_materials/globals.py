@@ -12,6 +12,7 @@ from libs.locations.tower import *
 
 
 updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
+job = updater.job_queue
 
 dispatcher = updater.dispatcher
 
