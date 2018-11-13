@@ -108,12 +108,8 @@ def get_player(id):
 def print_player(bot, update, user_data):
     id = update.message.from_user.id
     player = get_player(id)
-    if player is None:
+    if(player is None):
         return
-    if player.sex == 0:
-        sex = 'Мужской'
-    else:
-        sex = 'Женский'
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nClass - <b>{4}</b>"
                                                           "\n\nStatus - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
                                                           "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
@@ -123,7 +119,7 @@ def print_player(bot, update, user_data):
                                                           "Пятый навык - <b>{15}</b>-го уровня\n\nВыносливость - <b>{16}</b>\n"
                                                           "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nЛовкость - <b>{19}</b>\n"
                                                           "Очки маны - <b>{20}</b>".format(
-        player.nickname, sex, player.race, player.fraction,
+        player.nickname, player.sex, player.race, player.fraction,
         player.game_class, player.status, player.exp, player.lvl,
         player.free_points, player.free_skill_points, player.fatigue,
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
@@ -162,6 +158,7 @@ def travel(bot, update, user_data):
 
 def choose_way(bot, update, user_data):
     print("in choose way")
+    print(user_data)
     if update.message.text == 'Назад':
         update_status('In Location', update.message.from_user.id, user_data)
         show_general_buttons(bot, update, user_data)
@@ -169,6 +166,7 @@ def choose_way(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
+    print(paths)
     loc_name = update.message.text
     print(loc_name)
     new_loc_id = 0
@@ -215,7 +213,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 
 #Фильтр для перемещения
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(choosing_way_filter and Filters.text, choose_way, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
