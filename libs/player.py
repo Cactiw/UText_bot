@@ -30,27 +30,29 @@ class Player:
         self.fourth_skill_lvl = 0
         self.fifth_skill_lvl = 0
 
-        self.stats = {"endurance" : 5, "power" : 5, "armor" : 5, "mana_points" : 5,
-                    "agility" : 5, }
+        self.stats = {'endurance' : 5, 'power' : 5, 'armor' : 5, 'mana_points' : 5,
+                    'agility' : 5, }
 
-        self.mana = self.stats["mana_points"] * 15
-        self.hp = self.stats["endurance"] * 15
+        self.mana = self.stats['mana_points'] * 15
+        self.hp = self.stats['endurance'] * 15
         self.take_damage_by_armor = 0
 
         self.location = 0
-        if fraction == "Люди":
+        #print(fraction)
+        if self.fraction == 'Люди':
             self.location = 14
-        elif fraction == "Эльфы":
+        elif self.fraction == 'Эльфы':
             self.location = 15
-        elif fraction == "Орки":
+        elif self.fraction == 'Орки':
             self.location = 16
         else:
-            print("INCORRECT FRACTION, player.py in init\n")
+            pass
+            #print('INCORRECT FRACTION, player.py in init\n')
 
-        self.resources = {"gold" : 0, "metal" : 0, "wood" : 0}
+        self.resources = {'gold' : 0, 'metal' : 0, 'wood' : 0}
 
-        self.on_character = {"head": None, "body": None, "shoulders": None, "legs": None, "feet": None,
-                        "left_arm": None, "right_arm": None, "mount": None, }
+        self.on_character = {'head': None, 'body': None, 'shoulders': None, 'legs': None, 'feet': None,
+                        'left_arm': None, 'right_arm': None, 'mount': None, }
 
         self.eq_backpack = {}
         self.al_backpack = {}
@@ -185,6 +187,12 @@ class Player:
         self.mana = row[22]
         self.hp = row[23]
         self.location = row[24]
+        if self.fraction == 'Люди':
+            self.location = 14
+        elif self.fraction == 'Эльфы':
+            self.location = 15
+        elif self.fraction == 'Орки':
+            self.location = 16
         self.resources.update(gold = row[25], metal = row[26], wood = row[27])
 
         self.on_character.update(head = row[28], body = row[29], shoulders = row[30], legs = row[31], feet = row[32],

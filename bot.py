@@ -69,6 +69,7 @@ def update_location(location, id, user_data):
     user_data.update({"location": location})
 
 
+
 def get_player(id):
     player = players.get(id)
     if player is not None:
@@ -126,29 +127,37 @@ def travel(bot, update, user_data):
     road_buttons = ReplyKeyboardMarkup(build_menu(path_buttons, n_cols=2), resize_keyboard=True)
     bot.send_message(chat_id=update.message.chat_id, text="Вы в локации: {0}".format(current_location.name), reply_markup=road_buttons)
     update_status('Choosing way', player.id, user_data)
+    print(user_data)
 
 
 def choose_way(bot, update, user_data):
     if update.message.text == 'Назад':
         update_status('In Location', update.message.from_user.id, user_data)
         show_general_buttons(bot, update, user_data)
-    player = players.get(update.message.from_user.id)
+        return
+    player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
+    print(paths)
     loc_name = update.message.text
+    print(loc_name)
     new_loc_id = 0
-    for i in paths:
-        tmp_location = locations.get(paths.get(i))
-        if tmp_location.name == loc_name:
-            new_loc_id = tmp_location.id
+    for i in paths.keys():
+        tmp_location = i
+        print(tmp_location, " - ", locations.get(tmp_location).name)
+        if locations.get(tmp_location).name == loc_name:
+            new_loc_id = tmp_location
+            print("new_loc = ", new_loc_id)
             break
     if new_loc_id == 0:
-        print('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
+        work_materials.globals.logging.error('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
     else:
         update_status('Traveling', player.id, user_data)
-        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}")
+        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}".format(locations.get(new_loc_id).name))
         #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
+        update_status('In Location', player.id, user_data)
         update_location(new_loc_id, player.id, user_data)
+        players_need_update.put(player)
         show_general_buttons(bot, update, user_data)
 
 
@@ -158,6 +167,9 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_sel
 dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fraction_select, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data=True))
+
+#Команды для админов
+dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
@@ -169,21 +181,17 @@ dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_
 dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 #Фильтр для перемещения
-dispatcher.add_handler(MessageHandler(travel_filter and location_filter, travel, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(choosing_way_filter, choose_way, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and travel_filter and location_filter, travel, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter and not Filters.command, choose_way, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
 
-#Команды для админов
-dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
-
 
 #-------------------
 
 def text_message(bot, update, user_data):
-    #print(user_data)
     bot.send_message(chat_id=update.message.chat_id, text="Некорректный ввод")
 
 
@@ -193,9 +201,7 @@ dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data
 
 loadData()
 #sys.stdout.flush()
-#print(dispatcher.user_data)
 threading.Thread(target=saveData).start()
-#saving_data = Process(target = saveData, name = "Writing user data to disk").start()
 updater.start_polling(clean=False)
 
 #Запуск процесса обновления игроков в бд
@@ -208,10 +214,6 @@ updater.idle()
 work_materials.globals.processing = 0
 conn.close()
 players_need_update.put(None)
-#try:
-    #saving_data.join()
-#except:
-    #pass
 try:
     updating_to_database.join()
 except:
