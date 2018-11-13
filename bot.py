@@ -213,7 +213,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 
 #Фильтр для перемещения
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter and not Filters.command, choose_way, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
