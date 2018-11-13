@@ -200,6 +200,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, n
 #Команды для админов
 dispatcher.add_handler(CommandHandler("setstatus", set_status, pass_user_data=True, filters = filter_is_admin, pass_args=True))
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
+dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
