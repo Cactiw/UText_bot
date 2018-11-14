@@ -36,4 +36,17 @@ CREATE TABLE PLAYERS (
   right_arm varchar(10),
   mount varchar(10)
 
-)
+);
+
+
+create table equipment
+(
+  type        varchar(1)  not null,
+  id          int(4)      not null,
+  name        varchar(32) null,
+  endurance   int(4)      null,
+  power       int(4)      null,
+  armor       int(4)      null,
+  mana_points int(4)      null,
+  agility     int(4)      null
+);
