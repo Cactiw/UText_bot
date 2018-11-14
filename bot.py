@@ -12,6 +12,7 @@ from work_materials.filters.fraction_filters import *
 from work_materials.filters.other_initiate_filters import *
 from work_materials.filters.service_filters import *
 from work_materials.filters.location_filters import *
+from work_materials.filters.info_filters import *
 
 from bin.service_commands import *
 from bin.starting_player import *
@@ -54,7 +55,7 @@ def remove_resource(bot, update, args):
     print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
 
 def equip(bot, update, args):
-    eqipment = Equipment(0, args[0], 0, 0, 0, 0, 0, 0)
+    eqipment = Equipment(0, args[0], 0, 0, 0, 0, 0, 0, 0)
     if eqipment.update_from_database() is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Этот предмет не найден в базе данных")
         return
@@ -104,7 +105,12 @@ def choose_way(bot, update, user_data):
         work_materials.globals.logging.error('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
     else:
         update_status('Traveling', player, user_data)
-        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)))
+        button_list = [
+            KeyboardButton('Инфо'),
+            KeyboardButton('Вернуться')
+        ]
+        buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
+        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)), reply_markup=buttons)
         #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
         contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
                    'update': update, 'user_data': user_data}
@@ -116,14 +122,10 @@ def choose_way(bot, update, user_data):
 
 
 def fast_travel(bot, update, user_data):
-    button_list = [
-        KeyboardButton('Инфо'),
-        KeyboardButton('Вернуться')
-    ]
-    buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
-    bot.send_message(chat_id=update.message.chat_id, text='', reply_matkup=buttons)
     player = get_player(update.message.from_user.id)
-    travel_jobs.get(player.id).run(bot)
+    j = travel_jobs.get(player.id)
+    if j is not None:
+        j.run(bot)
 
 
 
@@ -143,9 +145,11 @@ dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=
 dispatcher.add_handler(CommandHandler("return", return_to_location, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
-dispatcher.add_handler(MessageHandler(Filter.text, print_player, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_back, return_from_info, pass_user_data=True))
 
 #Фильтры для повышения уровня игрока
 dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data=True))
@@ -156,7 +160,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 #Фильтр для перемещения
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter, return_to_location, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter and filter_return, return_to_location, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))

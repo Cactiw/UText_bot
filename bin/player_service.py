@@ -52,7 +52,7 @@ def set_status(bot, update, user_data, args):
             status += ' '
         j += 1
     print(status)
-    update_status(status, players.get(update.message.from_user.id, user_data))
+    update_status(status, get_player(update.message.from_user.id), user_data)
     print(user_data)
 
 
@@ -78,6 +78,8 @@ def print_player(bot, update, user_data):
     player = get_player(id)
     if player is None:
         return
+    user_data.update({'saved_status': player.status})
+    update_status('Info', player, user_data)
     if player.sex == 0:
         sex = 'Мужской'
     else:
@@ -95,6 +97,11 @@ def print_player(bot, update, user_data):
         time = j.interval
         print(time)
         task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time)
+    button_list = [
+        KeyboardButton('Рюкзак'),
+        KeyboardButton('Назад')
+    ]
+    buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {22}\n\nКласс - <b>{4}</b>"
                                                           "\n\nСтатус - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
                                                           "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
@@ -110,7 +117,7 @@ def print_player(bot, update, user_data):
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
         player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"],
         player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["mana_points"], task, locations.get(player.location).name),
-        parse_mode="HTML")
+        parse_mode="HTML", reply_markup=buttons)
 
 
 def return_to_location(bot, update, user_data):
@@ -165,3 +172,23 @@ def show_equipment(bot, update):
                                                               "Ботинки - {4}\nЛевая рука - {5}\n"
                                                               "Правая рука - {6}\nСредство передвижения - {7}".format(on_head, on_body,
                                                             on_shoulders, on_legs, on_feet, on_larm, on_rarm, mount))
+
+
+def print_backpacks(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    text = 'Экипировка:\n'
+    for i in player.eq_backpack:
+        eq = get_equipment(player.eq_backpack.get(i))
+        text += '<b>' + eq.name
+        text += '</b>\n     '
+        for j in eq.stats:
+            stat = eq.stats.get(j)
+            if stat != 0:
+                text += j
+                text += ' - <b>'
+                text += str(stat)
+                text += '</b>  '
+        text += '\n'
+    text += 'Расходуемые:\n'
+    text += 'Ресурсы:\n'
+    bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode = 'HTML')

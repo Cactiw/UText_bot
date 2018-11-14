@@ -10,6 +10,7 @@ class Equipment(Item):
         self.place = place
         self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'agility': agility, 'mana_points': mana_points}
 
+
     def update_from_database(self):
         request = "SELECT type, name, endurance, power, armor, mana_points, agility FROM equipment WHERE id = '{0}'".format(self.id)
         print(request)

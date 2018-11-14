@@ -49,5 +49,8 @@ def delete_self(bot, update, user_data):
         return
     bot.send_message(chat_id = mes.from_user.id, text = "Таблица инвентаря удалена")
     user_data.clear()
-    players.pop(mes.from_user.id)
+    try:
+        players.pop(mes.from_user.id)
+    except KeyError:
+        pass
     bot.send_message(chat_id = mes.from_user.id, text = "Удаление игрока завершено")

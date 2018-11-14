@@ -71,6 +71,11 @@ class FastTravel(BaseFilter):
     def filter(self, message):
         return dispatcher.user_data[message.from_user.id].get('status') == 'Traveling'
 
+
+class FilterReturn(BaseFilter):
+    def filter(self, message):
+        return message.text == 'Вернуться'
+
 capital_location_filter = CapitalLocationFilter()
 guildCastle_location_filter = GuildCastleLocationFilter()
 tower_location_filter = TowerLocationFilter()
@@ -83,4 +88,5 @@ location_filter = LocationFilter()
 travel_filter = TravelFilter()
 choosing_way_filter = ChoosingWayFilter()
 fast_travel_filter = FastTravel()
+filter_return = FilterReturn()
 

@@ -120,5 +120,10 @@ def nickname_select(bot, update, user_data):
                           'И можете приступить к игре!'.format(user_data.get('username')),
                      parse_mode='HTML')
     user_data.pop('type')
+    user_data.pop('fraction')
+    user_data.pop('race')
+    user_data.pop('class')
+    user_data.pop('sex')
+    user_data.pop('username')
     print(user_data)
     return

@@ -7,4 +7,10 @@ class Filter_Is_Admin(BaseFilter):
         return message.from_user.id in admin_id_list
 
 
+class FilterBack(BaseFilter):
+    def filter(self, message):
+        return message.text == "Назад"
+
+
 filter_is_admin= Filter_Is_Admin()
+filter_back = FilterBack()

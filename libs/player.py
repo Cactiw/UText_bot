@@ -97,6 +97,7 @@ class Player:
         conn.commit()
         return 0
 
+
     def lvl_up_skill(self, skill_number):
         if(skill_number == '1'): self.first_skill_lvl += 1
         elif(skill_number == "2"): self.second_skill_lvl += 1
