@@ -148,12 +148,12 @@ class Player:
             self.add_item(self.eq_backpack, equipment, 1)
         self.on_character[equipment.place] = equipment.id
         #request = "SELECT endurance, power, armor, intelligence, mana_points, accuracy, agility FROM equipment WHERE id = {0}".format(equipment.id)
-        for i in self.stats:
-            self.stats.update(self.stats.update:endurance +=
+        self.stats.update({"endurance" : self.stats.get("endurance") + equipment.endurance})
 
     def unequip(self, equipment): # Снятие предмета
         self.add_item(self.eq_backpack, equipment, 1)
         self.on_character[equipment.place] = None
+
 
     def change_location(self, location):
         self.location = location
