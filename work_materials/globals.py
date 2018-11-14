@@ -18,6 +18,7 @@ dispatcher = updater.dispatcher
 
 players = {}
 players_need_update = Queue()
+travel_jobs = {}
 
 #Подключаем базу данных, выставляем кодировку
 print("Enter password for database:")

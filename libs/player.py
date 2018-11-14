@@ -1,6 +1,5 @@
 import math
 from work_materials.globals import dispatcher, cursor, conn
-from libs.item import *
 
 class Player:
 
@@ -11,7 +10,7 @@ class Player:
         self.username = username
         self.nickname = nickname
 
-        self.status = "Rest"
+        self.status = "In Location"
 
         self.sex = sex
         self.race = race
@@ -45,8 +44,6 @@ class Player:
             self.location = 15
         elif self.fraction == 'Орки':
             self.location = 16
-        else:
-            print('INCORRECT FRACTION, player.py in init\n')
 
         self.resources = {'gold' : 0, 'metal' : 0, 'wood' : 0}
 
