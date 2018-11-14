@@ -1,5 +1,5 @@
 import math
-from work_materials.globals import dispatcher, cursor, conn
+from work_materials.globals import dispatcher, cursor, conn, players_need_update
 
 class Player:
 
@@ -54,8 +54,9 @@ class Player:
         self.al_backpack = {}
         self.res_backpack = {}
 
-    def add_item(self, list, item, count): # Добавление item в рюкзак list  #TODO Сделать проверку на существование такого предмета
+    def add_item(self, list, item, count): # Добавление item в рюкзак list
         quanty = list.get(item.id)
+        print(quanty)
         if quanty is None:
             quanty = int(count)
             list.update({item.id: quanty})
@@ -136,11 +137,17 @@ class Player:
             self.lvl_up(self)
 
     def equip(self, equipment): # Надевание предмета
+        print("before equip", self.stats)
+        print(equipment.place)
         if self.on_character[equipment.place] is not None:
-            self.add_item(self.eq_backpack, equipment, 1)
+            if self.remove_item(self.eq_backpack, equipment, 1) == 1:
+                return 1
         self.on_character[equipment.place] = equipment.id
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
+        players_need_update.put(self)
+        print("after equip", self.stats)
+
 
 
     def unequip(self, equipment): # Снятие предмета

@@ -23,6 +23,7 @@ from bin.lvl_up_player import *
 
 import work_materials.globals
 from libs.resorses import *
+from libs.equipment import *
 
 sys.path.append('../')
 
@@ -54,6 +55,20 @@ def remove_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
     print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
+
+def equip(bot, update, args):
+    eqipment = Equipment(0, args[0], 0, 0, 0, 0, 0, 0, 0, 0)
+    if eqipment.update_from_database() is None:
+        bot.send_message(chat_id=update.message.from_user.id, text="Этот предмет не найден в базе данных")
+        return
+    player = get_player(update.message.from_user.id)
+    if player.equip(eqipment) == 1:
+        bot.send_message(chat_id=update.message.from_user.id, text="Этого предмета нет в вашем инвентаре")
+        return
+    bot.send_message(chat_id = update.message.from_user.id, text = "Успешно экипировано")
+
+def unequip(bot, update, args):
+    pass
     
     
 def travel(bot, update, user_data):
@@ -136,6 +151,9 @@ dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choo
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
+
+dispatcher.add_handler(CommandHandler("equip", equip, pass_user_data=False, pass_args=True))
+
 
 
 #-------------------
