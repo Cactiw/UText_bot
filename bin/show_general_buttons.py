@@ -1,6 +1,16 @@
+from libs.player import *
 from work_materials.globals import *
-from work_materials.player_service import *
 
+
+def get_player(id):
+    player = players.get(id)
+    if player is not None:
+        return player
+    player = Player(id, 0, 0, 0, 0, 0, 0)
+    if player.update_from_database(cursor) is None:
+        return None
+    players.update({player.id: player})
+    return player
 
 #TODO Разделить по id, чтобы текст был более похож на естественный
 def show_capital_buttons(bot, update, user_data):

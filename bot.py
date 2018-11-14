@@ -34,18 +34,12 @@ logger.setLevel(logging.INFO)
 
 work_materials.globals.processing = 1
 
-where_admin_go = {}
-
 
 def move_player(bot, job):
     player = job.context.get('player')
-    if where_admin_go.get(player.id) == -1:
-        bot.send_message(chat_id=job.context.get('update').message.chat_id, text="Админ уже пришел")
-        print("Админ уже пришел")
-        return
-    update_status('In Location', player.id, job.context.get('user_data'))
+    update_status('In Location', player, job.context.get('user_data'))
     update_location(job.context.get('location_id'), player, job.context.get('user_data'))
-    print("Переместился в новую локацию - ", player.location)
+    print(player.nickname, "Переместился в новую локацию -", player.location)
     players_need_update.put(player)
     show_general_buttons(bot, job.context.get('update'), job.context.get('user_data'))
 
@@ -72,12 +66,12 @@ def travel(bot, update, user_data):
     path_buttons.append(KeyboardButton("Назад"))
     road_buttons = ReplyKeyboardMarkup(build_menu(path_buttons, n_cols=2), resize_keyboard=True, one_time_keyboard=True)
     bot.send_message(chat_id=update.message.chat_id, text="Вы в локации: {0}".format(current_location.name), reply_markup=road_buttons)
-    update_status('Choosing way', player.id, user_data)
+    update_status('Choosing way', player, user_data)
 
 
 def choose_way(bot, update, user_data):
     if update.message.text == 'Назад':
-        update_status('In Location', update.message.from_user.id, user_data)
+        update_status('In Location', players.get(update.message.from_user.id), user_data)
         show_general_buttons(bot, update, user_data)
         return
     player = get_player(update.message.from_user.id)
@@ -93,27 +87,22 @@ def choose_way(bot, update, user_data):
     if new_loc_id == 0:
         work_materials.globals.logging.error('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
     else:
-        update_status('Traveling', player.id, user_data)
+        update_status('Traveling', player, user_data)
         bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)))
         #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
         contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
                    'update': update, 'user_data': user_data}
         if filter_is_admin(update.message):
-            where_admin_go.update({player.id: new_loc_id})
-        job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)
+            bot.send_message(chat_id=update.message.chat_id, text="Вы можете использовать /fasttravel")
+        user_data.update({'new_location': new_loc_id})
+        travel_jobs.update({player.id: job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)})
         return
 
 
 def fast_travel(bot, update, user_data):
     bot.send_message(chat_id=update.message.chat_id, text="Fast Travel")
     player = get_player(update.message.from_user.id)
-    update_status('In Location', player.id, user_data)
-    new_loc_id = where_admin_go.get(player.id)
-    update_location(new_loc_id, player, user_data)
-    print(player.nickname, " Переместился в новую локацию - ", player.location)
-    where_admin_go.update({player.id: -1})
-    show_general_buttons(bot, update, user_data)
-
+    travel_jobs.get(player.id).run(bot)
 
 
 #Фильтр на старт игры
@@ -129,6 +118,7 @@ dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters =
 dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
+dispatcher.add_handler(CommandHandler("return", return_to_location, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
