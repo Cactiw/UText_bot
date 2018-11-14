@@ -65,7 +65,7 @@ class Player:
                                                                                                  item.id, quanty)
             cursor.execute(request)
             conn.commit()
-            print("Item added to database")
+            #print("Item added to database")
             return
         quanty += int(count)
         list.update({item.id: quanty})
@@ -73,7 +73,7 @@ class Player:
         request = "UPDATE inv_{0} SET type = '{1}', quanty = '{3}' WHERE id = '{2}'".format(self.id, item.type, item.id, quanty)
         cursor.execute(request)
         conn.commit()
-        print("Item quanty edited in database")
+        #print("Item quanty edited in database")
         return 0
 
     def remove_item(self, list, item, count):
@@ -138,8 +138,8 @@ class Player:
             self.lvl_up(self)
 
     def equip(self, equipment): # Надевание предмета
-        print("before equip", self.stats)
-        print(equipment.place)
+        #print("before equip", self.stats)
+        #print(equipment.place)
         if self.on_character[equipment.place] is not None:
             #self.unequip() #TODO сделать
             pass
@@ -151,7 +151,7 @@ class Player:
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
         players_need_update.put(self)
-        print("after equip", self.stats)
+        #print("after equip", self.stats)
 
 
     def unequip(self, equipment): # Снятие предмета

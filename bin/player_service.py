@@ -135,51 +135,53 @@ def return_to_location(bot, update, user_data):
     
 def show_equipment(bot, update):
     player = get_player(update.message.from_user.id)
-    print(player.on_character['head'])
-    print(player.on_character['body'])
+    #print(player.on_character['head'])
+    #print(player.on_character['body'])
     if player.on_character['head'] is not None:
-        on_head = get_equipment(player.on_character['head']).name
+        on_head = "<b>" + get_equipment(player.on_character['head']).name + "</b>\nunequip: /unequip_head"
     else:
         on_head = 'Ничего'
     if player.on_character['body'] is not None:
-        on_body = get_equipment(player.on_character['body']).name
+        on_body = "<b>" + get_equipment(player.on_character['body']).name + "</b>\nunequip: /unequip_body"
     else:
         on_body = 'Ничего'
     if player.on_character['shoulders'] is not None:
-        on_shoulders = get_equipment(player.on_character['shoulders']).name
+        on_shoulders = "<b>" + get_equipment(player.on_character['shoulders']).name + "</b>\nunequip: /unequip_shoulders"
     else:
         on_shoulders = 'Ничего'
     if player.on_character['legs'] is not None:
-        on_legs = get_equipment(player.on_character['legs']).name
+        on_legs = "<b>" + get_equipment(player.on_character['legs']).name + "</b>\nunequip: /unequip_legs"
     else:
         on_legs = 'Ничего'
     if player.on_character['feet'] is not None:
-        on_feet = get_equipment(player.on_character['feet']).name
+        on_feet = "<b>" + get_equipment(player.on_character['feet']).name + "</b>\nunequip: /unequip_feet"
     else:
         on_feet = 'Ничего'
     if player.on_character['left_arm'] is not None:
-        on_larm = get_equipment(player.on_character['left_arm']).name
+        on_larm = "<b>" + get_equipment(player.on_character['left_arm']).name + "</b>\nunequip: /unequip_left_arm"
     else:
         on_larm = 'Ничего'
     if player.on_character['right_arm'] is not None:
-        on_rarm = get_equipment(player.on_character['right_arm']).name
+        on_rarm = "<b>" + get_equipment(player.on_character['right_arm']).name + "</b>\nunequip: /unequip_right_arm"
     else:
         on_rarm = 'Ничего'
     if player.on_character['mount'] is not None:
-        mount = get_equipment(player.on_character['mount']).name
+        mount = "<b>" + get_equipment(player.on_character['mount']).name + "</b>\nunequip: /unequip_mount"
     else:
         mount = 'Ничего'
     bot.send_message(chat_id=update.message.chat_id, text="Голова - {0}\nТело - {1}\nПлечи - {2}\nНоги - {3}\n"
                                                               "Ботинки - {4}\nЛевая рука - {5}\n"
                                                               "Правая рука - {6}\nСредство передвижения - {7}".format(on_head, on_body,
-                                                            on_shoulders, on_legs, on_feet, on_larm, on_rarm, mount))
+                                                            on_shoulders, on_legs, on_feet, on_larm, on_rarm, mount), parse_mode = 'HTML')
 
 
 def print_backpacks(bot, update, user_data):
     player = get_player(update.message.from_user.id)
-    text = 'Экипировка:\n'
+    text = '<em>Экипировка:</em>\n'
     for i in player.eq_backpack:
-        eq = get_equipment(player.eq_backpack.get(i))
+        #print(i)
+        #print(player.eq_backpack.get(i))
+        eq = get_equipment(i)
         text += '<b>' + eq.name
         text += '</b>\n     '
         for j in eq.stats:
@@ -189,7 +191,8 @@ def print_backpacks(bot, update, user_data):
                 text += ' - <b>'
                 text += str(stat)
                 text += '</b>  '
-        text += '\n'
-    text += 'Расходуемые:\n'
-    text += 'Ресурсы:\n'
+        text += "\nequip: /equip_{0}".format(i)
+        text += '\n\n'
+    text += '\n\n<em>Расходуемые:</em>\n'
+    text += '\n\n<em>Ресурсы:</em>\n'
     bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode = 'HTML')

@@ -13,7 +13,6 @@ class Equipment(Item):
 
     def update_from_database(self):
         request = "SELECT type, name, endurance, power, armor, mana_points, agility FROM equipment WHERE id = '{0}'".format(self.id)
-        print(request)
         cursor.execute(request)
         row = cursor.fetchone()
         if row is None:

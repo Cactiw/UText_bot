@@ -13,6 +13,7 @@ from work_materials.filters.other_initiate_filters import *
 from work_materials.filters.service_filters import *
 from work_materials.filters.location_filters import *
 from work_materials.filters.info_filters import *
+from work_materials.filters.equipment_filters import *
 
 from bin.service_commands import *
 from bin.starting_player import *
@@ -54,8 +55,9 @@ def remove_resource(bot, update, args):
     player = get_player(update.message.from_user.id)
     print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
 
-def equip(bot, update, args):
-    eqipment = Equipment(0, args[0], 0, 0, 0, 0, 0, 0, 0)
+def equip(bot, update):
+    id = update.message.text.partition('_')[2]
+    eqipment = Equipment(0, id, 0, 0, 0, 0, 0, 0, 0)
     if eqipment.update_from_database() is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Этот предмет не найден в базе данных")
         return
@@ -69,8 +71,16 @@ def equip(bot, update, args):
         return
     bot.send_message(chat_id = update.message.from_user.id, text = "Успешно экипировано")
 
-def unequip(bot, update, args):
-    pass
+def unequip(bot, update):
+    id = update.message.from_user.id
+    player = get_player(id)
+    equipment_id = player.on_character.get(update.message.text.partition('_')[2])
+    if equipment_id is None:
+        bot.send_message(chat_id=update.message.from_user.id, text="Не найдено надетого предмета")
+        return
+    equipment = get_equipment(equipment_id)
+    player.unequip(equipment)
+    bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
     
     
 def travel(bot, update, user_data):
@@ -166,8 +176,8 @@ dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter and fi
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
 
-dispatcher.add_handler(CommandHandler("equip", equip, pass_user_data=False, pass_args=True))
-
+dispatcher.add_handler(MessageHandler(Filters.text and filter_equip, equip, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_unequip, unequip, pass_user_data=False))
 
 
 #-------------------
