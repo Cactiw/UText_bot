@@ -142,13 +142,12 @@ class Player:
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
 
-
     def unequip(self, equipment): # Снятие предмета
         self.add_item(self.eq_backpack, equipment, 1)
         self.on_character[equipment.place] = None
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) - equipment.stats.get(i)})
-
+    
 
     def change_location(self, location):
         self.location = location

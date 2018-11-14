@@ -122,6 +122,7 @@ dispatcher.add_handler(CommandHandler("return", return_to_location, pass_user_da
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("equipment", show_equipment))
 
 #Фильтры для повышения уровня игрока
 dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data=True))

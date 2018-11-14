@@ -122,3 +122,43 @@ def return_to_location(bot, update, user_data):
     if j is None:
         return
     j.schedule_removal()
+    
+    
+def show_equipment(bot, update):
+    player = get_player(update.message.from_user.id)
+    if player.on_character['head'] is not None:
+        on_head = player.on_character['head'].name
+    else:
+        on_head = 'Ничего'
+    if player.on_character['body'] is not None:
+        on_body = player.on_character['body'].name
+    else:
+        on_body = 'Ничего'
+    if player.on_character['shoulders'] is not None:
+        on_shoulders = player.on_character['shoulders'].name
+    else:
+        on_shoulders = 'Ничего'
+    if player.on_character['legs'] is not None:
+        on_legs = player.on_character['legs'].name
+    else:
+        on_legs = 'Ничего'
+    if player.on_character['feet'] is not None:
+        on_feet = player.on_character['feet'].name
+    else:
+        on_feet = 'Ничего'
+    if player.on_character['left_arm'] is not None:
+        on_larm = player.on_character['left_arm'].name
+    else:
+        on_larm = 'Ничего'
+    if player.on_character['right_arm'] is not None:
+        on_rarm = player.on_character['right_arm'].name
+    else:
+        on_rarm = 'Ничего'
+    if player.on_character['mount'] is not None:
+        mount = player.on_character['mount'].name
+    else:
+        mount = 'Ничего'
+    bot.send_message(chat_id=update.message.chat_id, text="Голова - {0}\nТело - {1}\nПлечи - {2}\nНоги - {3}\n"
+                                                              "Ботинки - {4}\nЛевая рука - {5}\n"
+                                                              "Правая рука - {6}\nСредство передвижения - {7}".format(on_head, on_body,
+                                                            on_shoulders, on_legs, on_feet, on_larm, on_rarm, mount))
