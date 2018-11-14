@@ -140,8 +140,12 @@ class Player:
         print("before equip", self.stats)
         print(equipment.place)
         if self.on_character[equipment.place] is not None:
-            if self.remove_item(self.eq_backpack, equipment, 1) == 1:
-                return 1
+            #self.unequip() #TODO сделать
+            pass
+        return_key = self.remove_item(self.eq_backpack, equipment, 1)
+        if return_key != 0:
+            print(return_key)
+            return return_key
         self.on_character[equipment.place] = equipment.id
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
@@ -192,8 +196,10 @@ class Player:
         self.location = row[24]
         self.resources.update(gold = row[25], metal = row[26], wood = row[27])
 
-        self.on_character.update(head = row[28], body = row[29], shoulders = row[30], legs = row[31], feet = row[32],
-                                 left_arm = row[33], right_arm = row[34], mount = row[35])
+        self.on_character.update(head = row[28] if row[28] != 'None' else None, body = row[29] if row[29] != 'None' else None,
+                                 shoulders = row[30] if row[30] != 'None' else None, legs = row[31] if row[31] != 'None' else None,
+                                 feet = row[32] if row[32] != 'None' else None, left_arm = row[33] if row[33] != 'None' else None,
+                                 right_arm = row[34] if row[34] != 'None' else None, mount = row[35] if row[35] != 'None' else None)
         request = "SELECT * FROM inv_{0}".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()

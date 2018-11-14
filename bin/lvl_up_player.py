@@ -1,6 +1,5 @@
 from telegram import ReplyKeyboardRemove
-from bin.show_general_buttons import show_general_buttons
-from work_materials.player_service import *
+from bin.player_service import *
 
 
 def choose_points(bot, update, user_data):

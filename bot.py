@@ -6,19 +6,16 @@ from telegram.ext import CommandHandler, MessageHandler, Filters
 
 import threading
 import multiprocessing
-from multiprocessing import Process, Queue
 
 from work_materials.filters.class_filters import *
 from work_materials.filters.fraction_filters import *
 from work_materials.filters.other_initiate_filters import *
 from work_materials.filters.service_filters import *
 from work_materials.filters.location_filters import *
-from work_materials.player_service import *
 
 from bin.service_commands import *
 from bin.starting_player import *
 from bin.save_load_user_data import *
-from bin.show_general_buttons import show_general_buttons
 from bin.lvl_up_player import *
 
 import work_materials.globals
@@ -57,13 +54,17 @@ def remove_resource(bot, update, args):
     print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
 
 def equip(bot, update, args):
-    eqipment = Equipment(0, args[0], 0, 0, 0, 0, 0, 0, 0, 0)
+    eqipment = Equipment(0, args[0], 0, 0, 0, 0, 0, 0)
     if eqipment.update_from_database() is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Этот предмет не найден в базе данных")
         return
     player = get_player(update.message.from_user.id)
-    if player.equip(eqipment) == 1:
+    return_code = player.equip(eqipment)
+    if return_code == 1:
         bot.send_message(chat_id=update.message.from_user.id, text="Этого предмета нет в вашем инвентаре")
+        return
+    if return_code == -1:
+        bot.send_message(chat_id=update.message.from_user.id, text="Ошибка")
         return
     bot.send_message(chat_id = update.message.from_user.id, text = "Успешно экипировано")
 
