@@ -115,9 +115,15 @@ def choose_way(bot, update, user_data):
 
 
 def fast_travel(bot, update, user_data):
-    bot.send_message(chat_id=update.message.chat_id, text="Fast Travel")
+    button_list = [
+        KeyboardButton('Инфо'),
+        KeyboardButton('Вернуться')
+    ]
+    buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
+    bot.send_message(chat_id=update.message.chat_id, text='', reply_matkup=buttons)
     player = get_player(update.message.from_user.id)
     travel_jobs.get(player.id).run(bot)
+
 
 
 #Фильтр на старт игры
@@ -136,6 +142,7 @@ dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=
 dispatcher.add_handler(CommandHandler("return", return_to_location, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
+dispatcher.add_handler(MessageHandler(Filter.text, print_player, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
 
@@ -148,6 +155,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 #Фильтр для перемещения
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter, return_to_location, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
