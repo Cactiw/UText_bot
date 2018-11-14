@@ -5,14 +5,10 @@ class Equipment(Item):
 
     def __init__(self, type, id, name,  place, endurance, power, armor, intelligence, accuracy, agility):
         super(Equipment, self).__init__(type, id)
+
         self.name = name
         self.place = place
-        self.endurance = endurance
-        self.power = power
-        self.armor = armor
-        self.intelligence = intelligence
-        self.accuracy = accuracy
-        self.agility = agility
+        self.stats = {'endurance': 0, 'power': 0, 'armor': 0, 'agility': 0, 'mana_points': 0}
 
     def update_from_database(self):
         request = "SELECT type, name, endurance, power, armor, intelligence, accuracy, agility FROM equipment WHERE id = '{0}'".format(self.id)

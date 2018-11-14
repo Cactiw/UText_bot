@@ -120,18 +120,13 @@ class Player:
         self.stats["endurance"] += 1
         self.stats["power"] += 1
         self.stats["armor"] += 1
-        self.stats["intelligence"] += 1
         self.stats["mana_points"] += 1
-        self.stats["accuracy"] += 1
         self.stats["agility"] += 1
         if self.game_class == "Warrior":
-            self.stats["power"] += 1
             self.stats["armor"] += 1
         elif self.game_class == "Mage" or self.game_class == "Cleric":
-            self.stats["intelligence"] += 1
             self.stats["mana_points"] += 1
         elif self.game_class == "Archer":
-            self.stats["accuracy"] += 1
             self.stats["agility"] += 1
         dispatcher.bot.send_message(chat_id = self.id, text = "LEVELUP!\nUse /lvl_up to choose a skill to upgrade")
         #TODO send message + choose_skill
@@ -141,15 +136,18 @@ class Player:
             self.lvl_up(self)
 
     def equip(self, equipment): # Надевание предмета
-        if self.on_character[equipment.place] != None:
+        if self.on_character[equipment.place] is not None:
             self.add_item(self.eq_backpack, equipment, 1)
         self.on_character[equipment.place] = equipment.id
-        #request = "SELECT endurance, power, armor, intelligence, mana_points, accuracy, agility FROM equipment WHERE id = {0}".format(equipment.id)
-        self.stats.update({"endurance" : self.stats.get("endurance") + equipment.endurance})
+        for i in self.stats:
+            self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
+
 
     def unequip(self, equipment): # Снятие предмета
         self.add_item(self.eq_backpack, equipment, 1)
         self.on_character[equipment.place] = None
+        for i in self.stats:
+            self.stats.update({i: self.stats.get(i) - equipment.stats.get(i)})
 
 
     def change_location(self, location):
