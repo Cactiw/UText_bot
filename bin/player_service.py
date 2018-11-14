@@ -78,7 +78,8 @@ def print_player(bot, update, user_data):
     player = get_player(id)
     if player is None:
         return
-    user_data.update({'saved_status': player.status})
+    if player.status != user_data.get('saved_status'):
+        user_data.update({'saved_status': player.status})
     update_status('Info', player, user_data)
     if player.sex == 0:
         sex = 'Мужской'
