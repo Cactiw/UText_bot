@@ -1,47 +1,6 @@
-
-from work_materials.globals import *
-from libs.player import Player
-from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import CommandHandler, MessageHandler, Filters
-from work_materials.filters.other_initiate_filters import *
+from telegram import ReplyKeyboardRemove
 from bin.show_general_buttons import show_general_buttons
-
-
-def players_update(q):
-    try:
-        data = q.get()
-        while data is not None:
-            data.update_to_database(conn, cursor)
-            data = q.get()
-        return
-    except KeyboardInterrupt:
-        if q.empty:
-            print("No users need to be updated, return")
-            return
-        print("Writing all updated users to database, wait...")
-        while not q.empty():
-            data = q.get()
-            data.update_to_database(conn, cursor)
-        print("All users are in database and updated")
-        return
-
-
-def get_player(id):
-    player = players.get(id)
-    if player is not None:
-        return player
-    player = Player(id, 0, 0, 0, 0, 0, 0)
-    if player.update_from_database(cursor) is None:
-        return None
-    players.update({player.id : player})
-    return player
-
-
-def update_status(status, id, user_data):
-    player = get_player(id)
-    player.status = status
-    players.update({id: player})
-    user_data.update({"status": status})
+from work_materials.player_service import *
 
 
 def choose_points(bot, update, user_data):

@@ -186,12 +186,6 @@ class Player:
         self.mana = row[22]
         self.hp = row[23]
         self.location = row[24]
-        if self.fraction == 'Люди':
-            self.location = 14
-        elif self.fraction == 'Эльфы':
-            self.location = 15
-        elif self.fraction == 'Орки':
-            self.location = 16
         self.resources.update(gold = row[25], metal = row[26], wood = row[27])
 
         self.on_character.update(head = row[28], body = row[29], shoulders = row[30], legs = row[31], feet = row[32],
