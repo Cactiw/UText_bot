@@ -117,12 +117,7 @@ def choose_way(bot, update, user_data):
         work_materials.globals.logging.error('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
     else:
         update_status('Traveling', player, user_data)
-        button_list = [
-            KeyboardButton('Инфо'),
-            KeyboardButton('Вернуться')
-        ]
-        buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
-        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)), reply_markup=buttons)
+        bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)), reply_markup=traveling_buttons)
         #TODO понять, почему не работает с орками и эльфами
         contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
                    'update': update, 'user_data': user_data}

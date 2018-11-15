@@ -110,3 +110,15 @@ __tower_button_list = [
 ]
 tower_buttons = ReplyKeyboardMarkup(build_menu(__tower_button_list, n_cols=2), resize_keyboard=True)
 
+__traveling_buttons_list = [
+    KeyboardButton('Инфо'),
+    KeyboardButton('Вернуться')
+]
+traveling_buttons = ReplyKeyboardMarkup(build_menu(__traveling_buttons_list, n_cols=2), resize_keyboard=True)
+
+__info_buttons_list = [
+    KeyboardButton('Рюкзак'),
+    KeyboardButton('Назад')
+]
+info_buttons = ReplyKeyboardMarkup(build_menu(__info_buttons_list, n_cols=2), resize_keyboard=True)
+

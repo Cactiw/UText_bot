@@ -3,6 +3,7 @@ from work_materials.globals import *
 from libs.player import *
 from bin.equipment_service import *
 from bin.starting_player import start
+from work_materials.filters.service_filters import filter_is_admin
 
 
 def get_player(id):
@@ -79,7 +80,7 @@ def print_player(bot, update, user_data):
     player = get_player(id)
     if player is None:
         return
-    if player.status != user_data.get('saved_status'):
+    if player.status == 'Info' and player.status != user_data.get('saved_status'):
         user_data.update({'saved_status': player.status})
     update_status('Info', player, user_data)
     if player.sex == 0:
@@ -87,27 +88,28 @@ def print_player(bot, update, user_data):
     else:
         sex = 'Женский'
     task = ''
-    if player.status == 'In Location':
+    if user_data.get('saved_status') == 'In Location':
         task += 'Отдых'
-    elif player.status == 'Choosing way':
+    elif user_data.get('saved_status') == 'Choosing way':
         task += 'Выбираете путь'
-    elif player.status == 'Traveling':
+    elif user_data.get('saved_status') == 'Traveling':
         j = travel_jobs.get(player.id)
-        #print(j.next_t)
-        print(j)
-        print(j.interval_seconds)
-        time = j.job.get_time_left()
-        time_str = ''
-        time_str += int(time//60)
-        time_str += ':'
-        time_str += int(time%60)
-        print(time)
-        task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
-    button_list = [
-        KeyboardButton('Рюкзак'),
-        KeyboardButton('Назад')
-    ]
-    buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
+        if j is not None:
+            time = j.get_time_left()
+            time_str = '<b>'
+            time_str += str(int(time//60))
+            time_str += ':'
+            sec = int(time%60)
+            if sec < 10:
+                time_str += '0'
+            time_str += str(sec)
+            time_str += '</b>'
+            print(time)
+            task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
+        else:
+            task += "Вы стоите на месте, наверное вы заблудились, вернитесь"
+            if filter_is_admin.filter(update.message):
+                task += " /return"
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {22}\n\nКласс - <b>{4}</b>"
                                                           "\n\nСтатус - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
                                                           "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
@@ -123,7 +125,7 @@ def print_player(bot, update, user_data):
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
         player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"],
         player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["mana_points"], task, locations.get(player.location).name),
-        parse_mode="HTML", reply_markup=buttons)
+        parse_mode="HTML", reply_markup=info_buttons)
 
 
 def return_to_location(bot, update, user_data):
