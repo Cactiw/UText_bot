@@ -143,8 +143,9 @@ def fast_travel(bot, update, user_data):
 
 #Фильтр на старт игры
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_select, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fraction_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_race, race_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_select, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data=True))
 
@@ -162,10 +163,10 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player
 dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_back and filter_in_info, return_from_info, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_info_return, return_from_info, pass_user_data=True))
 
 #Фильтры для повышения уровня игрока
-dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("lvl_up", lvl_up, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
@@ -173,7 +174,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 #Фильтр для перемещения
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter and filter_return, return_to_location, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter and filter_return, return_to_location_admin, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))

@@ -75,6 +75,6 @@ def show_general_buttons(bot, update, user_data):
             print("ERROR: WRONG STATUS in /bin/show_general_buttons.py")
             print(user_data)
     elif status == 'Traveling':
-        bot.send_message(chat_id=update.message.chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(int(user_data.get('new_location'))).name), reply_markup=traveling_buttons)
+        bot.send_message(chat_id=update.message.chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
 
 

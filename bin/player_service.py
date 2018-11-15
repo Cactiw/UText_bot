@@ -110,21 +110,24 @@ def print_player(bot, update, user_data):
             task += "Вы стоите на месте, наверное вы заблудились, вернитесь"
             if filter_is_admin.filter(update.message):
                 task += " /return"
+    lvl_up_str = "У вас остались нераспределенные очки /lvl_up\n" if (player.free_points != 0 or player.free_skill_points != 0) else ""
+    print(lvl_up_str)
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {22}\n\nКласс - <b>{4}</b>"
                                                           "\n\nСтатус - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
-                                                          "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
+                                                          "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n{23}\n"
                                                           "Первый навык - <b>{11}</b>-го уровня\nВторой навык - <b>{12}</b>-го уровня"
                                                           "\nТретий навык - <b>{13}</b>-го уровня\n"
                                                           "Четвертый навык - <b>{14}</b>-го уровня\n"
                                                           "Пятый навык - <b>{15}</b>-го уровня\n\nВыносливость - <b>{16}</b>\n"
-                                                          "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nЛовкость - <b>{19}</b>\n"
-                                                          "Очки маны - <b>{20}</b>\n\nЗанятие: {21}".format(
+                                                          "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nСкорость - <b>{19}</b>\n"
+                                                          "Заряд - <b>{20}</b>\n\nЗанятие: {21}\n".format(
         player.nickname, sex, player.race, player.fraction,
         player.game_class, player.status, player.exp, player.lvl,
         player.free_points, player.free_skill_points, player.fatigue,
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
         player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"],
-        player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["mana_points"], task, locations.get(player.location).name),
+        player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["charge"], task,
+        locations.get(player.location).name, lvl_up_str),  #23
         parse_mode="HTML", reply_markup=info_buttons)
 
 

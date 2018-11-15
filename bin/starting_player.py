@@ -15,11 +15,10 @@ def start(bot, update, user_data):
     user_data.clear()
     user_data.update(type = 1)
     button_list = [
-        KeyboardButton('Люди'),
-        KeyboardButton('Орки'),
-        KeyboardButton('Эльфы')
+        KeyboardButton('Федералы'),
+        KeyboardButton('Трибунал'),
+        KeyboardButton('Стая')
     ]
-    #print(user_data)
     reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3), resize_keyboard=True)
     bot.send_message(chat_id=update.message.chat_id, text='Выберите фракцию, за которую вы будете сражаться!', reply_markup = reply_markup)
     return
@@ -31,37 +30,30 @@ def fraction_select(bot, update, user_data):
         user_data.update({'fraction': update.message.text, 'type': 2})
 
         button_list = [
-            KeyboardButton('Люди'),
-            KeyboardButton('Орки'),
-            KeyboardButton('Эльфы')
+            KeyboardButton('Человек'),
+            KeyboardButton('Аппарат')
         ]
         reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3), resize_keyboard=True)
 
         bot.send_message(chat_id=update.message.chat_id, text='Вы выбрали фракцию <b>{0}</b>\n'
                                                               'Теперь необходимо выбрать расу!'.format(
             user_data.get('fraction')), parse_mode='HTML', reply_markup=reply_markup)
-        #print(user_data)
-        return
-    elif type is 2:    # Выбор расы
-        #print(user_data)
-        race_select(bot, update, user_data)
 
 
 def race_select(bot, update, user_data):
     user_data.update({'race': update.message.text, 'type': 3})
 
     button_list = [
-        KeyboardButton('Воин'),
-        KeyboardButton('Маг'),
-        KeyboardButton('Лучник'),
-        KeyboardButton('Клирик'),
+        KeyboardButton('Оператор'),
+        KeyboardButton('Канонир'),
+        KeyboardButton('Хакер'),
+        KeyboardButton('Биомеханик'),
     ]
     reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
 
     bot.send_message(chat_id=update.message.chat_id, text='Вы выбрали расу <b>{0}</b>\n'
                                                           'Теперь необходимо выбрать класс!'.format(
         user_data.get('race')), parse_mode='HTML', reply_markup=reply_markup)
-    #print(user_data)
     return
 
 
@@ -77,7 +69,6 @@ def class_select(bot, update, user_data):
         text='Отлично, вы выбрали класс <b>{0}</b>\n'
              'Выберите пол:'.format(user_data.get('class')),
         parse_mode = 'HTML', reply_markup = reply_markup)
-    #print(user_data)
     return
 
 
@@ -88,7 +79,6 @@ def sex_select(bot, update, user_data):
         text='Отлично, осталось всего лишь выбрать имя, '
              'под которым вас будут знать другие игроки!'.format(user_data.get('class')),
         parse_mode='HTML', reply_markup=ReplyKeyboardRemove())
-    #print(user_data)
     return
 
 
@@ -97,16 +87,15 @@ def nickname_select(bot, update, user_data):
     player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
                     user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
     player.status = 'In capital'  #TODO сделать статус 'starting' и сделать начальный квест
-    print(player.race)
-    if player.race == 'Люди':
+    if player.race == 'Федералы':
         player.location = 14
         user_data.update({'location_name': locations.get(14).name})
         user_data.update({'location': 14})
-    elif player.race == 'Эльфы':
+    elif player.race == 'Трибунал':
         player.location = 15
         user_data.update({'location_name': locations.get(15).name})
         user_data.update({'location': 15})
-    elif player.race == 'Орки':
+    elif player.race == 'Стая':
         player.location = 16
         user_data.update({'location_name': locations.get(16).name})
         user_data.update({'location': 16})

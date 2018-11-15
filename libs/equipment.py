@@ -3,12 +3,12 @@ from work_materials.globals import conn, cursor
 
 class Equipment(Item):
 
-    def __init__(self, type, id, name,  place, endurance, power, armor, agility, mana_points):
+    def __init__(self, type, id, name,  place, endurance, power, armor, agility, charge):
         super(Equipment, self).__init__(type, id)
 
         self.name = name
         self.place = place
-        self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'agility': agility, 'mana_points': mana_points}
+        self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'agility': agility, 'charge': charge}
 
 
     def update_from_database(self):
@@ -38,6 +38,6 @@ class Equipment(Item):
         self.stats.update({'endurance' : row[2]})
         self.stats.update({'power' : row[3]})
         self.stats.update({'armor' : row[4]})
-        self.stats.update({'mana_points' : row[5]})
+        self.stats.update({'charge' : row[5]})
         self.stats.update({'agility' : row[6]})
         return 0

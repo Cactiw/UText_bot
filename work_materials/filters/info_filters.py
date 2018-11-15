@@ -2,6 +2,7 @@
 from telegram.ext import BaseFilter
 from bin.player_service import *
 from work_materials.globals import *
+from work_materials.filters.service_filters import filter_back
 
 
 class FilterInfo(BaseFilter):
@@ -11,7 +12,6 @@ class FilterInfo(BaseFilter):
 
 class FilterInInfo(BaseFilter):
     def filter(self, message):
-        print(updater.dispatcher.user_data[message.from_user.id].get('status'))
         return updater.dispatcher.user_data[message.from_user.id].get('status') == "Info"
 
 
@@ -20,13 +20,13 @@ class FilterBackpack(BaseFilter):
         return message.text == 'Рюкзак'
 
 
+class FilterInfoReturn(BaseFilter):
+    def filter(self, message):
+        return filter_in_info(message) and filter_back(message)
+
+
 
 filter_info = FilterInfo()
 filter_in_info = FilterInInfo()
 filter_print_backpack = FilterBackpack()
-
-
-def return_from_info(bot, update, user_data):
-    player = get_player(update.message.from_user.id)
-    update_status(user_data.get('saved_status'), player, user_data)
-    show_general_buttons(bot, update, user_data)
+filter_info_return = FilterInfoReturn()

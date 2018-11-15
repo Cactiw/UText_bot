@@ -12,5 +12,11 @@ class FilterBack(BaseFilter):
         return message.text == "Назад"
 
 
+class MyFilterCommand(BaseFilter):
+    def filter(self, message):
+        return message.text[0] == '/'
+
+
 filter_is_admin= Filter_Is_Admin()
 filter_back = FilterBack()
+filter_command = MyFilterCommand()
