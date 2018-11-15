@@ -67,3 +67,4 @@ def delete_self(bot, update, user_data):
     except KeyError:
         pass
     bot.send_message(chat_id = mes.from_user.id, text = "Удаление игрока завершено", reply_markup=ReplyKeyboardRemove())
+    start(bot, update, user_data)
