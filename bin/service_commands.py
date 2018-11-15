@@ -1,5 +1,6 @@
-import work_materials.globals as globals
 from work_materials.globals import *
+from telegram import ReplyKeyboardRemove
+from libs.myJob import MyJob
 
 def sql(bot, update, user_data):
     mes = update.message
@@ -38,6 +39,9 @@ def delete_self(bot, update, user_data):
     conn.commit()
     bot.send_message(chat_id = mes.from_user.id, text = "Игрок удалён из таблицы игроков")
     request = "DROP TABLE inv_{0}".format(mes.from_user.id)
+    j = travel_jobs.get(mes.from_user.id)
+    if j is not None:
+        j.job.schedule_removal()
     try:
         cursor.execute(request)
     except:
@@ -53,4 +57,4 @@ def delete_self(bot, update, user_data):
         players.pop(mes.from_user.id)
     except KeyError:
         pass
-    bot.send_message(chat_id = mes.from_user.id, text = "Удаление игрока завершено")
+    bot.send_message(chat_id = mes.from_user.id, text = "Удаление игрока завершено", reply_markup=ReplyKeyboardRemove())

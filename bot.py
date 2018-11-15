@@ -1,5 +1,5 @@
 # Настройки
-from telegram.ext import CommandHandler, MessageHandler, Filters
+from telegram.ext import CommandHandler, MessageHandler, Filters, Job
 #updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
 
 #dispatcher = updater.dispatcher
@@ -23,6 +23,7 @@ from bin.lvl_up_player import *
 import work_materials.globals
 from libs.resorses import *
 from libs.equipment import *
+from libs.myJob import MyJob
 
 sys.path.append('../')
 
@@ -87,6 +88,7 @@ def travel(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
+    print(paths)
     path_buttons = []
     for i in paths:
         path_buttons.append(KeyboardButton(locations.get(i).name))
@@ -121,21 +123,26 @@ def choose_way(bot, update, user_data):
         ]
         buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
         bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)), reply_markup=buttons)
-        #TODO запустить таймер и после него уже изменять локацию игрока и выводить новые кнопки
+        #TODO понять, почему не работает с орками и эльфами
         contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
                    'update': update, 'user_data': user_data}
         if filter_is_admin(update.message):
             bot.send_message(chat_id=update.message.chat_id, text="Вы можете использовать /fasttravel")
         user_data.update({'new_location': new_loc_id})
-        travel_jobs.update({player.id: job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)})
+        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)
+        j = MyJob(tmp_job, paths.get(new_loc_id) * 60)
+        travel_jobs.update({player.id: j})
         return
 
 
 def fast_travel(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     j = travel_jobs.get(player.id)
+    print(j.get_time_left())
     if j is not None:
-        j.run(bot)
+        j.job.schedule_removal()
+        j.job.run(bot)
+
 
 
 
@@ -159,7 +166,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player
 dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_back, return_from_info, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_back and filter_in_info, return_from_info, pass_user_data=True))
 
 #Фильтры для повышения уровня игрока
 dispatcher.add_handler(CommandHandler("lvl_up", choose_skill, pass_user_data=True))

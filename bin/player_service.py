@@ -2,6 +2,7 @@ from bin.show_general_buttons import show_general_buttons
 from work_materials.globals import *
 from libs.player import *
 from bin.equipment_service import *
+from bin.starting_player import start
 
 
 def get_player(id):
@@ -95,9 +96,13 @@ def print_player(bot, update, user_data):
         #print(j.next_t)
         print(j)
         print(j.interval_seconds)
-        time = j.interval
+        time = j.job.get_time_left()
+        time_str = ''
+        time_str += int(time//60)
+        time_str += ':'
+        time_str += int(time%60)
         print(time)
-        task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time)
+        task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
     button_list = [
         KeyboardButton('Рюкзак'),
         KeyboardButton('Назад')

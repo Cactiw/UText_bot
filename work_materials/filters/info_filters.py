@@ -11,6 +11,7 @@ class FilterInfo(BaseFilter):
 
 class FilterInInfo(BaseFilter):
     def filter(self, message):
+        print(updater.dispatcher.user_data[message.from_user.id].get('status'))
         return updater.dispatcher.user_data[message.from_user.id].get('status') == "Info"
 
 

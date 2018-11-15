@@ -30,12 +30,12 @@ elf_farm_loc_4050 = Farm_Location(35, "Локация 40-50", 40)
 elf_farm_loc_4050.roads = {23: 15, 33: 8, 18: 5}
 
 orc_farm_loc_010 = Farm_Location(36, "Локация 0-10", 0)
-elf_farm_loc_010.roads = {16: 5, 37: 6, 38: 12}
+orc_farm_loc_010.roads = {16: 5, 37: 6, 38: 12}
 orc_farm_loc_1020 = Farm_Location(37, "Локация 10-20", 10)
-elf_farm_loc_1020.roads = {16: 5, 36: 6, 38: 10, 24: 10}
+orc_farm_loc_1020.roads = {16: 5, 36: 6, 38: 10, 24: 10}
 orc_farm_loc_2030 = Farm_Location(38, "Локация 20-30", 20)
-elf_farm_loc_2030.roads = {19: 10, 40: 8, 25: 15, 36: 12, 37: 10, 39: 7}
+orc_farm_loc_2030.roads = {19: 10, 40: 8, 25: 15, 36: 12, 37: 10, 39: 7}
 orc_farm_loc_3040 = Farm_Location(39, "Локация 30-40", 30)
-elf_farm_loc_3040.roads = {19: 5, 38: 7, 24: 10}
+orc_farm_loc_3040.roads = {19: 5, 38: 7, 24: 10}
 orc_farm_loc_4050 = Farm_Location(40, "Локация 40-50", 40)
-elf_farm_loc_4050.roads = {25: 15, 38: 8, 19: 5}
+orc_farm_loc_4050.roads = {25: 15, 38: 8, 19: 5}

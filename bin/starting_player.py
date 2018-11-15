@@ -125,5 +125,5 @@ def nickname_select(bot, update, user_data):
     user_data.pop('class')
     user_data.pop('sex')
     user_data.pop('username')
-    print(user_data)
+    print("New player -", player.nickname, user_data)
     return
