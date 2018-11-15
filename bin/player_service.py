@@ -80,7 +80,7 @@ def print_player(bot, update, user_data):
     player = get_player(id)
     if player is None:
         return
-    if player.status == 'Info' and player.status != user_data.get('saved_status'):
+    if player.status != 'Info' and player.status != user_data.get('saved_status'):
         user_data.update({'saved_status': player.status})
     update_status('Info', player, user_data)
     if player.sex == 0:
@@ -128,7 +128,7 @@ def print_player(bot, update, user_data):
         parse_mode="HTML", reply_markup=info_buttons)
 
 
-def return_to_location(bot, update, user_data):
+def return_to_location_admin(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     update_status('In Location', player, user_data)
     update_location(player.location, player, user_data)
@@ -137,7 +137,7 @@ def return_to_location(bot, update, user_data):
     show_general_buttons(bot, update, user_data)
     if j is None:
         return
-    j.schedule_removal()
+    j.job.schedule_removal()
     
     
 def show_equipment(bot, update):

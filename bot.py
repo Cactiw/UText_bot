@@ -154,7 +154,8 @@ dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters =
 dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
-dispatcher.add_handler(CommandHandler("return", return_to_location, pass_user_data=True, filters=filter_is_admin))
+dispatcher.add_handler(CommandHandler("return", return_to_location_admin, pass_user_data=True, filters=filter_is_admin))
+dispatcher.add_handler(CommandHandler("buttons", show_general_buttons, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player, pass_user_data=True))
