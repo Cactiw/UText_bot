@@ -33,6 +33,20 @@ def return_from_info(bot, update, user_data):
     show_general_buttons(bot, update, user_data)
 
 
+def update_player(bot, update, args):
+    id = None
+    if not args:
+        id = update.message.from_user.id
+    else:
+        id = int(args[0])
+    player = get_player(id)
+    if player is None:
+        bot.send_message(chat_id = update.message.from_user.id, text = "Игрок не найден, проверьте синтаксис")
+        return
+    player.update_from_database()
+    bot.send_message(chat_id=update.message.from_user.id, text="Игрок обновлён")
+
+
 def delete_self(bot, update, user_data):
     mes = update.message
     request = "DELETE FROM PLAYERS WHERE id = '{0}'".format(mes.from_user.id)
