@@ -140,6 +140,8 @@ dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
 dispatcher.add_handler(CommandHandler("return", return_to_location, pass_user_data=True, filters=filter_is_admin))
+dispatcher.add_handler(CommandHandler("update_player", update_player, pass_args=True, filters=filter_is_admin))
+
 
 #Фильтр для вывода инфаормации об игроке
 dispatcher.add_handler(MessageHandler(Filter.text, print_player, pass_user_data=True))
@@ -160,7 +162,6 @@ dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter, retur
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
-
 dispatcher.add_handler(CommandHandler("equip", equip, pass_user_data=False, pass_args=True))
 
 

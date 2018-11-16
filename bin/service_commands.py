@@ -1,5 +1,6 @@
 import work_materials.globals as globals
 from work_materials.globals import *
+from work_materials.player_service import *
 
 def sql(bot, update, user_data):
     mes = update.message
@@ -22,6 +23,21 @@ def sql(bot, update, user_data):
         row = cursor.fetchone()
         response += "\n\n"
     bot.send_message(chat_id=mes.from_user.id, text=response)
+
+
+def update_player(bot, update, args):
+    id = None
+    if not args:
+        id = update.message.from_user.id
+    else:
+        id = int(args[0])
+    player = get_player(id)
+    if player is None:
+        bot.send_message(chat_id = update.message.from_user.id, text = "Игрок не найден, проверьте синтаксис")
+        return
+    player.update_from_database()
+    bot.send_message(chat_id=update.message.from_user.id, text="Игрок обновлён")
+
 
 def delete_self(bot, update, user_data):
     mes = update.message
