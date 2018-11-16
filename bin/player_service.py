@@ -1,6 +1,9 @@
 from bin.show_general_buttons import show_general_buttons
 from work_materials.globals import *
 from libs.player import *
+from bin.equipment_service import *
+from bin.starting_player import start
+from work_materials.filters.service_filters import filter_is_admin
 
 
 def get_player(id):
@@ -51,7 +54,7 @@ def set_status(bot, update, user_data, args):
             status += ' '
         j += 1
     print(status)
-    update_status(status, players.get(update.message.from_user.id, user_data))
+    update_status(status, get_player(update.message.from_user.id), user_data)
     print(user_data)
 
 
@@ -77,42 +80,58 @@ def print_player(bot, update, user_data):
     player = get_player(id)
     if player is None:
         return
+    if player.status != 'Info' and player.status != user_data.get('saved_status'):
+        user_data.update({'saved_status': player.status})
+    update_status('Info', player, user_data)
     if player.sex == 0:
         sex = 'Мужской'
     else:
         sex = 'Женский'
     task = ''
-    if player.status == 'In Location':
+    if user_data.get('saved_status') == 'In Location':
         task += 'Отдых'
-    elif player.status == 'Choosing way':
+    elif user_data.get('saved_status') == 'Choosing way':
         task += 'Выбираете путь'
-    elif player.status == 'Traveling':
+    elif user_data.get('saved_status') == 'Traveling':
         j = travel_jobs.get(player.id)
-        #print(j.next_t)
-        print(j)
-        print(j.interval_seconds)
-        time = j.interval
-        print(time)
-        task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time)
+        if j is not None:
+            time = j.get_time_left()
+            time_str = '<b>'
+            time_str += str(int(time//60))
+            time_str += ':'
+            sec = int(time%60)
+            if sec < 10:
+                time_str += '0'
+            time_str += str(sec)
+            time_str += '</b>'
+            print(time)
+            task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
+        else:
+            task += "Вы стоите на месте, наверное вы заблудились, вернитесь"
+            if filter_is_admin.filter(update.message):
+                task += " /return"
+    lvl_up_str = "У вас остались нераспределенные очки /lvl_up\n" if (player.free_points != 0 or player.free_skill_points != 0) else ""
+    print(lvl_up_str)
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {22}\n\nКласс - <b>{4}</b>"
                                                           "\n\nСтатус - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
-                                                          "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n\n"
+                                                          "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n{23}\n"
                                                           "Первый навык - <b>{11}</b>-го уровня\nВторой навык - <b>{12}</b>-го уровня"
                                                           "\nТретий навык - <b>{13}</b>-го уровня\n"
                                                           "Четвертый навык - <b>{14}</b>-го уровня\n"
                                                           "Пятый навык - <b>{15}</b>-го уровня\n\nВыносливость - <b>{16}</b>\n"
-                                                          "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nЛовкость - <b>{19}</b>\n"
-                                                          "Очки маны - <b>{20}</b>\n\nЗанятие: {21}".format(
+                                                          "Броня - <b>{17}</b>\nСила - <b>{18}</b>\nСкорость - <b>{19}</b>\n"
+                                                          "Заряд - <b>{20}</b>\n\nЗанятие: {21}\n".format(
         player.nickname, sex, player.race, player.fraction,
         player.game_class, player.status, player.exp, player.lvl,
         player.free_points, player.free_skill_points, player.fatigue,
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
         player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"],
-        player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["mana_points"], task, locations.get(player.location).name),
-        parse_mode="HTML")
+        player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["charge"], task,
+        locations.get(player.location).name, lvl_up_str),  #23
+        parse_mode="HTML", reply_markup=info_buttons)
 
 
-def return_to_location(bot, update, user_data):
+def return_to_location_admin(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     update_status('In Location', player, user_data)
     update_location(player.location, player, user_data)
@@ -121,44 +140,69 @@ def return_to_location(bot, update, user_data):
     show_general_buttons(bot, update, user_data)
     if j is None:
         return
-    j.schedule_removal()
+    j.job.schedule_removal()
     
     
 def show_equipment(bot, update):
     player = get_player(update.message.from_user.id)
+    #print(player.on_character['head'])
+    #print(player.on_character['body'])
     if player.on_character['head'] is not None:
-        on_head = player.on_character['head'].name
+        on_head = "<b>" + get_equipment(player.on_character['head']).name + "</b>\nunequip: /unequip_head"
     else:
         on_head = 'Ничего'
     if player.on_character['body'] is not None:
-        on_body = player.on_character['body'].name
+        on_body = "<b>" + get_equipment(player.on_character['body']).name + "</b>\nunequip: /unequip_body"
     else:
         on_body = 'Ничего'
     if player.on_character['shoulders'] is not None:
-        on_shoulders = player.on_character['shoulders'].name
+        on_shoulders = "<b>" + get_equipment(player.on_character['shoulders']).name + "</b>\nunequip: /unequip_shoulders"
     else:
         on_shoulders = 'Ничего'
     if player.on_character['legs'] is not None:
-        on_legs = player.on_character['legs'].name
+        on_legs = "<b>" + get_equipment(player.on_character['legs']).name + "</b>\nunequip: /unequip_legs"
     else:
         on_legs = 'Ничего'
     if player.on_character['feet'] is not None:
-        on_feet = player.on_character['feet'].name
+        on_feet = "<b>" + get_equipment(player.on_character['feet']).name + "</b>\nunequip: /unequip_feet"
     else:
         on_feet = 'Ничего'
     if player.on_character['left_arm'] is not None:
-        on_larm = player.on_character['left_arm'].name
+        on_larm = "<b>" + get_equipment(player.on_character['left_arm']).name + "</b>\nunequip: /unequip_left_arm"
     else:
         on_larm = 'Ничего'
     if player.on_character['right_arm'] is not None:
-        on_rarm = player.on_character['right_arm'].name
+        on_rarm = "<b>" + get_equipment(player.on_character['right_arm']).name + "</b>\nunequip: /unequip_right_arm"
     else:
         on_rarm = 'Ничего'
     if player.on_character['mount'] is not None:
-        mount = player.on_character['mount'].name
+        mount = "<b>" + get_equipment(player.on_character['mount']).name + "</b>\nunequip: /unequip_mount"
     else:
         mount = 'Ничего'
     bot.send_message(chat_id=update.message.chat_id, text="Голова - {0}\nТело - {1}\nПлечи - {2}\nНоги - {3}\n"
                                                               "Ботинки - {4}\nЛевая рука - {5}\n"
                                                               "Правая рука - {6}\nСредство передвижения - {7}".format(on_head, on_body,
-                                                            on_shoulders, on_legs, on_feet, on_larm, on_rarm, mount))
+                                                            on_shoulders, on_legs, on_feet, on_larm, on_rarm, mount), parse_mode = 'HTML')
+
+
+def print_backpacks(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    text = '<em>Экипировка:</em>\n'
+    for i in player.eq_backpack:
+        #print(i)
+        #print(player.eq_backpack.get(i))
+        eq = get_equipment(i)
+        text += '<b>' + eq.name
+        text += '</b>\n     '
+        for j in eq.stats:
+            stat = eq.stats.get(j)
+            if stat != 0:
+                text += j
+                text += ' - <b>'
+                text += str(stat)
+                text += '</b>  '
+        text += "\nequip: /equip_{0}".format(i)
+        text += '\n\n'
+    text += '\n\n<em>Расходуемые:</em>\n'
+    text += '\n\n<em>Ресурсы:</em>\n'
+    bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode = 'HTML')

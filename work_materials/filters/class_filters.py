@@ -4,41 +4,41 @@ from work_materials.globals import *
 
 
 
-class Filter_Warrior(BaseFilter):
+class FilterOperator(BaseFilter):
     def filter(self, message):
-        return 'Воин' in message.text
+        return 'Оператор' in message.text
 
-filter_warrior= Filter_Warrior()
+filter_operator= FilterOperator()
 
 
 
-class Filter_Mage(BaseFilter):
+class FilterCannonier(BaseFilter):
     def filter(self, message):
-        return 'Маг' in message.text
+        return 'Канонир' in message.text
 
-filter_mage= Filter_Mage()
+filter_cannonier= FilterCannonier()
 
 
 
-class Filter_Archer(BaseFilter):
+class FilterHacker(BaseFilter):
     def filter(self, message):
-        return 'Лучник' in message.text
+        return 'Хакер' in message.text
 
-filter_archer= Filter_Archer()
+filter_hacker= FilterHacker()
 
 
 
-class Filter_Cleric(BaseFilter):
+class FilterBiomechanic(BaseFilter):
     def filter(self, message):
-        return 'Клирик' in message.text
+        return 'Биомеханик' in message.text
 
-filter_cleric= Filter_Cleric()
+filter_biomechanic= FilterBiomechanic()
 
 
 
 class Filter_Classes(BaseFilter):
     def filter(self, message):
-        return (filter_warrior(message) or filter_mage(message) or filter_archer(message) or filter_cleric(message)) and \
+        return (filter_operator(message) or filter_cannonier(message) or filter_hacker(message) or filter_biomechanic(message)) and \
                dispatcher.user_data[message.from_user.id].get('type') == 3
 
 filter_classes = Filter_Classes()

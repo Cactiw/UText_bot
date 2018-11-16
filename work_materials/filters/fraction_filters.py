@@ -1,37 +1,48 @@
 from telegram.ext import BaseFilter
 from work_materials.globals import *
 
-#from bot import dispatcher
 
-
-
-class Filter_Human(BaseFilter):
+class FilterFeds(BaseFilter):
     def filter(self, message):
-        return 'Люди' in message.text
-
-filter_human= Filter_Human()
+        return 'Федералы' in message.text
 
 
-class Filter_Orcs(BaseFilter):
+class FilterStai(BaseFilter):
     def filter(self, message):
-        return 'Орки' in message.text
-
-filter_orcs= Filter_Orcs()
+        return 'Стая' in message.text
 
 
-class Filter_Elves(BaseFilter):
+class FilterTrib(BaseFilter):
     def filter(self, message):
-        return 'Эльфы' in message.text
-
-filter_elves= Filter_Elves()
+        return 'Трибунал' in message.text
 
 
-
-class Filter_fractions(BaseFilter):
-    global dispatcher
+class FilterFractions(BaseFilter):
     def filter(self, message):
-        return (filter_human(message) or filter_orcs(message) or filter_elves(message)) and \
-               (dispatcher.user_data[message.from_user.id].get('type') == 1 or
-                dispatcher.user_data[message.from_user.id].get('type') == 2)
+        return (filter_feds(message) or filter_stai(message) or filter_trib(message)) and \
+               dispatcher.user_data[message.from_user.id].get('type') == 1
 
-filter_fractions = Filter_fractions()
+
+class FilterHuman(BaseFilter):
+    def filter(self, message):
+        return message.text == 'Человек'
+
+
+class FilterApparatus(BaseFilter):
+    def filter(self, message):
+        return message.text == 'Аппарат'
+
+
+class FilterRace(BaseFilter):
+    def filter(self, message):
+        return (filter_human(message) or filter_apparatus(message))and \
+                dispatcher.user_data[message.from_user.id].get('type') == 2
+
+
+filter_stai= FilterStai()
+filter_feds= FilterFeds()
+filter_trib= FilterTrib()
+filter_fractions = FilterFractions()
+filter_human = FilterHuman()
+filter_apparatus = FilterApparatus()
+filter_race = FilterRace()

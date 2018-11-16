@@ -16,8 +16,14 @@ def loadData():
 def saveData():
     global processing
     try:
-        while work_materials.globals.processing:
-            time.sleep(30)
+        exit = 0
+        while work_materials.globals.processing and exit == 0:
+            #time.sleep(30)
+            for i in range(0, 6):
+                time.sleep(5)
+                if work_materials.globals.processing == 0:
+                        exit = 1
+                        break
             # Before pickling
             print("Writing data, do not shutdown bot...")
             try:

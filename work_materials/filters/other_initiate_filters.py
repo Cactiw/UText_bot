@@ -29,7 +29,7 @@ filter_lvl_up_skill = Filter_Lvl_Up_Skill()
 class Filter_Lvl_Up_Points(BaseFilter):
     def filter(self, message):
         if dispatcher.user_data[message.from_user.id].get('status') == "Lvl_up_points":
-            a = ["Выносливость", "Броня", "Сила", "Ловкость", "Очки маны", "Готово"]
+            a = ["Выносливость", "Броня", "Сила", "Скорость", "Заряд", "Готово"]
             for i in range(0, len(a)):
                 if message.text == a[i]:
                     return 1

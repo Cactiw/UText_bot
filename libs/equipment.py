@@ -3,16 +3,16 @@ from work_materials.globals import conn, cursor
 
 class Equipment(Item):
 
-    def __init__(self, type, id, name,  place, endurance, power, armor, agility, mana_points):
+    def __init__(self, type, id, name,  place, endurance, power, armor, agility, charge):
         super(Equipment, self).__init__(type, id)
 
         self.name = name
         self.place = place
-        self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'agility': agility, 'mana_points': mana_points}
+        self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'agility': agility, 'charge': charge}
+
 
     def update_from_database(self):
-        request = "SELECT type, name, endurance, power, armor, intelligence, accuracy, agility FROM equipment WHERE id = '{0}'".format(self.id)
-        print(request)
+        request = "SELECT type, name, endurance, power, armor, mana_points, agility FROM equipment WHERE id = '{0}'".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()
         if row is None:
@@ -38,7 +38,6 @@ class Equipment(Item):
         self.stats.update({'endurance' : row[2]})
         self.stats.update({'power' : row[3]})
         self.stats.update({'armor' : row[4]})
-        self.stats.update({'intelligence' : row[5]})
-        self.stats.update({'accuracy' : row[6]})
-        self.stats.update({'agility' : row[7]})
+        self.stats.update({'charge' : row[5]})
+        self.stats.update({'agility' : row[6]})
         return 0

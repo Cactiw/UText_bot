@@ -29,20 +29,20 @@ class Player:
         self.fourth_skill_lvl = 0
         self.fifth_skill_lvl = 0
 
-        self.stats = {'endurance' : 5, 'power' : 5, 'armor' : 5, 'mana_points' : 5,
-                    'agility' : 5, }
+        self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
+                    'agility': 5, }
 
-        self.mana = self.stats['mana_points'] * 15
+        self.charge = self.stats['charge'] * 15
         self.hp = self.stats['endurance'] * 15
         self.take_damage_by_armor = 0
 
         self.location = 0
 
-        if self.fraction == 'Люди':
+        if self.fraction == 'Федералы':
             self.location = 14
-        elif self.fraction == 'Эльфы':
+        elif self.fraction == 'Трибунал':
             self.location = 15
-        elif self.fraction == 'Орки':
+        elif self.fraction == 'Стая':
             self.location = 16
 
         self.resources = {'gold' : 0, 'metal' : 0, 'wood' : 0}
@@ -65,7 +65,7 @@ class Player:
                                                                                                  item.id, quanty)
             cursor.execute(request)
             conn.commit()
-            print("Item added to database")
+            #print("Item added to database")
             return
         quanty += int(count)
         list.update({item.id: quanty})
@@ -73,7 +73,7 @@ class Player:
         request = "UPDATE inv_{0} SET type = '{1}', quanty = '{3}' WHERE id = '{2}'".format(self.id, item.type, item.id, quanty)
         cursor.execute(request)
         conn.commit()
-        print("Item quanty edited in database")
+        #print("Item quanty edited in database")
         return 0
 
     def remove_item(self, list, item, count):
@@ -97,6 +97,7 @@ class Player:
         conn.commit()
         return 0
 
+
     def lvl_up_skill(self, skill_number):
         if(skill_number == '1'): self.first_skill_lvl += 1
         elif(skill_number == "2"): self.second_skill_lvl += 1
@@ -109,8 +110,8 @@ class Player:
         if(stat == "Выносливость"): self.stats["endurance"] += 1
         elif(stat == "Броня"): self.stats["armor"] += 1
         elif(stat == "Сила"): self.stats["power"] += 1
-        elif(stat == "Ловкость"): self.stats["agility"] += 1
-        elif(stat == "Очки маны"): self.stats["mana_points"] += 1
+        elif(stat == "Скорость"): self.stats["agility"] += 1
+        elif(stat == "Заряд"): self.stats["charge"] += 1
         else: return None
 
     @staticmethod
@@ -121,12 +122,12 @@ class Player:
         self.stats["endurance"] += 1
         self.stats["power"] += 1
         self.stats["armor"] += 1
-        self.stats["mana_points"] += 1
+        self.stats["charge"] += 1
         self.stats["agility"] += 1
         if self.game_class == "Warrior":
             self.stats["armor"] += 1
         elif self.game_class == "Mage" or self.game_class == "Cleric":
-            self.stats["mana_points"] += 1
+            self.stats["charge"] += 1
         elif self.game_class == "Archer":
             self.stats["agility"] += 1
         dispatcher.bot.send_message(chat_id = self.id, text = "LEVELUP!\nUse /lvl_up to choose a skill to upgrade")
@@ -137,16 +138,20 @@ class Player:
             self.lvl_up(self)
 
     def equip(self, equipment): # Надевание предмета
-        print("before equip", self.stats)
-        print(equipment.place)
+        #print("before equip", self.stats)
+        #print(equipment.place)
         if self.on_character[equipment.place] is not None:
-            if self.remove_item(self.eq_backpack, equipment, 1) == 1:
-                return 1
+            #self.unequip() #TODO сделать
+            pass
+        return_key = self.remove_item(self.eq_backpack, equipment, 1)
+        if return_key != 0:
+            print(return_key)
+            return return_key
         self.on_character[equipment.place] = equipment.id
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
         players_need_update.put(self)
-        print("after equip", self.stats)
+        #print("after equip", self.stats)
 
 
     def unequip(self, equipment): # Снятие предмета
@@ -186,14 +191,16 @@ class Player:
         self.third_skill_lvl = row[14]
         self.fourth_skill_lvl = row[15]
         self.fifth_skill_lvl = row[16]
-        self.stats.update(endurance = row[17], power = row[18], armor = row[19], mana_points = row[20], agility = row[21])
-        self.mana = row[22]
+        self.stats.update(endurance = row[17], power = row[18], armor = row[19], charge = row[20], agility = row[21])
+        self.charge = row[22]
         self.hp = row[23]
         self.location = row[24]
         self.resources.update(gold = row[25], metal = row[26], wood = row[27])
 
-        self.on_character.update(head = row[28], body = row[29], shoulders = row[30], legs = row[31], feet = row[32],
-                                 left_arm = row[33], right_arm = row[34], mount = row[35])
+        self.on_character.update(head = row[28] if row[28] != 'None' else None, body = row[29] if row[29] != 'None' else None,
+                                 shoulders = row[30] if row[30] != 'None' else None, legs = row[31] if row[31] != 'None' else None,
+                                 feet = row[32] if row[32] != 'None' else None, left_arm = row[33] if row[33] != 'None' else None,
+                                 right_arm = row[34] if row[34] != 'None' else None, mount = row[35] if row[35] != 'None' else None)
         request = "SELECT * FROM inv_{0}".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()
@@ -223,8 +230,8 @@ class Player:
                                                            self.first_skill_lvl,self.second_skill_lvl, self.third_skill_lvl,
                                                            self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
-                                                           self.stats['mana_points'], self.stats['agility'],
-                                                           self.mana, self.hp, self.location,
+                                                           self.stats['charge'], self.stats['agility'],
+                                                           self.charge, self.hp, self.location,
                                                            self.resources['gold'], self.resources['metal'],
                                                            self.resources['wood'], self.on_character['head'],
                                                            self.on_character['body'], self.on_character['shoulders'],
@@ -253,8 +260,8 @@ class Player:
                                                            self.free_points, self.free_skill_points, self.fatigue, self.first_skill_lvl,
                                                            self.second_skill_lvl, self.third_skill_lvl, self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
-                                                           self.stats['mana_points'], self.stats['agility'],
-                                                           self.mana, self.hp, self.location,
+                                                           self.stats['charge'], self.stats['agility'],
+                                                           self.charge, self.hp, self.location,
                                                            self.resources['gold'], self.resources['metal'],
                                                            self.resources['wood'], self.on_character['head'],
                                                            self.on_character['body'], self.on_character['shoulders'],

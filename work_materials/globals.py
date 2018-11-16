@@ -37,13 +37,13 @@ admin_id_list = [231900398, 212657053, 307125511]
 
 processing = 1
 
-locations = {1: portal, 2: human_castle, 3: elf_castle, 4: orc_castle, 5: human_south_tower, 6: human_north_tower, 7: elf_south_tower,
-             8: elf_north_tower, 9: orcs_south_tower, 10: orcs_north_tower, 11: resources_btw_HE, 12: resources_btw_EO, 13: resources_btw_HO,
-             14: human_capital, 15: elf_capital, 16: orc_capital, 17: human_guild_castle, 18: elf_guild_castle, 19: orc_guild_castle,
-             20: human_forest, 21: human_mine, 22: elf_forest, 23: elf_mine, 24: orc_forest, 25: orc_mine, 26: human_farm_loc_010,
-             27: human_farm_loc_1020, 28: human_farm_loc_2030, 29: human_farm_loc_3040, 30: human_farm_loc_4050, 31: elf_farm_loc_010,
-             32: elf_farm_loc_1020, 33: elf_farm_loc_2030, 34: elf_farm_loc_3040, 35: elf_farm_loc_4050, 36: orc_farm_loc_010,
-             37: orc_farm_loc_1020, 38: orc_farm_loc_2030, 39: orc_farm_loc_3040, 40: orc_farm_loc_4050}
+locations = {1: portal, 2: feds_castle, 3: trib_castle, 4: stai_castle, 5: feds_south_tower, 6: feds_north_tower, 7: trib_south_tower,
+             8: trib_north_tower, 9: stai_south_tower, 10: stai_north_tower, 11: resources_btw_HE, 12: resources_btw_EO, 13: resources_btw_HO,
+             14: feds_capital, 15: trib_capital, 16: stai_capital, 17: feds_guild_castle, 18: trib_guild_castle, 19: stai_guild_castle,
+             20: feds_forest, 21: feds_mine, 22: trib_forest, 23: trib_mine, 24: stai_forest, 25: stai_mine, 26: feds_farm_loc_010,
+             27: feds_farm_loc_1020, 28: feds_farm_loc_2030, 29: feds_farm_loc_3040, 30: feds_farm_loc_4050, 31: trib_farm_loc_010,
+             32: trib_farm_loc_1020, 33: trib_farm_loc_2030, 34: trib_farm_loc_3040, 35: trib_farm_loc_4050, 36: stai_farm_loc_010,
+             37: stai_farm_loc_1020, 38: stai_farm_loc_2030, 39: stai_farm_loc_3040, 40: stai_farm_loc_4050}
 
 
 def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
@@ -109,4 +109,16 @@ __tower_button_list = [
     KeyboardButton('Отправиться')
 ]
 tower_buttons = ReplyKeyboardMarkup(build_menu(__tower_button_list, n_cols=2), resize_keyboard=True)
+
+__traveling_buttons_list = [
+    KeyboardButton('Инфо'),
+    KeyboardButton('Вернуться')
+]
+traveling_buttons = ReplyKeyboardMarkup(build_menu(__traveling_buttons_list, n_cols=2), resize_keyboard=True)
+
+__info_buttons_list = [
+    KeyboardButton('Рюкзак'),
+    KeyboardButton('Назад')
+]
+info_buttons = ReplyKeyboardMarkup(build_menu(__info_buttons_list, n_cols=2), resize_keyboard=True)
 
