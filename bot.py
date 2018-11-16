@@ -164,6 +164,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player
 dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_implants, show_equipment))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_info_return, return_from_info, pass_user_data=True))
 
 #Фильтры для повышения уровня игрока

@@ -35,7 +35,7 @@ def return_from_info(bot, update, user_data):
 
 def delete_self(bot, update, user_data):
     mes = update.message
-    request = "DELETE FROM PLAYERS WHERE id = '{0}'".format(mes.from_user.id)
+    request = "DELETE FROM players WHERE id = '{0}'".format(mes.from_user.id)
     try:
         cursor.execute(request)
     except:

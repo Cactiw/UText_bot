@@ -8,11 +8,11 @@ class Equipment(Item):
 
         self.name = name
         self.place = place
-        self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'agility': agility, 'charge': charge}
+        self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'speed': agility, 'charge': charge}
 
 
     def update_from_database(self):
-        request = "SELECT type, name, endurance, power, armor, mana_points, agility FROM equipment WHERE id = '{0}'".format(self.id)
+        request = "SELECT type, name, endurance, power, armor, charge, speed FROM equipment WHERE id = '{0}'".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()
         if row is None:
@@ -39,5 +39,5 @@ class Equipment(Item):
         self.stats.update({'power' : row[3]})
         self.stats.update({'armor' : row[4]})
         self.stats.update({'charge' : row[5]})
-        self.stats.update({'agility' : row[6]})
+        self.stats.update({'speed' : row[6]})
         return 0

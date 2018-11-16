@@ -30,7 +30,7 @@ class Player:
         self.fifth_skill_lvl = 0
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
-                    'agility': 5, }
+                    'speed': 5, }
 
         self.charge = self.stats['charge'] * 15
         self.hp = self.stats['endurance'] * 15
@@ -110,7 +110,7 @@ class Player:
         if(stat == "Выносливость"): self.stats["endurance"] += 1
         elif(stat == "Броня"): self.stats["armor"] += 1
         elif(stat == "Сила"): self.stats["power"] += 1
-        elif(stat == "Скорость"): self.stats["agility"] += 1
+        elif(stat == "Скорость"): self.stats["speed"] += 1
         elif(stat == "Заряд"): self.stats["charge"] += 1
         else: return None
 
@@ -123,13 +123,13 @@ class Player:
         self.stats["power"] += 1
         self.stats["armor"] += 1
         self.stats["charge"] += 1
-        self.stats["agility"] += 1
+        self.stats["speed"] += 1
         if self.game_class == "Warrior":
             self.stats["armor"] += 1
         elif self.game_class == "Mage" or self.game_class == "Cleric":
             self.stats["charge"] += 1
         elif self.game_class == "Archer":
-            self.stats["agility"] += 1
+            self.stats["speed"] += 1
         dispatcher.bot.send_message(chat_id = self.id, text = "LEVELUP!\nUse /lvl_up to choose a skill to upgrade")
         #TODO send message + choose_skill
 
@@ -167,9 +167,9 @@ class Player:
     def update_from_database(self, cursor):
         request = "SELECT id, username, nickname, sex, fraction, race, game_class," \
                   " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
-                  "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, mana_points, agility, mana, hp," \
+                  "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, charge, speed, mana, hp," \
                   " location, gold, metal, wood, " \
-                  "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM PLAYERS WHERE id = {0}".format(self.id)
+                  "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM players WHERE id = {0}".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()
         if row is None:
@@ -191,7 +191,7 @@ class Player:
         self.third_skill_lvl = row[14]
         self.fourth_skill_lvl = row[15]
         self.fifth_skill_lvl = row[16]
-        self.stats.update(endurance = row[17], power = row[18], armor = row[19], charge = row[20], agility = row[21])
+        self.stats.update(endurance = row[17], power = row[18], armor = row[19], charge = row[20], speed = row[21])
         self.charge = row[22]
         self.hp = row[23]
         self.location = row[24]
@@ -218,10 +218,10 @@ class Player:
         return self
 
     def update_to_database(self, conn, cursor):
-        request = "UPDATE PLAYERS SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
+        request = "UPDATE players SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
                   "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', free_skill_points = '{10}', fatigue = '{11}', " \
                   "first_skill_lvl = '{12}', second_skill_lvl = '{13}', third_skill_lvl = '{14}', fourth_skill_lvl = '{15}', " \
-                  "fifth_skill_lvl = '{16}', endurance = '{17}', power = '{18}', armor = '{19}', mana_points = '{20}', agility = '{21}', " \
+                  "fifth_skill_lvl = '{16}', endurance = '{17}', power = '{18}', armor = '{19}', charge = '{20}', speed = '{21}', " \
                   "mana = '{22}', hp = '{23}', location = '{24}', gold = '{25}', metal = '{26}', wood = '{27}', " \
                   "head = '{28}', body = '{29}', shoulders = '{30}', legs = '{31}', feet = '{32}', left_arm = '{33}', " \
                   "right_arm = '{34}', mount = '{35}' WHERE id = '{36}'".format(self.id, self.username, self.nickname, self.sex,
@@ -230,7 +230,7 @@ class Player:
                                                            self.first_skill_lvl,self.second_skill_lvl, self.third_skill_lvl,
                                                            self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
-                                                           self.stats['charge'], self.stats['agility'],
+                                                           self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,
                                                            self.resources['gold'], self.resources['metal'],
                                                            self.resources['wood'], self.on_character['head'],
@@ -247,9 +247,9 @@ class Player:
         else:
             self.sex = 1
 
-        request = "INSERT INTO PLAYERS(id, username, nickname, sex, fraction, race, game_class," \
+        request = "INSERT INTO players(id, username, nickname, sex, fraction, race, game_class," \
                   " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
-                  "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, mana_points, agility, mana, hp," \
+                  "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, charge, speed, mana, hp," \
                   " location, gold, metal, wood, " \
                   "head, body, shoulders, legs, feet, left_arm, right_arm, mount)" \
                   " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', " \
@@ -260,7 +260,7 @@ class Player:
                                                            self.free_points, self.free_skill_points, self.fatigue, self.first_skill_lvl,
                                                            self.second_skill_lvl, self.third_skill_lvl, self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
-                                                           self.stats['charge'], self.stats['agility'],
+                                                           self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,
                                                            self.resources['gold'], self.resources['metal'],
                                                            self.resources['wood'], self.on_character['head'],

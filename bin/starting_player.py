@@ -6,7 +6,7 @@ from bin.show_general_buttons import show_general_buttons
 
 def start(bot, update, user_data):
     user_data.update(type = 1)
-    request = "SELECT * FROM PLAYERS WHERE id = '{0}'".format(update.message.from_user.id)
+    request = "SELECT * FROM players WHERE id = '{0}'".format(update.message.from_user.id)
     cursor.execute(request)
     row = cursor.fetchone()
     if row is not None:

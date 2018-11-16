@@ -111,7 +111,6 @@ def print_player(bot, update, user_data):
             if filter_is_admin.filter(update.message):
                 task += " /return"
     lvl_up_str = "У вас остались нераспределенные очки /lvl_up\n" if (player.free_points != 0 or player.free_skill_points != 0) else ""
-    print(lvl_up_str)
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {22}\n\nКласс - <b>{4}</b>"
                                                           "\n\nСтатус - <b>{5}</b>\n\nexp = <b>{6}</b>\nlvl = <b>{7}</b>\nFree_points = <b>{8}</b>"
                                                           "\nFree_skill_points = <b>{9}</b>\nFatigue = <b>{10}</b>\n{23}\n"
@@ -126,7 +125,7 @@ def print_player(bot, update, user_data):
         player.free_points, player.free_skill_points, player.fatigue,
         player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
         player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"],
-        player.stats["armor"], player.stats["power"], player.stats["agility"], player.stats["charge"], task,
+        player.stats["armor"], player.stats["power"], player.stats["speed"], player.stats["charge"], task,
         locations.get(player.location).name, lvl_up_str),  #23
         parse_mode="HTML", reply_markup=info_buttons)
 
@@ -145,38 +144,36 @@ def return_to_location_admin(bot, update, user_data):
     
 def show_equipment(bot, update):
     player = get_player(update.message.from_user.id)
-    #print(player.on_character['head'])
-    #print(player.on_character['body'])
     if player.on_character['head'] is not None:
-        on_head = "<b>" + get_equipment(player.on_character['head']).name + "</b>\nunequip: /unequip_head"
+        on_head = "<b>" + get_equipment(player.on_character['head']).name + "</b>   /unequip_head"
     else:
         on_head = 'Ничего'
     if player.on_character['body'] is not None:
-        on_body = "<b>" + get_equipment(player.on_character['body']).name + "</b>\nunequip: /unequip_body"
+        on_body = "<b>" + get_equipment(player.on_character['body']).name + "</b>   /unequip_body"
     else:
         on_body = 'Ничего'
     if player.on_character['shoulders'] is not None:
-        on_shoulders = "<b>" + get_equipment(player.on_character['shoulders']).name + "</b>\nunequip: /unequip_shoulders"
+        on_shoulders = "<b>" + get_equipment(player.on_character['shoulders']).name + "</b>   /unequip_shoulders"
     else:
         on_shoulders = 'Ничего'
     if player.on_character['legs'] is not None:
-        on_legs = "<b>" + get_equipment(player.on_character['legs']).name + "</b>\nunequip: /unequip_legs"
+        on_legs = "<b>" + get_equipment(player.on_character['legs']).name + "</b>   /unequip_legs"
     else:
         on_legs = 'Ничего'
     if player.on_character['feet'] is not None:
-        on_feet = "<b>" + get_equipment(player.on_character['feet']).name + "</b>\nunequip: /unequip_feet"
+        on_feet = "<b>" + get_equipment(player.on_character['feet']).name + "</b>   /unequip_feet"
     else:
         on_feet = 'Ничего'
     if player.on_character['left_arm'] is not None:
-        on_larm = "<b>" + get_equipment(player.on_character['left_arm']).name + "</b>\nunequip: /unequip_left_arm"
+        on_larm = "<b>" + get_equipment(player.on_character['left_arm']).name + "</b>   /unequip_left_arm"
     else:
         on_larm = 'Ничего'
     if player.on_character['right_arm'] is not None:
-        on_rarm = "<b>" + get_equipment(player.on_character['right_arm']).name + "</b>\nunequip: /unequip_right_arm"
+        on_rarm = "<b>" + get_equipment(player.on_character['right_arm']).name + "</b>   /unequip_right_arm"
     else:
         on_rarm = 'Ничего'
     if player.on_character['mount'] is not None:
-        mount = "<b>" + get_equipment(player.on_character['mount']).name + "</b>\nunequip: /unequip_mount"
+        mount = "<b>" + get_equipment(player.on_character['mount']).name + "</b>   /unequip_mount"
     else:
         mount = 'Ничего'
     bot.send_message(chat_id=update.message.chat_id, text="Голова - {0}\nТело - {1}\nПлечи - {2}\nНоги - {3}\n"

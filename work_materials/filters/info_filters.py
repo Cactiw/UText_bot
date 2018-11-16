@@ -19,6 +19,10 @@ class FilterBackpack(BaseFilter):
     def filter(self, message):
         return message.text == 'Рюкзак'
 
+class FilterImplants(BaseFilter):
+    def filter(self, message):
+        return message.text == 'Импланты'
+
 
 class FilterInfoReturn(BaseFilter):
     def filter(self, message):
@@ -29,4 +33,5 @@ class FilterInfoReturn(BaseFilter):
 filter_info = FilterInfo()
 filter_in_info = FilterInInfo()
 filter_print_backpack = FilterBackpack()
+filter_implants = FilterImplants()
 filter_info_return = FilterInfoReturn()
