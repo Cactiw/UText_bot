@@ -2,8 +2,6 @@ from telegram.ext import BaseFilter
 from work_materials.globals import *
 
 
-
-
 class FilterOperator(BaseFilter):
     def filter(self, message):
         return 'Оператор' in message.text

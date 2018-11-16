@@ -38,11 +38,12 @@ work_materials.globals.processing = 1
 
 def move_player(bot, job):
     player = job.context.get('player')
-    update_status('In Location', player, job.context.get('user_data'))
-    update_location(job.context.get('location_id'), player, job.context.get('user_data'))
+    user_data = job.context.get('user_data')
+    update_status('In Location', player, user_data)
+    update_location(job.context.get('location_id'), player, user_data)
     print(player.nickname, "Переместился в новую локацию -", player.location)
     players_need_update.put(player)
-    show_general_buttons(bot, job.context.get('update'), job.context.get('user_data'))
+    show_general_buttons(bot, job.context.get('update'), user_data)
 
 
 def add_resource(bot, update, args):
@@ -88,7 +89,6 @@ def travel(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     current_location = locations.get(player.location)
     paths = current_location.roads
-    print(paths)
     path_buttons = []
     for i in paths:
         path_buttons.append(KeyboardButton(locations.get(i).name))
@@ -138,6 +138,40 @@ def fast_travel(bot, update, user_data):
         j.job.schedule_removal()
         j.job.run(bot)
 
+def return_to_location_admin(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    update_status('In Location', player, user_data)
+    update_location(player.location, player, user_data)
+    j = travel_jobs.get(player.id)
+    bot.send_message(chat_id=update.message.chat_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
+    show_general_buttons(bot, update, user_data)
+    if j is None:
+        return
+    j.job.schedule_removal()
+
+
+def return_to_location(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    j = travel_jobs.get(player.id)
+    if j is None:
+        bot.send_message(chat_id=update.message.chat_id, text="Вы стоите на месте, наверное вы заблудились /return")
+        return
+    j.job.schedule_removal()
+    j.swap_time()
+    new_loc_id = user_data.get('location')
+    tmp_loc = user_data.get('location')
+    user_data.update({'location': user_data.get('new_location')})
+    user_data.update({'new_location': tmp_loc})
+    sec = int(j.get_time_left()%60)
+    time_str = '' + str(int(j.get_time_left()//60)) + ':' + ('0' if sec < 10 else '') + str(sec)
+    location_name = locations.get(new_loc_id).name
+    user_data.update({'location_name': location_name})
+    contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
+                'update': update, 'user_data': user_data}
+    bot.send_message(chat_id=update.message.chat_id, text="Вы решили вернуться в локацию {0}, осталось идти: <b>{1}</b>".format(
+        location_name, time_str
+    ), parse_mode='HTML')
+    j.job = job.run_once(move_player, j.get_time_left(), context=contexts)
 
 
 
@@ -160,7 +194,7 @@ dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=
 dispatcher.add_handler(CommandHandler("return", return_to_location_admin, pass_user_data=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("buttons", show_general_buttons, pass_user_data=True, filters=filter_is_admin))
 
-#Фильтр для вывода инфаормации об игроке
+#Фильтр для вывода информации об игроке
 dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
@@ -177,7 +211,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 #Фильтр для перемещения
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and fast_travel_filter and filter_return, return_to_location_admin, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_location, return_to_location, pass_user_data=True))
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))

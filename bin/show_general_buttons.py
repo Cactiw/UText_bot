@@ -7,7 +7,7 @@ def get_player(id):
     if player is not None:
         return player
     player = Player(id, 0, 0, 0, 0, 0, 0)
-    if player.update_from_database(cursor) is None:
+    if player.update_from_database() is None:
         return None
     players.update({player.id: player})
     return player

@@ -1,4 +1,6 @@
 import time
+from work_materials.globals import *
+
 
 class MyJob:
 
@@ -9,8 +11,17 @@ class MyJob:
 
 
     def get_time_left(self):
-        return self.stop_time - time.time()
+        t = self.stop_time - time.time()
+        return t
 
 
     def get_time_spent(self):
-        return time.time() - self.start_time
+        t = time.time() - self.start_time
+        return t
+
+
+    def swap_time(self):
+        t1 = 2*time.time() - self.start_time
+        t2 = 2*time.time() - self.stop_time
+        self.start_time = t2
+        self.stop_time = t1

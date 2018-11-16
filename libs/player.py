@@ -164,7 +164,7 @@ class Player:
     def change_location(self, location):
         self.location = location
         
-    def update_from_database(self, cursor):
+    def update_from_database(self):
         request = "SELECT id, username, nickname, sex, fraction, race, game_class," \
                   " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
                   "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, charge, speed, mana, hp," \
@@ -217,7 +217,7 @@ class Player:
             row = cursor.fetchone()
         return self
 
-    def update_to_database(self, conn, cursor):
+    def update_to_database(self):
         request = "UPDATE players SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
                   "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', free_skill_points = '{10}', fatigue = '{11}', " \
                   "first_skill_lvl = '{12}', second_skill_lvl = '{13}', third_skill_lvl = '{14}', fourth_skill_lvl = '{15}', " \
@@ -241,7 +241,7 @@ class Player:
         cursor.execute(request)
         conn.commit()
 
-    def add_to_database(self, conn, cursor):
+    def add_to_database(self):
         if self.sex == "Мужской":
             self.sex = 0
         else:

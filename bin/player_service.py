@@ -11,7 +11,7 @@ def get_player(id):
     if player is not None:
         return player
     player = Player(id, 0, 0, 0, 0, 0, 0)
-    if player.update_from_database(cursor) is None:
+    if player.update_from_database() is None:
         return None
     players.update({player.id: player})
     return player
@@ -29,7 +29,7 @@ def players_update(q):
     try:
         data = q.get()
         while data is not None:
-            data.update_to_database(conn, cursor)
+            data.update_to_database()
             data = q.get()
         return
     except KeyboardInterrupt:
@@ -39,7 +39,7 @@ def players_update(q):
         print("Writing all updated users to database, wait...")
         while not q.empty():
             data = q.get()
-            data.update_to_database(conn, cursor)
+            data.update_to_database()
         print("All users are in database and updated")
         return
 
@@ -128,18 +128,6 @@ def print_player(bot, update, user_data):
         player.stats["armor"], player.stats["power"], player.stats["speed"], player.stats["charge"], task,
         locations.get(player.location).name, lvl_up_str),  #23
         parse_mode="HTML", reply_markup=info_buttons)
-
-
-def return_to_location_admin(bot, update, user_data):
-    player = get_player(update.message.from_user.id)
-    update_status('In Location', player, user_data)
-    update_location(player.location, player, user_data)
-    j = travel_jobs.get(player.id)
-    bot.send_message(chat_id=update.message.chat_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
-    show_general_buttons(bot, update, user_data)
-    if j is None:
-        return
-    j.job.schedule_removal()
     
     
 def show_equipment(bot, update):
