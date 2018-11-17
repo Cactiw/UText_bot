@@ -63,7 +63,7 @@ def class_select(bot, update, user_data):
         KeyboardButton('Мужской'),
         KeyboardButton('Женский'),
     ]
-    reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=1), resize_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True)
     bot.send_message(
         chat_id=update.message.chat_id,
         text='Отлично, вы выбрали класс <b>{0}</b>\n'
