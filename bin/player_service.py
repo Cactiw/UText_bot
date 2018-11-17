@@ -186,7 +186,7 @@ def print_backpacks(bot, update, user_data):
                 text += ' - <b>'
                 text += str(stat)
                 text += '</b>  '
-        text += "\nequip: /equip_{0}".format(i)
+        text += "\nАктивировать: /equip_{0}".format(i)
         text += '\n\n'
     text += '\n\n<em>Расходуемые:</em>\n'
     text += '\n\n<em>Ресурсы:</em>\n'

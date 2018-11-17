@@ -61,7 +61,7 @@ class Player:
             quanty = int(count)
             list.update({item.id: quanty})
             print(list)
-            request = "INSERT INTO inv_{0}(type, id, quanty) VALUES('{1}', '{2}', '{3}')".format(self.id, item.type,
+            request = "INSERT INTO inventory(user_id, type, id, quanty) VALUES('{0}', '{1}', '{2}', '{3}')".format(self.id, item.type,
                                                                                                  item.id, quanty)
             cursor.execute(request)
             conn.commit()
@@ -70,7 +70,7 @@ class Player:
         quanty += int(count)
         list.update({item.id: quanty})
         print(list)
-        request = "UPDATE inv_{0} SET type = '{1}', quanty = '{3}' WHERE id = '{2}'".format(self.id, item.type, item.id, quanty)
+        request = "UPDATE inventory SET quanty = '{2}' WHERE user_id = '{0}' and id = '{1}'".format(self.id, item.id, quanty)
         cursor.execute(request)
         conn.commit()
         #print("Item quanty edited in database")
@@ -84,15 +84,15 @@ class Player:
             return 1
         if quanty == count:
             list.pop(item.id)
-            request = "DELETE FROM inv_{0} WHERE id = '{1}'".format(self.id, item.id)
+            request = "DELETE FROM inventory WHERE user_id = '{0}' and id = '{1}'".format(self.id, item.id)
             cursor.execute(request)
             conn.commit()
             return 0
         quanty -= int(count)
         list.update({item.id: quanty})
         print(list)
-        request = "UPDATE inv_{0} SET type = '{1}', quanty = '{3}' WHERE id = '{2}'".format(self.id, item.type, item.id,
-                                                                                       quanty)
+        request = "UPDATE inventory SET type = '{1}', quanty = '{3}' WHERE user_id = '{0}'" \
+                  " and id = '{2}'".format(self.id, item.type, item.id, quanty)
         cursor.execute(request)
         conn.commit()
         return 0
@@ -201,7 +201,7 @@ class Player:
                                  shoulders = row[30] if row[30] != 'None' else None, legs = row[31] if row[31] != 'None' else None,
                                  feet = row[32] if row[32] != 'None' else None, left_arm = row[33] if row[33] != 'None' else None,
                                  right_arm = row[34] if row[34] != 'None' else None, mount = row[35] if row[35] != 'None' else None)
-        request = "SELECT * FROM inv_{0}".format(self.id)
+        request = "SELECT type, id, quanty FROM inventory WHERE user_id = '{0}'".format(self.id)
         cursor.execute(request)
         row = cursor.fetchone()
         while row:
@@ -270,10 +270,10 @@ class Player:
                                                            self.on_character['mount'])
         cursor.execute(request)
         conn.commit()
-        request = "CREATE TABLE inv_{0} (" \
-                  "type varchar(2)," \
-                  "id int(4)," \
-                  "quanty int(4)" \
-                  ");".format(self.id) #TODO сделать ключ к таблице с экипировкой
-        cursor.execute(request)
-        conn.commit()
+        #request = "CREATE TABLE inv_{0} (" \
+        #          "type varchar(2)," \
+        #          "id int(4)," \
+        #          "quanty int(4)" \
+        #          ");".format(self.id) #TODO сделать ключ к таблице с экипировкой
+        #cursor.execute(request)
+        #conn.commit()
