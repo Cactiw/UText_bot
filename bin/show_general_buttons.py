@@ -84,9 +84,9 @@ def show_general_buttons(bot, update, user_data):
             print(user_data)
     elif status == 'Traveling':
         bot.send_message(chat_id=update.message.chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
-    elif status == 'merchant':
+    elif status == 'Merchant':
         show_merchant_buttons(bot, update, user_data)
-    elif status == 'merchant_buy':
+    elif status == 'Merchant_buy':
         show_merchant_buy_buttons(bot, update, user_data)
 
 

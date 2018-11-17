@@ -4,7 +4,7 @@ from work_materials.filters.location_filters import capital_location_filter
 
 class Filter_Merchant(BaseFilter):
     def filter(self, message):
-        return message.text == 'Торговец' and dispatcher.user_data[message.from_user.id].get('status') == 'In Location' and capital_location_filter
+        return message.text == 'Торговец' and dispatcher.user_data[message.from_user.id].get('status') == 'In Location' and capital_location_filter(message)
 
 
 
@@ -53,7 +53,7 @@ class Filter_Merchant_Sell(BaseFilter):
         return message.text == 'Продать' and dispatcher.user_data[message.from_user.id].get('status') == 'Merchant'
 
 
-filter_merchant = Filter_Merchant
+filter_merchant = Filter_Merchant()
 
 filter_merchant_weapon = Filter_Merchant_Weapon()
 filter_merchant_head = Filter_Merchant_Head()
@@ -67,8 +67,8 @@ filter_merchant_sell = Filter_Merchant_Sell()
 
 class Filter_Merchant_Buy(BaseFilter):
     def filter(self, message):
-        return filter_merchant_head or filter_merchant_body or filter_merchant_gloves or \
-               filter_merchant_legs or filter_merchant_boots or filter_merchant_mounts or filter_merchant_implants
+        return filter_merchant_head(message) or filter_merchant_body(message) or filter_merchant_gloves(message) or \
+               filter_merchant_legs(message) or filter_merchant_boots(message) or filter_merchant_mounts(message) or filter_merchant_implants(message)
 
 filter_merchant_buy = Filter_Merchant_Buy()
 

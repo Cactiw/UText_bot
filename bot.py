@@ -79,7 +79,7 @@ def unequip(bot, update):
 def merchant(bot, update, user_data):
 
     player = get_player(update.message.from_user.id)
-    update_status('merchant', player, user_data)
+    update_status('Merchant', player, user_data)
     user_data.update({'saved_status' : 'In Location'})
 
     show_general_buttons(bot, update, user_data)
@@ -88,7 +88,7 @@ def merchant(bot, update, user_data):
 def merchant_buy(bot, update, user_data):
     response = "Список товаров:\n"
     player = get_player(update.message.from_user.id)
-    update_status('merchant_buy', player, user_data)
+    update_status('Merchant_buy', player, user_data)
     bot.send_message(chat_id = update.message.from_user.id, text = response)
     show_general_buttons(bot, update, user_data)
 
