@@ -49,6 +49,14 @@ def show_portal_buttons(bot, update, user_data):
     bot.send_message(chat_id=update.message.chat_id, text="Вы у портала, не лезь, она тебя сожрет",
                      reply_markup=portal_buttons)
 
+def show_merchant_buttons(bot, update, user_data):
+    bot.send_message(chat_id=update.message.chat_id, text="Выберите категорию товара:",
+                     reply_markup=merchant_buttons)
+
+def show_merchant_buy_buttons(bot, update, user_data):
+    bot.send_message(chat_id=update.message.chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",
+                     reply_markup=merchant_buy_buttons)
+
 
 def show_general_buttons(bot, update, user_data):
     status = user_data.get('status')
@@ -76,5 +84,9 @@ def show_general_buttons(bot, update, user_data):
             print(user_data)
     elif status == 'Traveling':
         bot.send_message(chat_id=update.message.chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
+    elif status == 'merchant':
+        show_merchant_buttons(bot, update, user_data)
+    elif status == 'merchant_buy':
+        show_merchant_buy_buttons(bot, update, user_data)
 
 

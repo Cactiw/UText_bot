@@ -14,6 +14,7 @@ from work_materials.filters.service_filters import *
 from work_materials.filters.location_filters import *
 from work_materials.filters.info_filters import *
 from work_materials.filters.equipment_filters import *
+from work_materials.filters.merchant_filters import *
 
 from bin.service_commands import *
 from bin.starting_player import *
@@ -75,6 +76,21 @@ def unequip(bot, update):
     player.unequip(equipment)
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
 
+def merchant(bot, update, user_data):
+
+    player = get_player(update.message.from_user.id)
+    update_status('merchant', player, user_data)
+    user_data.update({'saved_status' : 'In Location'})
+
+    show_general_buttons(bot, update, user_data)
+
+
+def merchant_buy(bot, update, user_data):
+    response = "Список товаров:\n"
+    player = get_player(update.message.from_user.id)
+    update_status('merchant_buy', player, user_data)
+    bot.send_message(chat_id = update.message.from_user.id, text = response)
+    show_general_buttons(bot, update, user_data)
 
 
 #Фильтр на старт игры
@@ -114,6 +130,15 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl
 dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_location, return_to_location, pass_user_data=True))
+
+#Фильтры для торговца
+dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant, merchant, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant_buy, merchant_buy, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_info, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_merchant, merchant, pass_user_data=True))
+
+
+
 
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
