@@ -13,12 +13,12 @@ def loadData():
     except:
         work_materials.globals.logging.error(work_materials.globals.sys.exc_info()[0])
 
+
 def saveData():
     global processing
     try:
         exit = 0
         while work_materials.globals.processing and exit == 0:
-            #time.sleep(30)
             for i in range(0, 6):
                 time.sleep(5)
                 if work_materials.globals.processing == 0:
@@ -26,9 +26,22 @@ def saveData():
                         break
             # Before pickling
             print("Writing data, do not shutdown bot...")
+
             try:
+                to_dump = {}
+                print('in save data', to_dump, travel_jobs)
+                for i in travel_jobs:
+                    print(i)
+                    j = travel_jobs.get(i)
+                    to_dump.update({i: [j.start_time, j.get_time_left(), j.stop_time]})
+                print('to_dump filled')
+
                 f = open('backup/userdata', 'wb+')
                 pickle.dump(dispatcher.user_data, f)
+                f.close()
+                print(to_dump)
+                f = open('backup/travel_jobs', 'wb+')
+                pickle.dump(to_dump, f)
                 f.close()
                 print("Data write completed")
             except:
@@ -38,6 +51,9 @@ def saveData():
         try:
             f = open('backup/userdata', 'wb+')
             pickle.dump(dispatcher.user_data, f)
+            f.close()
+            f = open('backup/travel_jobs', 'wb+')
+            pickle.dump(to_dump, f)
             f.close()
             print("Data write completed")
         except:

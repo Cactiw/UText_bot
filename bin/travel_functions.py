@@ -3,6 +3,7 @@ from work_materials.globals import *
 from bin.player_service import update_status, update_location, get_player
 from libs.myJob import MyJob
 from work_materials.filters.service_filters import filter_is_admin
+import pickle
 
 
 def move_player(bot, job):
@@ -55,8 +56,8 @@ def choose_way(bot, update, user_data):
         if filter_is_admin(update.message):
             bot.send_message(chat_id=update.message.chat_id, text="Вы можете использовать /fasttravel")
         user_data.update({'new_location': new_loc_id})
-        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)
-        j = MyJob(tmp_job, paths.get(new_loc_id) * 60)
+        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 5, context=contexts)
+        j = MyJob(tmp_job, paths.get(new_loc_id) * 5)
         travel_jobs.update({player.id: j})
         return
 
@@ -103,3 +104,23 @@ def return_to_location(bot, update, user_data):
         location_name, time_str
     ), parse_mode='HTML')
     j.job = job.run_once(move_player, j.get_time_left(), context=contexts)
+
+
+def parse_travel_jobs():
+    print("in parse")
+    try:
+        f = open('backup/travel_jobs', 'rb')
+        to_parse = pickle.load(f)
+        print(to_parse)
+        f.close()
+        for i in to_parse:
+            t = to_parse.get(i)
+            j = MyJob(job.run_once(move_player, t[1]), t[1])
+            j.start_time = t[0]
+            j.stop_time = t[2]
+            travel_jobs.update({i, j})
+        print("Travel_jobs picked up")
+    except FileNotFoundError:
+        logging.error("Data file not found")
+    except:
+        logging.error(sys.exc_info()[0])

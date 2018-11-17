@@ -24,6 +24,7 @@ import work_materials.globals
 from libs.resorses import *
 from libs.equipment import *
 from libs.myJob import MyJob
+from bin.travel_functions import *
 
 sys.path.append('../')
 
