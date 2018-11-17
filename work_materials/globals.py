@@ -21,7 +21,7 @@ players_need_update = Queue()
 travel_jobs = {}
 
 #Подключаем базу данных, выставляем кодировку
-print("Enter password for database:")
+#print("Enter password for database:")
 passwd = 'fiP3Gahz'
 conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
 

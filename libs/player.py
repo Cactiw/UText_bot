@@ -1,5 +1,6 @@
 import math
 from work_materials.globals import dispatcher, cursor, conn, players_need_update
+from bin.equipment_service import *
 
 class Player:
 
@@ -138,10 +139,9 @@ class Player:
             self.lvl_up(self)
 
     def equip(self, equipment): # Надевание предмета
-        #print("before equip", self.stats)
-        #print(equipment.place)
         if self.on_character[equipment.place] is not None:
-            #self.unequip() #TODO сделать
+            on_equipment = get_equipment(self.on_character[equipment.place])
+            self.unequip(on_equipment)
             pass
         return_key = self.remove_item(self.eq_backpack, equipment, 1)
         if return_key != 0:
