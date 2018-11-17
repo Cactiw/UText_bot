@@ -27,7 +27,6 @@ def sql(bot, update, user_data):
 
 
 def return_from_info(bot, update, user_data):
-    print('in return')
     player = get_player(update.message.from_user.id)
     update_status(user_data.get('saved_status'), player, user_data)
     show_general_buttons(bot, update, user_data)

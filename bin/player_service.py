@@ -104,7 +104,6 @@ def print_player(bot, update, user_data):
                 time_str += '0'
             time_str += str(sec)
             time_str += '</b>'
-            print(time)
             task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
         else:
             task += "Вы стоите на месте, наверное вы заблудились, вернитесь"
@@ -174,8 +173,6 @@ def print_backpacks(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     text = '<em>Экипировка:</em>\n'
     for i in player.eq_backpack:
-        #print(i)
-        #print(player.eq_backpack.get(i))
         eq = get_equipment(i)
         text += '<b>' + eq.name
         text += '</b>\n     '

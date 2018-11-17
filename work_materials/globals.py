@@ -5,7 +5,7 @@ from multiprocessing import Process, Queue
 from libs.locations.capital import *
 from libs.locations.castle import *
 from libs.locations.farm_location import *
-from libs.locations.guild_castle import *
+from libs.locations.headquarters import *
 from libs.locations.portal import *
 from libs.locations.resource_loc import *
 from libs.locations.tower import *
