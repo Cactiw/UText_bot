@@ -4,7 +4,6 @@ from libs.player import *
 from bin.equipment_service import *
 from bin.starting_player import start
 from work_materials.filters.service_filters import filter_is_admin
-from work_materials.globals import format_time
 
 
 def get_player(id):
@@ -97,9 +96,15 @@ def print_player(bot, update, user_data):
         j = travel_jobs.get(player.id)
         if j is not None:
             time = j.get_time_left()
-            time_str = format_time(time)
-            print(time)
-            task += 'Перемещается в локацию: {0}, осталось: <b>{1}</b>'.format(locations.get(user_data.get('new_location')).name, time_str)
+            time_str = '<b>'
+            time_str += str(int(time//60))
+            time_str += ':'
+            sec = int(time%60)
+            if sec < 10:
+                time_str += '0'
+            time_str += str(sec)
+            time_str += '</b>'
+            task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
         else:
             task += "Вы стоите на месте, наверное вы заблудились, вернитесь"
             if filter_is_admin.filter(update.message):
@@ -168,8 +173,6 @@ def print_backpacks(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     text = '<em>Экипировка:</em>\n'
     for i in player.eq_backpack:
-        #print(i)
-        #print(player.eq_backpack.get(i))
         eq = get_equipment(i)
         text += '<b>' + eq.name
         text += '</b>\n     '
@@ -180,7 +183,7 @@ def print_backpacks(bot, update, user_data):
                 text += ' - <b>'
                 text += str(stat)
                 text += '</b>  '
-        text += "\nequip: /equip_{0}".format(i)
+        text += "\nАктивировать: /equip_{0}".format(i)
         text += '\n\n'
     text += '\n\n<em>Расходуемые:</em>\n'
     text += '\n\n<em>Ресурсы:</em>\n'

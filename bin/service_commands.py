@@ -30,7 +30,6 @@ def sql(bot, update, user_data):
 
 
 def return_from_info(bot, update, user_data):
-    print('in return')
     player = get_player(update.message.from_user.id)
     update_status(user_data.get('saved_status'), player, user_data)
     show_general_buttons(bot, update, user_data)
@@ -64,7 +63,7 @@ def delete_self(bot, update, user_data):
         return
     conn.commit()
     bot.send_message(chat_id = mes.from_user.id, text = "Игрок удалён из таблицы игроков")
-    request = "DROP TABLE inv_{0}".format(mes.from_user.id)
+    request = "DELETE FROM inventory WHERE user_id = '{0}'".format(mes.from_user.id)
     j = travel_jobs.get(mes.from_user.id)
     if j is not None:
         j.job.schedule_removal()
@@ -77,7 +76,7 @@ def delete_self(bot, update, user_data):
             response += str(sys.exc_info()[i]) + '\n'
         bot.send_message(chat_id=mes.from_user.id, text=response)
         return
-    bot.send_message(chat_id = mes.from_user.id, text = "Таблица инвентаря удалена")
+    bot.send_message(chat_id = mes.from_user.id, text = "Инвентарь удалён")
     user_data.clear()
     try:
         players.pop(mes.from_user.id)

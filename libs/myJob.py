@@ -4,7 +4,7 @@ from work_materials.globals import *
 
 class MyJob:
 
-    def __init__(self, job, when):
+    def __init__(self, job, when, chat_id):
         self.job = job
         self.start_time = time.time()
         self.stop_time = time.time() + when

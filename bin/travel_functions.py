@@ -1,6 +1,9 @@
+from bin.show_general_buttons import show_general_buttons, bad_show_general_buttons
 from work_materials.globals import *
-from bin.player_service import *
-from bin.service_commands import *
+from bin.player_service import update_status, update_location, get_player
+from libs.myJob import MyJob
+from work_materials.filters.service_filters import filter_is_admin
+import pickle
 
 
 def move_player(bot, job):
@@ -10,11 +13,18 @@ def move_player(bot, job):
     update_location(job.context.get('location_id'), player, user_data)
     print(player.nickname, "Переместился в новую локацию -", player.location)
     players_need_update.put(player)
-    show_general_buttons(bot, job.context.get('update'), user_data)
+    update = job.context.get('update')
+    travel_jobs.pop(player.id)
+    if update is not None:
+        show_general_buttons(bot, update, user_data)
+    else:
+        bad_show_general_buttons(bot, job.context.get('chat_id'), user_data)
 
 
 def travel(bot, update, user_data):
     player = get_player(update.message.from_user.id)
+    user_data.update({'location': player.location})
+    user_data.update({'location_name': locations.get(player.location).name})
     current_location = locations.get(player.location)
     paths = current_location.roads
     path_buttons = []
@@ -28,7 +38,7 @@ def travel(bot, update, user_data):
 
 def choose_way(bot, update, user_data):
     if update.message.text == 'Назад':
-        update_status('In Location', players.get(update.message.from_user.id), user_data)
+        update_status('In Location', get_player(update.message.from_user.id), user_data)
         show_general_buttons(bot, update, user_data)
         return
     player = get_player(update.message.from_user.id)
@@ -45,17 +55,14 @@ def choose_way(bot, update, user_data):
         logging.error('ERROR: NO SUCH ID bot.py in choose_way, id = 0')
     else:
         update_status('Traveling', player, user_data)
-        user_data.update({'location': player.location})
-        user_data.update({'location_name': locations.get(player.location).name})
         bot.send_message(chat_id=update.message.chat_id, text="Вы отправились в локацию: {0}, до нее идти {1} минут".format(locations.get(new_loc_id).name, paths.get(new_loc_id)), reply_markup=traveling_buttons)
-        #TODO понять, почему не работает с орками и эльфами
         contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
                    'update': update, 'user_data': user_data}
         if filter_is_admin(update.message):
             bot.send_message(chat_id=update.message.chat_id, text="Вы можете использовать /fasttravel")
         user_data.update({'new_location': new_loc_id})
-        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)
-        j = MyJob(tmp_job, paths.get(new_loc_id) * 60)
+        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 5, context=contexts)
+        j = MyJob(tmp_job, paths.get(new_loc_id) * 7, update.message.chat_id)
         travel_jobs.update({player.id: j})
         return
 
@@ -63,10 +70,10 @@ def choose_way(bot, update, user_data):
 def fast_travel(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     j = travel_jobs.get(player.id)
+    print(j.get_time_left())
     if j is not None:
         j.job.schedule_removal()
         j.job.run(bot)
-
 
 def return_to_location_admin(bot, update, user_data):
     player = get_player(update.message.from_user.id)
@@ -92,7 +99,8 @@ def return_to_location(bot, update, user_data):
     tmp_loc = user_data.get('location')
     user_data.update({'location': user_data.get('new_location')})
     user_data.update({'new_location': tmp_loc})
-    time_str = format_time(j.get_time_left())
+    sec = int(j.get_time_left()%60)
+    time_str = '' + str(int(j.get_time_left()//60)) + ':' + ('0' if sec < 10 else '') + str(sec)
     location_name = locations.get(new_loc_id).name
     user_data.update({'location_name': location_name})
     contexts = {'chat_id': update.message.chat_id, 'location_id': new_loc_id, 'player': player,
@@ -103,10 +111,29 @@ def return_to_location(bot, update, user_data):
     j.job = job.run_once(move_player, j.get_time_left(), context=contexts)
 
 
-def dump_travel_jobs():
-    print('in dump')
-    pass
-
-
 def parse_travel_jobs():
-    pass
+    print("in parse")
+    try:
+        f = open('backup/travel_jobs', 'rb')
+        to_parse = pickle.load(f)
+        print(to_parse)
+        f.close()
+        for i in to_parse:
+            print(i)
+            player = get_player(i)
+            user_data = dispatcher.user_data.get(i)
+            update_status("Traveling", player, user_data)
+            dispatcher.user_data[i].update({'saved_status': 'Traveling'})
+            t = to_parse.get(i)
+
+            contexts = {'chat_id': player.id, 'location_id': user_data.get('new_location'), 'player': player,
+                        'update': None, 'user_data': user_data}
+            j = MyJob(job.run_once(move_player, t[1], context = contexts), t[1], player.id)
+            j.start_time = t[0]
+            travel_jobs.update({i: j})
+        print("Travel_jobs picked up")
+        print(travel_jobs)
+    except FileNotFoundError:
+        logging.error("Data file not found")
+    except:
+        logging.error(sys.exc_info()[0])

@@ -2,10 +2,10 @@ from libs.locations.location import *
 import math
 
 
-class Guild_Castle(Location):
+class Headquarters(Location):
 
     def __init__(self, id, name):
-        super(Guild_Castle, self).__init__(id, name)
+        super(Headquarters, self).__init__(id, name)
         self.buildings = {"forge": 1, "alchemy_station": 1, "enchantment_station": 1}
         self.progress = {"forge": [0, 0, 0], "alchemy_station": [0, 0, 0], "enchantment_station": [0, 0, 0]}  #[gold, wood, metal]
 
@@ -38,9 +38,9 @@ class Guild_Castle(Location):
             return 0
 
 
-feds_guild_castle = Guild_Castle(17, "Замок гильдии")
+feds_guild_castle = Headquarters(17, "Штаб оперативной группы")
 feds_guild_castle.roads = {5: 10, 6: 10, 28: 10, 29: 5, 30: 5}
-trib_guild_castle = Guild_Castle(18, "Замок Гильдии")
+trib_guild_castle = Headquarters(18, "Штаб оперативной группы")
 trib_guild_castle.roads = {7: 10, 8: 10, 33: 10, 34: 5, 35: 5}
-stai_guild_castle = Guild_Castle(19, "Замок Гильдии")
+stai_guild_castle = Headquarters(19, "Штаб оперативной группы")
 stai_guild_castle.roads = {9: 10, 10: 10, 38: 10, 39: 5, 40: 5}

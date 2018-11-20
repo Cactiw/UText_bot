@@ -4,7 +4,8 @@ from work_materials.globals import *
 
 class Filter_Sex_Select(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data[message.from_user.id].get('type') == 4
+        return dispatcher.user_data[message.from_user.id].get('type') == 4 and \
+               (message.text == 'Мужской' or message.text == 'Женский')
 
 filter_sex_select= Filter_Sex_Select()
 

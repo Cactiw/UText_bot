@@ -41,10 +41,10 @@ class Capital(Location):
             return 0
 
 
-feds_capital = Capital(14, "Столица людей")
+feds_capital = Capital(14, "Капитолий")
 feds_capital.roads = {26: 5, 27: 5}
-trib_capital = Capital(15, "Столица эльфов")
+trib_capital = Capital(15, "Алькасар")
 trib_capital.roads = {31: 5, 32: 5}
-stai_capital = Capital(16, "Столица орков")
+stai_capital = Capital(16, "Главное здание C.T.A.I.")
 stai_capital.roads = {36: 5, 37: 5}
 

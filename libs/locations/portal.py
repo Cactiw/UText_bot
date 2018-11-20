@@ -12,5 +12,5 @@ class Portal(Location):
         self.fraction = new_fraction
 
 
-portal = Portal(1, "Портал", None)
+portal = Portal(1, "«Глаз Алериона»", None)
 portal.roads = {2: 8, 3: 8, 4: 8}

@@ -14,17 +14,18 @@ from work_materials.filters.service_filters import *
 from work_materials.filters.location_filters import *
 from work_materials.filters.info_filters import *
 from work_materials.filters.equipment_filters import *
+from work_materials.filters.merchant_filters import *
 
 from bin.service_commands import *
 from bin.starting_player import *
 from bin.save_load_user_data import *
 from bin.lvl_up_player import *
-from bin.travel_functions import *
 
 import work_materials.globals
 from libs.resorses import *
 from libs.equipment import *
 from libs.myJob import MyJob
+from bin.travel_functions import *
 
 sys.path.append('../')
 
@@ -33,10 +34,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 multiprocessing.log_to_stderr()
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
-processing = 1
 
-parse_travel_jobs()
-
+work_materials.globals.processing = 1
 
 def add_resource(bot, update, args):
     item = Resourse(int(args[0]))
@@ -48,7 +47,6 @@ def remove_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
     print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
-
 
 def equip(bot, update):
     id = update.message.text.partition('_')[2]
@@ -66,7 +64,6 @@ def equip(bot, update):
         return
     bot.send_message(chat_id = update.message.from_user.id, text = "Успешно экипировано")
 
-
 def unequip(bot, update):
     id = update.message.from_user.id
     player = get_player(id)
@@ -77,6 +74,22 @@ def unequip(bot, update):
     equipment = get_equipment(equipment_id)
     player.unequip(equipment)
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
+
+def merchant(bot, update, user_data):
+
+    player = get_player(update.message.from_user.id)
+    update_status('Merchant', player, user_data)
+    user_data.update({'saved_status' : 'In Location'})
+
+    show_general_buttons(bot, update, user_data)
+
+
+def merchant_buy(bot, update, user_data):
+    response = "Список товаров:\n"
+    player = get_player(update.message.from_user.id)
+    update_status('Merchant_buy', player, user_data)
+    bot.send_message(chat_id = update.message.from_user.id, text = response)
+    show_general_buttons(bot, update, user_data)
 
 
 #Фильтр на старт игры
@@ -117,6 +130,15 @@ dispatcher.add_handler(MessageHandler(Filters.text and location_filter and trave
 dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_location, return_to_location, pass_user_data=True))
 
+#Фильтры для торговца
+dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant, merchant, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant_buy, merchant_buy, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_info, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_merchant, merchant, pass_user_data=True))
+
+
+
+
 #Команды для добавления и удаления предметов
 dispatcher.add_handler(CommandHandler("add_resource", add_resource, pass_user_data=False, pass_args=True))
 dispatcher.add_handler(CommandHandler("remove_resource", remove_resource, pass_user_data=False, pass_args=True))
@@ -137,6 +159,7 @@ dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data
 #-------------------
 
 loadData()
+parse_travel_jobs()
 #sys.stdout.flush()
 threading.Thread(target=saveData).start()
 updater.start_polling(clean=False)
@@ -147,7 +170,6 @@ updating_to_database = Process(target = players_update, args = (players_need_upd
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()
-dump_travel_jobs()
 # Разрываем подключение к базе данных
 work_materials.globals.processing = 0
 conn.close()
