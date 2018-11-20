@@ -4,6 +4,7 @@ from libs.player import *
 from bin.equipment_service import *
 from bin.starting_player import start
 from work_materials.filters.service_filters import filter_is_admin
+from work_materials.globals import format_time
 
 
 def get_player(id):
@@ -96,16 +97,9 @@ def print_player(bot, update, user_data):
         j = travel_jobs.get(player.id)
         if j is not None:
             time = j.get_time_left()
-            time_str = '<b>'
-            time_str += str(int(time//60))
-            time_str += ':'
-            sec = int(time%60)
-            if sec < 10:
-                time_str += '0'
-            time_str += str(sec)
-            time_str += '</b>'
+            time_str = format_time(time)
             print(time)
-            task += 'Перемещается в локацию: {0}, осталось: {1}'.format(locations.get(user_data.get('new_location')).name, time_str)
+            task += 'Перемещается в локацию: {0}, осталось: <b>{1}</b>'.format(locations.get(user_data.get('new_location')).name, time_str)
         else:
             task += "Вы стоите на месте, наверное вы заблудились, вернитесь"
             if filter_is_admin.filter(update.message):

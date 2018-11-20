@@ -1,7 +1,10 @@
 from work_materials.globals import *
 from telegram import ReplyKeyboardRemove
-from bin.player_service import *
+from bin.player_service import get_player, update_status
+from bin.show_general_buttons import show_general_buttons
+from bin.lvl_up_player import start
 from libs.myJob import MyJob
+
 
 def sql(bot, update, user_data):
     mes = update.message

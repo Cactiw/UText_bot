@@ -54,6 +54,16 @@ def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
         menu.append(footer_buttons)
     return menu
 
+def format_time(time):
+    time_str = ''
+    time_str += str(int(time // 60))
+    time_str += ':'
+    sec = int(time % 60)
+    if sec < 10:
+        time_str += '0'
+    time_str += str(sec)
+    return time_str
+
 
 __capital_button_list = [
     KeyboardButton('Инфо'),
