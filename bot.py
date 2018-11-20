@@ -37,7 +37,6 @@ logger.setLevel(logging.INFO)
 
 work_materials.globals.processing = 1
 
-
 def add_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
@@ -160,6 +159,7 @@ dispatcher.add_handler(MessageHandler(Filters.text, text_message, pass_user_data
 #-------------------
 
 loadData()
+parse_travel_jobs()
 #sys.stdout.flush()
 threading.Thread(target=saveData).start()
 updater.start_polling(clean=False)
