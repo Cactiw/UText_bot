@@ -29,17 +29,13 @@ def saveData():
 
             try:
                 to_dump = {}
-                print('in save data', to_dump, travel_jobs)
                 for i in travel_jobs:
-                    print(i)
                     j = travel_jobs.get(i)
-                    to_dump.update({i: [j.start_time, j.get_time_left(), j.stop_time]})
-                print('to_dump filled')
+                    to_dump.update({i: [j.get_time_spent(), j.get_time_left()]})
 
                 f = open('backup/userdata', 'wb+')
                 pickle.dump(dispatcher.user_data, f)
                 f.close()
-                print(to_dump)
                 f = open('backup/travel_jobs', 'wb+')
                 pickle.dump(to_dump, f)
                 f.close()

@@ -60,7 +60,7 @@ def show_merchant_buy_buttons(bot, update, user_data):
 
 def show_general_buttons(bot, update, user_data):
     status = user_data.get('status')
-    player = get_player(update.message.from_user.id)
+    player = get_player(update.message.chat_id)
     if status == 'In Location':
         loc_id = player.location
         if loc_id >= 14 and loc_id <= 16:
@@ -88,37 +88,4 @@ def show_general_buttons(bot, update, user_data):
         show_merchant_buttons(bot, update, user_data)
     elif status == 'Merchant_buy':
         show_merchant_buy_buttons(bot, update, user_data)
-
-
-def bad_show_general_buttons(bot, chat_id, user_data):
-    status = user_data.get('status')
-    player = get_player(chat_id)
-    if status == 'In Location':
-        loc_id = player.location
-        if loc_id >= 14 and loc_id <= 16:
-            bot.send_message(chat_id=chat_id, text="Вы в столице", reply_markup=capital_buttons)
-        elif loc_id >= 17 and loc_id <= 19:
-            bot.send_message(chat_id=chat_id, text="Вы в Замке Гильдии", reply_markup=guild_buttons)
-        elif loc_id >= 5 and loc_id <= 10:
-            bot.send_message(chat_id=chat_id, text="Вы в Башне", reply_markup=tower_buttons)
-        elif loc_id >= 26 and loc_id <= 40:
-            bot.send_message(chat_id=chat_id,
-                             text="Вы в локации для фарма, хорошо бы их как-нибудь назвать уже",
-                             reply_markup=farmLocation_buttons)
-        elif loc_id >= 20 and loc_id <= 25:
-            bot.send_message(chat_id=chat_id, text="Вы в лесу или шахте, знаю, потом разделю",
-                             reply_markup=resource_buttons)
-        elif loc_id >= 11 and loc_id <= 13:
-            bot.send_message(chat_id=chat_id, text="Вы в лесу или шахте, но не на острове",
-                             reply_markup=resource_buttons_offIsland)
-        elif loc_id >= 2 and loc_id <= 4:
-            bot.send_message(chat_id=chat_id, text="Вы в замке, готовьтесь напасть на портал",
-                             reply_markup=castle_buttons)
-        elif loc_id == 1:
-            def show_portal_buttons(bot, update, user_data):
-                bot.send_message(chat_id=chat_id, text="Вы у портала, не лезь, она тебя сожрет",
-                                 reply_markup=portal_buttons)
-        else:
-            print("ERROR: WRONG STATUS in /bin/show_general_buttons.py")
-            print(user_data)
 

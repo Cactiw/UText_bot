@@ -34,6 +34,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 multiprocessing.log_to_stderr()
 logger = multiprocessing.get_logger()
 logger.setLevel(logging.INFO)
+processing = 1
 
 work_materials.globals.processing = 1
 
@@ -63,6 +64,7 @@ def equip(bot, update):
         bot.send_message(chat_id=update.message.from_user.id, text="Ошибка")
         return
     bot.send_message(chat_id = update.message.from_user.id, text = "Успешно экипировано")
+
 
 def unequip(bot, update):
     id = update.message.from_user.id

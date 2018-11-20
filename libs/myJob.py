@@ -25,3 +25,15 @@ class MyJob:
         t2 = 2*time.time() - self.stop_time
         self.start_time = t2
         self.stop_time = t1
+
+
+class _Message():
+
+    def __init__(self, chat_id):
+        self.chat_id = chat_id
+
+
+class Chat_Id_Update():
+
+    def __init__(self, chat_id):
+        self.message = _Message(chat_id)

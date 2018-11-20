@@ -1,9 +1,10 @@
-from bin.show_general_buttons import show_general_buttons, bad_show_general_buttons
+from bin.show_general_buttons import show_general_buttons
 from work_materials.globals import *
 from bin.player_service import update_status, update_location, get_player
-from libs.myJob import MyJob
+from libs.myJob import MyJob, Chat_Id_Update
 from work_materials.filters.service_filters import filter_is_admin
 import pickle
+import time
 
 
 def move_player(bot, job):
@@ -15,10 +16,7 @@ def move_player(bot, job):
     players_need_update.put(player)
     update = job.context.get('update')
     travel_jobs.pop(player.id)
-    if update is not None:
-        show_general_buttons(bot, update, user_data)
-    else:
-        bad_show_general_buttons(bot, job.context.get('chat_id'), user_data)
+    show_general_buttons(bot, update, user_data)
 
 
 def travel(bot, update, user_data):
@@ -62,7 +60,7 @@ def choose_way(bot, update, user_data):
             bot.send_message(chat_id=update.message.chat_id, text="Вы можете использовать /fasttravel")
         user_data.update({'new_location': new_loc_id})
         tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 5, context=contexts)
-        j = MyJob(tmp_job, paths.get(new_loc_id) * 7, update.message.chat_id)
+        j = MyJob(tmp_job, paths.get(new_loc_id) * 60, update.message.chat_id)
         travel_jobs.update({player.id: j})
         return
 
@@ -112,27 +110,22 @@ def return_to_location(bot, update, user_data):
 
 
 def parse_travel_jobs():
-    print("in parse")
     try:
         f = open('backup/travel_jobs', 'rb')
         to_parse = pickle.load(f)
-        print(to_parse)
         f.close()
         for i in to_parse:
-            print(i)
             player = get_player(i)
             user_data = dispatcher.user_data.get(i)
-            update_status("Traveling", player, user_data)
+            update_status(user_data.get('status'), player, user_data)
             dispatcher.user_data[i].update({'saved_status': 'Traveling'})
             t = to_parse.get(i)
-
+            update = Chat_Id_Update(player.id)
             contexts = {'chat_id': player.id, 'location_id': user_data.get('new_location'), 'player': player,
-                        'update': None, 'user_data': user_data}
-            j = MyJob(job.run_once(move_player, t[1], context = contexts), t[1], player.id)
-            j.start_time = t[0]
+                        'update': update, 'user_data': user_data}
+            j = MyJob(job.run_once(move_player, t[1], context=contexts), t[1], player.id)
+            j.start_time = time.time() - t[0]
             travel_jobs.update({i: j})
-        print("Travel_jobs picked up")
-        print(travel_jobs)
     except FileNotFoundError:
         logging.error("Data file not found")
     except:
