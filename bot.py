@@ -87,11 +87,41 @@ def merchant(bot, update, user_data):
 
 
 def merchant_buy(bot, update, user_data):
-    response = "Список товаров:\n"
     player = get_player(update.message.from_user.id)
+    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_id = '{0}".format(player.location)
+    cursor.execute(request)
+    row = cursor.fetchone()
+    if row is None:
+        bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
+                                                                   "\ лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
+        return
     update_status('Merchant_buy', player, user_data)
+    response = "Список товаров:\n"
+    while row:
+        response += "\n<b>{0}</b>\n<b>{1}</b>\nПодробнее: /item_{2}\nКупить: /buy_{2}\n".format(row[2], row[3], row[0])
+        row = cursor.fetchone()
     bot.send_message(chat_id = update.message.from_user.id, text = response)
-    show_general_buttons(bot, update, user_data)
+
+
+def buy(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = '{0}'".format(update.message.text.partition['_'][2])
+    cursor.execute(request)
+    row = cursor.fetchone()
+    if row is None:
+        bot.send_message(chat_id=update.message.from_user.id, text="Указанный предмет не найден")
+        return
+    equipment = get_equipment(row[0])
+    if equipment is None:
+        bot.send_message(chat_id=update.message.from_user.id, text="Указанный предмет не найден")
+        return
+    gold = player.resources.get("gold")
+    if player.resources.get("gold") < row[1]:
+        bot.send_message(chat_id=update.message.from_user.id, text="У вас недостаточно золота")
+        return
+    player.resources.update({"gold" : gold - row[1]})
+    player.add_item(equipment, player.eq_backpack, 1)
+    bot.send_message(chat_id=update.message.from_user.id, text="Вы наслаждаетесь видом новой шмотки")
 
 
 #Фильтр на старт игры
