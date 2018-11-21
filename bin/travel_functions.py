@@ -1,5 +1,6 @@
 from bin.show_general_buttons import show_general_buttons
 from work_materials.globals import *
+from work_materials.buttons.location_buttons import traveling_buttons
 from bin.player_service import update_status, update_location, get_player
 from libs.myJob import MyJob, Chat_Id_Update
 from work_materials.filters.service_filters import filter_is_admin
@@ -14,9 +15,10 @@ def move_player(bot, job):
     update_location(job.context.get('location_id'), player, user_data)
     print(player.nickname, "Переместился в новую локацию -", player.location)
     players_need_update.put(player)
-    update = job.context.get('update')
     travel_jobs.pop(player.id)
+    update = job.context.get('update')
     show_general_buttons(bot, update, user_data)
+    #Вывести информацию о городе
 
 
 def travel(bot, update, user_data):
