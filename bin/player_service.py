@@ -9,10 +9,12 @@ from work_materials.filters.service_filters import filter_is_admin
 def get_player(id):
     player = players.get(id)
     if player is not None:
+        update_location(player.location, player, dispatcher.user_data[id])
         return player
     player = Player(id, 0, 0, 0, 0, 0, 0)
     if player.update_from_database() is None:
         return None
+    update_location(player.location, player, dispatcher.user_data[id])
     players.update({player.id: player})
     return player
 
