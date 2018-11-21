@@ -9,6 +9,7 @@ from libs.locations.headquarters import *
 from libs.locations.portal import *
 from libs.locations.resource_loc import *
 from libs.locations.tower import *
+#from MySQLdb.cursors import Cursor
 
 
 updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
@@ -26,6 +27,8 @@ passwd = 'fiP3Gahz'
 conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
 
 cursor = conn.cursor()
+#cursor=Cursor(connection=conn)      #   ВОЗМОЖНЫ БАГИ, АККУРАТНО
+#updating_cursor=Cursor(connection=conn)
 updating_cursor = conn.cursor()
 conn.set_character_set('utf8')
 # conn.set_character_set('utf8mb4')

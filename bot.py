@@ -89,12 +89,6 @@ def merchant(bot, update, user_data):
 def merchant_buy(bot, update, user_data):
     text = update.message.text
     player = get_player(update.message.from_user.id)
-    KeyboardButton('Голова'),
-    KeyboardButton('Тело'),
-    KeyboardButton('Перчатки'),
-    KeyboardButton('Ноги'),
-    KeyboardButton('Средства передвижения'),
-    KeyboardButton('Импланты'),
     if text == 'Голова':
         type = "eh"
     elif text == 'Тело':
@@ -109,7 +103,12 @@ def merchant_buy(bot, update, user_data):
         type = "ei"
     else:
         type = "e"
-    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_id = '{0}' and item_type = '{1}'".format(player.location, type)
+    location_id = player.location
+    if location_id >= 14 and location_id <= 16:
+        location_type = 0
+    else:
+        location_type = 1
+    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = '{0}' and item_type = '{1}'".format(location_type, type)
     print(request)
     cursor.execute(request)
     row = cursor.fetchone()

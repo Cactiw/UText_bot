@@ -218,6 +218,7 @@ class Player:
         return self
 
     def update_to_database(self):
+        cursor = conn.cursor()
         request = "UPDATE players SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
                   "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', free_skill_points = '{10}', fatigue = '{11}', " \
                   "first_skill_lvl = '{12}', second_skill_lvl = '{13}', third_skill_lvl = '{14}', fourth_skill_lvl = '{15}', " \
@@ -238,7 +239,7 @@ class Player:
                                                            self.on_character['legs'], self.on_character['feet'],
                                                            self.on_character['left_arm'], self.on_character['right_arm'],
                                                            self.on_character['mount'], self.id)
-        updating_cursor.execute(request)
+        cursor.execute(request)             #   КРАЙНЕ НЕСТАБИЛЬНАЯ РАБОТА  TODO разобраться
         conn.commit()
 
     def add_to_database(self):
