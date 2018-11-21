@@ -2,6 +2,7 @@ from libs.player import *
 from work_materials.globals import *
 from work_materials.lines.location_lines import *
 from work_materials.buttons.location_buttons import *
+from work_materials.buttons.merchant_buttons import *
 
 
 def update_location(location, player, user_data):
@@ -22,15 +23,6 @@ def get_player(id):
     update_location(player.location, player, dispatcher.user_data[id])
     players.update({player.id: player})
     return player
-
-
-def show_merchant_buttons(bot, update, user_data):
-    bot.send_message(chat_id=update.message.chat_id, text="Выберите категорию товара:",
-                     reply_markup=merchant_buttons)
-
-def show_merchant_buy_buttons(bot, update, user_data):
-    bot.send_message(chat_id=update.message.chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",
-                     reply_markup=merchant_buy_buttons)
 
 
 def get_location_buttons(id):
@@ -60,7 +52,7 @@ def show_general_buttons(bot, update, user_data):
     elif status == 'Traveling':
         bot.send_message(chat_id=update.message.chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
     elif status == 'Merchant':
-        show_merchant_buttons(bot, update, user_data)
+        bot.send_message(chat_id=update.message.chat_id, text="Выберите категорию товара:", reply_markup=merchant_buttons)
     elif status == 'Merchant_buy':
-        show_merchant_buy_buttons(bot, update, user_data)
+        bot.send_message(chat_id=update.message.chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buy_buttons)
 

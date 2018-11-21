@@ -1,53 +1,54 @@
 from telegram.ext import BaseFilter
 from work_materials.globals import *
+from bin.player_service import get_player
 
 
 class CapitalLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 14 and location_id <= 16 and dispatcher.user_data[message.from_user.id].get(
             'status') == 'In Location'
 
 
 class GuildCastleLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 17 and location_id <= 19 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class TowerLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 5 and location_id <= 10 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class FarmLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 26 and location_id <= 40 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class ResourceLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 20 and location_id <= 25 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class ResourceOffIslandLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 11 and location_id <= 13 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class CastleLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id >= 2 and location_id <= 4 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 
 class PortalLocationFilter(BaseFilter):
     def filter(self, message):
-        location_id = players.get(message.from_user.id).location
+        location_id = get_player(message.from_user.id).location
         return location_id == 1 and dispatcher.user_data[message.from_user.id].get('status') == 'In Location'
 
 

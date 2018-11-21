@@ -83,5 +83,11 @@ class Filter_Return_To_Merchant(BaseFilter):
         return message.text == 'Назад' and dispatcher.user_data[message.from_user.id].get('status') == 'Merchant_buy'
 
 
+class Filter_Buy_Equipment(BaseFilter):
+    def filter(self, message):
+        return ('/buy' in message.text) and dispatcher.user_data[message.from_user.id].get('status') == 'Merchant_buy'
+
+
 filter_return_from_merchant = Filter_Return_From_Merchant()
 filter_return_to_merchant = Filter_Return_To_Merchant()
+filter_buy_equipment = Filter_Buy_Equipment()

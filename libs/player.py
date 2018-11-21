@@ -1,5 +1,5 @@
 import math
-from work_materials.globals import dispatcher, cursor, conn, players_need_update
+from work_materials.globals import dispatcher, cursor, conn, players_need_update, updating_cursor
 from bin.equipment_service import *
 
 class Player:
@@ -238,7 +238,7 @@ class Player:
                                                            self.on_character['legs'], self.on_character['feet'],
                                                            self.on_character['left_arm'], self.on_character['right_arm'],
                                                            self.on_character['mount'], self.id)
-        cursor.execute(request)
+        updating_cursor.execute(request)
         conn.commit()
 
     def add_to_database(self):

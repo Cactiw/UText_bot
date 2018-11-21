@@ -26,6 +26,7 @@ passwd = 'fiP3Gahz'
 conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
 
 cursor = conn.cursor()
+updating_cursor = conn.cursor()
 conn.set_character_set('utf8')
 # conn.set_character_set('utf8mb4')
 # cursor.execute('SET NAMES utf8mb4;')
@@ -71,24 +72,4 @@ __info_buttons_list = [
     KeyboardButton('Назад')
 ]
 info_buttons = ReplyKeyboardMarkup(build_menu(__info_buttons_list, n_cols=2), resize_keyboard=True)
-
-__merchant_buttons_list = [
-    KeyboardButton('Оружие'),
-    KeyboardButton('Голова'),
-    KeyboardButton('Тело'),
-    KeyboardButton('Перчатки'),
-    KeyboardButton('Ноги'),
-    KeyboardButton('Средства передвижения'),
-    KeyboardButton('Импланты'),
-    KeyboardButton('Продать'),
-    KeyboardButton('Назад')
-]
-
-merchant_buttons = ReplyKeyboardMarkup(build_menu(__merchant_buttons_list, n_cols=3), resize_keyboard=True)
-
-__merchant_buttons_list = [
-    KeyboardButton('Назад')
-]
-
-merchant_buy_buttons = ReplyKeyboardMarkup(build_menu(__merchant_buttons_list, n_cols=2), resize_keyboard=True)
 

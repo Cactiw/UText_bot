@@ -87,25 +87,49 @@ def merchant(bot, update, user_data):
 
 
 def merchant_buy(bot, update, user_data):
+    text = update.message.text
     player = get_player(update.message.from_user.id)
-    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_id = '{0}".format(player.location)
+    KeyboardButton('Голова'),
+    KeyboardButton('Тело'),
+    KeyboardButton('Перчатки'),
+    KeyboardButton('Ноги'),
+    KeyboardButton('Средства передвижения'),
+    KeyboardButton('Импланты'),
+    if text == 'Голова':
+        type = "eh"
+    elif text == 'Тело':
+        type = "eb"
+    elif text == 'Перчатки':
+        type = "es"
+    elif text == 'Ноги':
+        type = "ez"
+    elif text == 'Средства передвижения':
+        type = "em"
+    elif text == 'Импланты':
+        type = "ei"
+    else:
+        type = "e"
+    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_id = '{0}' and item_type = '{1}'".format(player.location, type)
+    print(request)
     cursor.execute(request)
     row = cursor.fetchone()
+    print(row)
     if row is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
-                                                                   "\ лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
+                                                                   " лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
         return
     update_status('Merchant_buy', player, user_data)
     response = "Список товаров:\n"
     while row:
-        response += "\n<b>{0}</b>\n<b>{1}</b>\nПодробнее: /item_{2}\nКупить: /buy_{2}\n".format(row[2], row[3], row[0])
+        response += "\n<b>{0}</b>\n<b>💰{1}</b>\nПодробнее: /item_{2}\nКупить: /buy_{2}\n".format(row[2], row[3], row[0])
         row = cursor.fetchone()
-    bot.send_message(chat_id = update.message.from_user.id, text = response)
+    bot.send_message(chat_id = update.message.from_user.id, text = response, parse_mode="HTML")
+    show_general_buttons(bot, update, user_data)
 
 
 def buy(bot, update, user_data):
     player = get_player(update.message.from_user.id)
-    request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = '{0}'".format(update.message.text.partition['_'][2])
+    request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = '{0}'".format(update.message.text.partition('_')[2])
     cursor.execute(request)
     row = cursor.fetchone()
     if row is None:
@@ -120,7 +144,8 @@ def buy(bot, update, user_data):
         bot.send_message(chat_id=update.message.from_user.id, text="У вас недостаточно золота")
         return
     player.resources.update({"gold" : gold - row[1]})
-    player.add_item(equipment, player.eq_backpack, 1)
+    player.add_item(player.eq_backpack, equipment, 1)
+    players_need_update.put(player)
     bot.send_message(chat_id=update.message.from_user.id, text="Вы наслаждаетесь видом новой шмотки")
 
 
@@ -167,6 +192,9 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant, merchant
 dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant_buy, merchant_buy, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_info, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_merchant, merchant, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_buy_equipment, buy, pass_user_data=True))
+
+
 
 
 

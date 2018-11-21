@@ -18,7 +18,7 @@ def move_player(bot, job):
     travel_jobs.pop(player.id)
     update = job.context.get('update')
     show_general_buttons(bot, update, user_data)
-    #Вывести информацию о городе
+    #TODO Вывести информацию о городе
 
 
 def travel(bot, update, user_data):

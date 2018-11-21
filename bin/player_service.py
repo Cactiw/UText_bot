@@ -176,6 +176,7 @@ def print_backpacks(bot, update, user_data):
     text = '<em>Экипировка:</em>\n'
     for i in player.eq_backpack:
         eq = get_equipment(i)
+        print(eq.name)
         text += '<b>' + eq.name
         text += '</b>\n     '
         for j in eq.stats:
