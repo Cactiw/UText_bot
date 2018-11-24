@@ -1,5 +1,5 @@
 from work_materials.globals import *
-from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from vk_bot import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from libs.player import *
 from bin.show_general_buttons import show_general_buttons
 
@@ -20,6 +20,7 @@ def start(bot, update, user_data):
         KeyboardButton('Стая')
     ]
     reply_markup = ReplyKeyboardMarkup(build_menu(button_list, n_cols=3), resize_keyboard=True)
+    print("reply_markup =", reply_markup)
     bot.send_message(chat_id=update.message.chat_id, text='Выберите фракцию, за которую вы будете сражаться!', reply_markup = reply_markup)
     return
 

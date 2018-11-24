@@ -1,4 +1,4 @@
-from telegram import KeyboardButton, ReplyKeyboardMarkup
+from vk_bot import KeyboardButton, ReplyKeyboardMarkup
 from work_materials.globals import build_menu
 
 __merchant_buttons_list = [

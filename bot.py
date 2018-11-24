@@ -1,5 +1,7 @@
 # Настройки
-from telegram.ext import CommandHandler, MessageHandler, Filters, Job
+#from telegram.ext import CommandHandler, MessageHandler, Filters, Job
+import vk
+from vk_bot import *
 #updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
 
 #dispatcher = updater.dispatcher
@@ -38,6 +40,9 @@ logger.setLevel(logging.INFO)
 processing = 1
 
 work_materials.globals.processing = 1
+
+
+
 
 def add_resource(bot, update, args):
     item = Resourse(int(args[0]))
@@ -229,7 +234,8 @@ updating_to_database.start()
 #reconnect_database()
 
 
-updater.start_polling(clean=False)
+#updater.start_polling(clean=False)
+updater.start()
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()

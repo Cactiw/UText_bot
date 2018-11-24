@@ -1,4 +1,4 @@
-from telegram.ext import BaseFilter
+from vk_bot import BaseFilter
 from work_materials.globals import *
 from work_materials.filters.location_filters import capital_location_filter
 

@@ -1,4 +1,4 @@
-from telegram.ext import BaseFilter
+from filters import BaseFilter
 from work_materials.globals import *
 
 

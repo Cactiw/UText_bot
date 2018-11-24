@@ -1,5 +1,5 @@
 
-from telegram.ext import BaseFilter
+from vk_bot import BaseFilter
 from bin.player_service import *
 from work_materials.globals import *
 from work_materials.filters.service_filters import filter_back

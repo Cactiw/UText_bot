@@ -1,4 +1,4 @@
-from telegram import ReplyKeyboardRemove
+from vk_bot import ReplyKeyboardRemove
 from bin.player_service import *
 
 

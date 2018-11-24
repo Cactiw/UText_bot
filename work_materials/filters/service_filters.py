@@ -1,5 +1,5 @@
 from work_materials.globals import *
-from telegram.ext import BaseFilter
+from filters import BaseFilter
 
 
 class Filter_Is_Admin(BaseFilter):

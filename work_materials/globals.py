@@ -1,6 +1,7 @@
-from telegram.ext import Updater
-from telegram import KeyboardButton, ReplyKeyboardMarkup
-import MySQLdb, sys, logging, psycopg2
+#from telegram.ext import Updater
+#from telegram import KeyboardButton, ReplyKeyboardMarkup
+from vk_bot import *
+import sys, logging, psycopg2
 from multiprocessing import Process, Queue
 from libs.locations.capital import *
 from libs.locations.castle import *
@@ -12,8 +13,11 @@ from libs.locations.tower import *
 #from MySQLdb.cursors import Cursor
 
 
-updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
-job = updater.job_queue
+#updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
+session = vk.Session(access_token = 'd6773804b8d3fdeb90db51c322c4d36c297869428d73b481799521fc148a3c1a55b38cc1e83dc1b72b0c2')
+api = vk.API(session, v = '5.50')
+updater = Updater(api)
+#job = updater.job_queue
 
 dispatcher = updater.dispatcher
 
@@ -47,13 +51,13 @@ locations = {1: portal, 2: feds_castle, 3: trib_castle, 4: stai_castle, 5: feds_
              37: stai_farm_loc_1020, 38: stai_farm_loc_2030, 39: stai_farm_loc_3040, 40: stai_farm_loc_4050}
 
 
-def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
-    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
-    if header_buttons:
-        menu.insert(0, header_buttons)
-    if footer_buttons:
-        menu.append(footer_buttons)
-    return menu
+#def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
+#    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+#    if header_buttons:
+#        menu.insert(0, header_buttons)
+#    if footer_buttons:
+#        menu.append(footer_buttons)
+#    return menu
 
 def format_time(time):
     time_str = ''

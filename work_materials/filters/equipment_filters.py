@@ -1,4 +1,4 @@
-from telegram.ext import BaseFilter
+from vk_bot import BaseFilter
 
 
 class Filter_Equip(BaseFilter):
