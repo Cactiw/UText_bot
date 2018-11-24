@@ -6,6 +6,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters, Job
 
 import threading
 import multiprocessing
+import work_materials.globals as globals
 
 from work_materials.filters.class_filters import *
 from work_materials.filters.fraction_filters import *
@@ -109,10 +110,10 @@ def merchant_buy(bot, update, user_data):
     else:
         location_type = 1
     request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = '{0}' and item_type = '{1}'".format(location_type, type)
-    print(request)
+    #print(request)
     cursor.execute(request)
     row = cursor.fetchone()
-    print(row)
+    #print(row)
     if row is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
                                                                    " лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
@@ -221,11 +222,14 @@ loadData()
 parse_travel_jobs()
 #sys.stdout.flush()
 threading.Thread(target=saveData).start()
-updater.start_polling(clean=False)
-
 #Запуск процесса обновления игроков в бд
 
-updating_to_database = Process(target = players_update, args = (players_need_update,), name = "Database_cloud_updating").start()
+updating_to_database = Process(target = players_update, args = (players_need_update,), name = "Database_cloud_updating")
+updating_to_database.start()
+#reconnect_database()
+
+
+updater.start_polling(clean=False)
 
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()

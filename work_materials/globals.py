@@ -1,6 +1,6 @@
 from telegram.ext import Updater
 from telegram import KeyboardButton, ReplyKeyboardMarkup
-import MySQLdb, sys, logging
+import MySQLdb, sys, logging, psycopg2
 from multiprocessing import Process, Queue
 from libs.locations.capital import *
 from libs.locations.castle import *
@@ -24,17 +24,14 @@ travel_jobs = {}
 #Подключаем базу данных, выставляем кодировку
 #print("Enter password for database:")
 passwd = 'fiP3Gahz'
-conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
 
+
+#conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
+
+conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
 cursor = conn.cursor()
-#cursor=Cursor(connection=conn)      #   ВОЗМОЖНЫ БАГИ, АККУРАТНО
-#updating_cursor=Cursor(connection=conn)
-updating_cursor = conn.cursor()
-conn.set_character_set('utf8')
-# conn.set_character_set('utf8mb4')
-# cursor.execute('SET NAMES utf8mb4;')
-# cursor.execute('SET CHARACTER SET utf8mb4;')
-# cursor.execute('SET character_set_connection=utf8mb4;')
+
+
 print("Connection successful, starting bot")
 
 admin_id_list = [231900398, 212657053, 307125511]
@@ -76,3 +73,9 @@ __info_buttons_list = [
 ]
 info_buttons = ReplyKeyboardMarkup(build_menu(__info_buttons_list, n_cols=2), resize_keyboard=True)
 
+def reconnect_database():
+    global conn
+    global cursor
+    conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
+    cursor = conn.cursor()
+    print("reconnected")

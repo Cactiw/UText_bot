@@ -103,13 +103,13 @@ def nickname_select(bot, update, user_data):
     user_data.update({'location': player.location})
     player.status = 'In Location'
     players.update({player.id: player})
-    show_general_buttons(bot, update, user_data)
     #TODO Вывод информации о столице
     player.add_to_database()
     bot.send_message(chat_id=update.message.chat_id,
                      text='Вы выбрали имя <b>{0}</b>\n'
                           'И можете приступить к игре!'.format(user_data.get('username')),
                      parse_mode='HTML')
+    show_general_buttons(bot, update, user_data)
     user_data.pop('type')
     user_data.pop('fraction')
     user_data.pop('race')

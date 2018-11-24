@@ -4,6 +4,7 @@ from libs.player import *
 from bin.equipment_service import *
 from bin.starting_player import start
 from work_materials.filters.service_filters import filter_is_admin
+import work_materials.globals as globals
 
 
 def get_player(id):
@@ -28,6 +29,10 @@ def update_location(location, player, user_data):
 
 
 def players_update(q):
+    reconnect_database()
+    globals.conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
+
+    globals.cursor = globals.conn.cursor()
     try:
         data = q.get()
         while data is not None:
@@ -44,6 +49,8 @@ def players_update(q):
             data.update_to_database()
         print("All users are in database and updated")
         return
+
+
 
 
 def set_status(bot, update, user_data, args):
