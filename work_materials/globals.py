@@ -38,7 +38,7 @@ cursor = conn.cursor()
 
 print("Connection successful, starting bot")
 
-admin_id_list = [231900398, 212657053, 307125511]
+admin_id_list = [51589620, 127463953, 307125511]
 
 processing = 1
 

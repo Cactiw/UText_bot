@@ -6,6 +6,8 @@ import logging
 import time
 import requests
 from filters import BaseFilter, Filters
+import sys
+import traceback
 
 
 class Bot:
@@ -99,17 +101,22 @@ class Updater:
                                     if current_user_data is None:
                                         self.user_data.update({message.from_user.id : {}})
                                         current_user_data = self.user_data.get(message.from_user.id)
-                                    if handler.pass_user_data is True:
-                                        if handler.pass_args is True:
-                                            handler.function(self.bot, update, current_user_data, message.text.split(' ')[1:])
+                                    try:
+                                        if handler.pass_user_data is True:
+                                            if handler.pass_args is True:
+                                                handler.function(self.bot, update, current_user_data, message.text.split(' ')[1:])
+                                            else:
+                                                handler.function(self.bot, update, current_user_data)
                                         else:
-                                            handler.function(self.bot, update, current_user_data)
-                                    else:
-                                        if handler.pass_args is True:
-                                            handler.function(self.bot, update, message.text.split(' ')[1:])
-                                        else:
-                                            handler.function(self.bot, update)
-                                    break
+                                            if handler.pass_args is True:
+                                                handler.function(self.bot, update, message.text.split(' ')[1:])
+                                            else:
+                                                handler.function(self.bot, update)
+                                        break
+                                    except Exception as e:
+                                        logging.error(sys.exc_info)
+                                        logging.error(e)
+                                        traceback.print_exc()
 
                 ts = longPoll['ts']
 
