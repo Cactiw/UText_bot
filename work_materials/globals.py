@@ -55,6 +55,7 @@ def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
         menu.append(footer_buttons)
     return menu
 
+
 def format_time(time):
     time_str = ''
     time_str += str(int(time // 60))
@@ -72,6 +73,7 @@ __info_buttons_list = [
     KeyboardButton('Назад')
 ]
 info_buttons = ReplyKeyboardMarkup(build_menu(__info_buttons_list, n_cols=2), resize_keyboard=True)
+
 
 def reconnect_database():
     global conn

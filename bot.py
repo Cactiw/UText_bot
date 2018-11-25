@@ -39,6 +39,7 @@ processing = 1
 
 work_materials.globals.processing = 1
 
+
 def add_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
@@ -49,6 +50,7 @@ def remove_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
     print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
+
 
 def equip(bot, update):
     id = update.message.text.partition('_')[2]
@@ -78,12 +80,11 @@ def unequip(bot, update):
     player.unequip(equipment)
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
 
-def merchant(bot, update, user_data):
 
+def merchant(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     update_status('Merchant', player, user_data)
     user_data.update({'saved_status' : 'In Location'})
-
     show_general_buttons(bot, update, user_data)
 
 
@@ -105,15 +106,14 @@ def merchant_buy(bot, update, user_data):
     else:
         type = "e"
     location_id = player.location
-    if location_id >= 14 and location_id <= 16:
-        location_type = 0
-    else:
-        location_type = 1
+    location_type = 0 if (location_id >= 14 and location_id <= 16) else 1
+    #if location_id >= 14 and location_id <= 16:
+    #    location_type = 0
+    #else:
+    #    location_type = 1
     request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = '{0}' and item_type = '{1}'".format(location_type, type)
-    #print(request)
     cursor.execute(request)
     row = cursor.fetchone()
-    #print(row)
     if row is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
                                                                    " лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
@@ -132,18 +132,12 @@ def buy(bot, update, user_data):
     request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = '{0}'".format(update.message.text.partition('_')[2])
     cursor.execute(request)
     row = cursor.fetchone()
-    if row is None:
-        bot.send_message(chat_id=update.message.from_user.id, text="Указанный предмет не найден")
-        return
     equipment = get_equipment(row[0])
-    if equipment is None:
+    gold = player.resources.get("gold")
+    if row is None or equipment is None or gold < row[1]:
         bot.send_message(chat_id=update.message.from_user.id, text="Указанный предмет не найден")
         return
-    gold = player.resources.get("gold")
-    if player.resources.get("gold") < row[1]:
-        bot.send_message(chat_id=update.message.from_user.id, text="У вас недостаточно золота")
-        return
-    player.resources.update({"gold" : gold - row[1]})
+    player.resources.update({"gold": gold - row[1]})
     player.add_item(player.eq_backpack, equipment, 1)
     players_need_update.put(player)
     bot.send_message(chat_id=update.message.from_user.id, text="Вы наслаждаетесь видом новой шмотки")
