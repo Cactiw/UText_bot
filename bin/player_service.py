@@ -194,6 +194,7 @@ def print_backpacks(bot, update, user_data):
                 text += str(stat)
                 text += '</b>  '
         text += "\nАктивировать: /equip_{0}".format(i)
+        text += "\nВыставить на аукцион: /create_lot_{0}_[начальная цена]_[цена выкупа]_[время в часах]".format(i)
         text += '\n\n'
     text += '\n\n<em>Расходуемые:</em>\n'
     text += '\n\n<em>Ресурсы:</em>\n'
