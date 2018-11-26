@@ -29,7 +29,7 @@ def auction_checker():
                     list = item_response[0]
                     item = item_response[1]
                     player.add_item(list, item, 1)
-                    dispatcher.bot.send_message(chat_id=player_bid_id, text="Аукцион закончен, но никто не сделал ставку. Предмет возвращён")
+                    dispatcher.bot.send_message(chat_id=player_id, text="Аукцион закончен, но никто не сделал ставку. Предмет возвращён")
                     return
                 player = get_player(player_bid_id)
                 item_response = get_item_and_list(item_type, item_id, player)
