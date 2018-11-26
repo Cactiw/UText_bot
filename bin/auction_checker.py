@@ -33,6 +33,8 @@ def auction_checker():
                     request = "delete from lots where lot_id = '{0}'".format(lot_id)
                     cursor2.execute(request)
                     conn.commit()
+
+                    row = cursor.fetchone()
                     continue
                 player = get_player(player_bid_id)
                 item_response = get_item_and_list(item_type, item_id, player)
