@@ -4,8 +4,9 @@ from work_materials.globals import build_menu
 __capital_button_list = [
     KeyboardButton('Инфо'),
     KeyboardButton('Доска объявлений'),
-    KeyboardButton('Таверна'),
+    KeyboardButton('Аукцион'),
     KeyboardButton('Торговец'),
+    KeyboardButton('Таверна'),
     KeyboardButton('Отправиться')
 ]
 capital_buttons = ReplyKeyboardMarkup(build_menu(__capital_button_list, n_cols=2), resize_keyboard=True)
