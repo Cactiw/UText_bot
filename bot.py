@@ -122,14 +122,11 @@ def merchant_buy(bot, update, user_data):
         bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
                                                                    " лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
         return
-    update_status('Merchant_buy', player, user_data)
     response = "Список товаров:\n"
     while row:
         response += "\n<b>{0}</b>\n<b>💰{1}</b>\nПодробнее: /item_{2}\nКупить: /buy_{2}\n".format(row[2], row[3], row[0])
         row = cursor.fetchone()
     bot.send_message(chat_id = update.message.from_user.id, text = response, parse_mode="HTML")
-    show_general_buttons(bot, update, user_data)
-
 
 def buy(bot, update, user_data):
     player = get_player(update.message.from_user.id)
@@ -356,7 +353,6 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_location
 dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant, merchant, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant_buy, merchant_buy, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_info, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_merchant, merchant, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_buy_equipment, buy, pass_user_data=True))
 
 

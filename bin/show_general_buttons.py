@@ -54,5 +54,5 @@ def show_general_buttons(bot, update, user_data):
     elif status == 'Merchant':
         bot.send_message(chat_id=update.message.chat_id, text="Выберите категорию товара:", reply_markup=merchant_buttons)
     elif status == 'Merchant_buy':
-        bot.send_message(chat_id=update.message.chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buy_buttons)
+        bot.send_message(chat_id=update.message.chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buttons)
 
