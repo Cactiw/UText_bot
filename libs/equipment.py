@@ -4,9 +4,8 @@ from work_materials.globals import conn, cursor
 class Equipment(Item):
 
     def __init__(self, type, id, name,  place, endurance, power, armor, agility, charge):
-        super(Equipment, self).__init__(type, id)
+        super(Equipment, self).__init__(type, id, name)
 
-        self.name = name
         self.place = place
         self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'speed': agility, 'charge': charge}
 
