@@ -11,7 +11,6 @@ from libs.locations.resource_loc import *
 from libs.locations.tower import *
 #from MySQLdb.cursors import Cursor
 
-
 updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
 job = updater.job_queue
 
@@ -25,13 +24,9 @@ travel_jobs = {}
 #print("Enter password for database:")
 passwd = 'fiP3Gahz'
 
-
 #conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
-
 conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
 cursor = conn.cursor()
-
-
 print("Connection successful, starting bot")
 
 admin_id_list = [231900398, 212657053, 307125511]
@@ -55,6 +50,7 @@ def build_menu(buttons, n_cols, header_buttons = None, footer_buttons = None):
         menu.append(footer_buttons)
     return menu
 
+
 def format_time(time):
     time_str = ''
     time_str += str(int(time // 60))
@@ -72,6 +68,7 @@ __info_buttons_list = [
     KeyboardButton('Назад')
 ]
 info_buttons = ReplyKeyboardMarkup(build_menu(__info_buttons_list, n_cols=2), resize_keyboard=True)
+
 
 def reconnect_database():
     global conn
