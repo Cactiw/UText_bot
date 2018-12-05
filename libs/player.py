@@ -2,6 +2,8 @@ import math
 import work_materials.globals as globals
 from work_materials.globals import dispatcher, cursor, conn, players_need_update
 from bin.equipment_service import *
+from libs.buff import *
+
 
 class Player:
 
@@ -11,6 +13,8 @@ class Player:
         self.id = id
         self.username = username
         self.nickname = nickname
+
+        self.dead = 0
 
         self.status = "In Location"
 
@@ -32,11 +36,11 @@ class Player:
         self.fifth_skill_lvl = 0
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
-                    'speed': 5, }
+                    'speed': 5}
 
         self.charge = self.stats['charge'] * 15
         self.hp = self.stats['endurance'] * 15
-        self.take_damage_by_armor = 0
+        #self.damage_taken_by_armor = 0
 
         self.location = 0
 
@@ -51,6 +55,9 @@ class Player:
 
         self.on_character = {'head': None, 'body': None, 'shoulders': None, 'legs': None, 'feet': None,
                         'left_arm': None, 'right_arm': None, 'mount': None, }
+
+        self.buffs = {}
+        self.debuffs = {}
 
         self.eq_backpack = {}
         self.al_backpack = {}
@@ -67,7 +74,6 @@ class Player:
                                                                                                  item.id, quanty)
             cursor.execute(request)
             conn.commit()
-            #print("Item added to database")
             return
         quanty += int(count)
         list.update({item.id: quanty})
@@ -75,7 +81,6 @@ class Player:
         request = "UPDATE inventory SET quanty = '{2}' WHERE user_id = '{0}' and id = '{1}'".format(self.id, item.id, quanty)
         cursor.execute(request)
         conn.commit()
-        #print("Item quanty edited in database")
         return 0
 
     def remove_item(self, list, item, count):
@@ -99,22 +104,79 @@ class Player:
         conn.commit()
         return 0
 
+    def use_skill(self, skill, target):
+        if self.game_class == 'Оператор':
+            if skill == 1:
+                pass
+            if skill == 2:
+                pass
+            if skill == 3:
+                pass
+            if skill == 4:
+                pass
+            if skill == 5:
+                pass
+        elif self.game_class == 'Канонир':
+            if skill == 1:
+                pass
+            if skill == 2:
+                pass
+            if skill == 3:
+                pass
+            if skill == 4:
+                pass
+            if skill == 5:
+                pass
+        elif self.game_class == 'Хакер':
+            if skill == 1:
+                pass
+            if skill == 2:
+                pass
+            if skill == 3:
+                pass
+            if skill == 4:
+                pass
+            if skill == 5:
+                pass
+        elif self.game_class == 'Биомеханик':
+            if skill == 1:
+                pass
+            if skill == 2:
+                pass
+            if skill == 3:
+                pass
+            if skill == 4:
+                pass
+            if skill == 5:
+                pass
 
     def lvl_up_skill(self, skill_number):
-        if(skill_number == '1'): self.first_skill_lvl += 1
-        elif(skill_number == "2"): self.second_skill_lvl += 1
-        elif(skill_number == "3"): self.third_skill_lvl += 1
-        elif(skill_number == "4"): self.fourth_skill_lvl += 1
-        elif(skill_number == "5"): self.fifth_skill_lvl += 1
-        else: return None
+        if skill_number == '1':
+            self.first_skill_lvl += 1
+        elif skill_number == "2":
+            self.second_skill_lvl += 1
+        elif skill_number == "3":
+            self.third_skill_lvl += 1
+        elif skill_number == "4":
+            self.fourth_skill_lvl += 1
+        elif skill_number == "5":
+            self.fifth_skill_lvl += 1
+        else:
+            return None
 
     def lvl_up_point(self, stat):
-        if(stat == "Выносливость"): self.stats["endurance"] += 1
-        elif(stat == "Броня"): self.stats["armor"] += 1
-        elif(stat == "Сила"): self.stats["power"] += 1
-        elif(stat == "Скорость"): self.stats["speed"] += 1
-        elif(stat == "Заряд"): self.stats["charge"] += 1
-        else: return None
+        if stat == "Выносливость":
+            self.stats["endurance"] += 1
+        elif stat == "Броня":
+            self.stats["armor"] += 1
+        elif stat == "Сила":
+            self.stats["power"] += 1
+        elif stat == "Скорость" :
+            self.stats["speed"] += 1
+        elif stat == "Заряд":
+            self.stats["charge"] += 1
+        else:
+            return None
 
     @staticmethod
     def lvl_up(self):
@@ -152,15 +214,12 @@ class Player:
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) + equipment.stats.get(i)})
         players_need_update.put(self)
-        #print("after equip", self.stats)
-
 
     def unequip(self, equipment): # Снятие предмета
         self.add_item(self.eq_backpack, equipment, 1)
         self.on_character[equipment.place] = None
         for i in self.stats:
             self.stats.update({i: self.stats.get(i) - equipment.stats.get(i)})
-    
 
     def change_location(self, location):
         self.location = location
@@ -272,10 +331,3 @@ class Player:
                                                            self.on_character['mount'])
         cursor.execute(request)
         conn.commit()
-        #request = "CREATE TABLE inv_{0} (" \
-        #          "type varchar(2)," \
-        #          "id int(4)," \
-        #          "quanty int(4)" \
-        #          ");".format(self.id) #TODO сделать ключ к таблице с экипировкой
-        #cursor.execute(request)
-        #conn.commit()
