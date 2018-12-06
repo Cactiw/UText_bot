@@ -11,7 +11,6 @@ from libs.locations.resource_loc import *
 from libs.locations.tower import *
 #from MySQLdb.cursors import Cursor
 
-
 updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
 job = updater.job_queue
 
@@ -27,13 +26,9 @@ matchmaking_players = Queue()
 #print("Enter password for database:")
 passwd = 'fiP3Gahz'
 
-
 #conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
-
 conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
 cursor = conn.cursor()
-
-
 print("Connection successful, starting bot")
 
 admin_id_list = [231900398, 212657053, 307125511]
