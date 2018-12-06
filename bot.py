@@ -1,5 +1,6 @@
 # Настройки
-from telegram.ext import CommandHandler, MessageHandler, Filters, Job
+from telegram.ext import CommandHandler, MessageHandler, Filters, Job, CallbackQueryHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 #updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
 
 #dispatcher = updater.dispatcher
@@ -24,6 +25,7 @@ from bin.save_load_user_data import *
 from bin.lvl_up_player import *
 from bin.item_service import *
 from bin.auction_checker import *
+from bin.matchmaking import *
 
 import work_materials.globals
 from libs.resorses import *
@@ -31,6 +33,8 @@ from libs.equipment import *
 from libs.myJob import MyJob
 from libs.lot import *
 from bin.travel_functions import *
+
+from libs.player_matchmaking import *
 
 sys.path.append('../')
 
@@ -310,6 +314,94 @@ def my_bids(bot, update):
     bot.send_message(chat_id=update.message.from_user.id, text=response, parse_mode='HTML')
 
 
+def matchmaking_start(bot, update, user_data):
+    if user_data.get("status") != "In Location":
+        bot.send_message(chat_id=update.message.chat_id, text="Сейчас вы заняты чем-то ещё")
+        return
+
+    user_data.update(matchmaking = [0, 0, 0])
+    button_list = [
+        InlineKeyboardButton("1 x 1", callback_data="mm 1x1"),
+        InlineKeyboardButton("3 x 3", callback_data="mm 3x3"),
+        InlineKeyboardButton("5 x 5", callback_data="mm 5x5")
+    ]
+    footer_buttons = [
+        InlineKeyboardButton("Начать поиск", callback_data="mm start")
+    ]
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
+    bot.send_message(chat_id=update.message.chat_id, text = "Выберите настройки битвы:", reply_markup=reply_markup)
+
+def callback(bot, update, user_data):
+    mes = update.callback_query.message
+    if update.callback_query.data.find("mm") == 0:
+        matchmaking = user_data.get("matchmaking")
+        if update.callback_query.data == "mm start" or update.callback_query.data == "mm cancel":
+            player = get_player(update.callback_query.from_user.id)
+
+            if update.callback_query.data == "mm cancel":
+                if user_data.get("status") != "Matchmaking":
+                    bot.send_message(chat_id=update.callback_query.from_user.id, text="Вы не находитесь в поиске битвы")
+                    return
+                player_matchmaking = Player_matchmaking(player, 0, matchmaking)
+                matchmaking_players.put(player_matchmaking)
+                bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
+                                        text="Подбор игроков успешно отменён", show_alert=False)
+                bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+                new_status = user_data.get('saved_status')
+                update_status(new_status, player, user_data)
+                matchmaking_start(bot, update.callback_query, user_data)
+                return
+
+
+
+            #   Начало подбора игроков
+            flag = 0
+            for i in matchmaking:
+                if i == 1:
+                    flag = 1
+                    break
+            if flag == 0:
+                bot.send_message(chat_id=update.callback_query.from_user.id, text="Необходимо выбрать хотя бы один режим")
+                return
+
+            player_matchmaking = Player_matchmaking(player, 1, matchmaking)
+            matchmaking_players.put(player_matchmaking)
+            #bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text = "Подбор игроков успешно запущен!", show_alert = False)
+            button_list = [
+                InlineKeyboardButton("Отменить подбор игроков", callback_data="mm cancel")
+            ]
+            reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=1))
+            bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+            bot.send_message(chat_id=update.callback_query.from_user.id, text="Подбор игроков запущен!", reply_markup=reply_markup)
+            status = user_data.get("status")
+            user_data.update(saved_status = status) if status != 'Matchmaking' else 0
+            update_status('Matchmaking', player, user_data)
+            return
+
+        # Настройки матчмейкинга битв
+        #print(matchmaking)
+        callback_data = update.callback_query.data
+        if callback_data == "mm 1x1":
+            matchmaking[0] = (matchmaking[0] + 1) % 2
+        elif callback_data == "mm 3x3":
+            matchmaking[1] = (matchmaking[1] + 1) % 2
+        elif callback_data == "mm 5x5":
+            matchmaking[2] = (matchmaking[2] + 1) % 2
+        first_button_text = "{0}1 x 1".format('✅' if matchmaking[0] else "")
+        second_button_text = "{0}3 x 3".format('✅' if matchmaking[1] else "")
+        third_button_text = "{0}5 x 5".format('✅' if matchmaking[2] else "")
+        button_list = [
+            InlineKeyboardButton(first_button_text, callback_data="mm 1x1"),
+            InlineKeyboardButton(second_button_text, callback_data="mm 3x3"),
+            InlineKeyboardButton(third_button_text, callback_data="mm 5x5")
+        ]
+        footer_buttons = [
+            InlineKeyboardButton("Начать поиск", callback_data="mm start")
+        ]
+        reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
+        bot.editMessageReplyMarkup(chat_id=mes.chat_id, message_id=mes.message_id, reply_markup=reply_markup)
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+
 
 #Фильтр на старт игры
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
@@ -367,6 +459,8 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_my_bids, my_bids, 
 
 
 
+dispatcher.add_handler(CommandHandler("matchmaking_start", matchmaking_start, pass_user_data=True))
+dispatcher.add_handler(CallbackQueryHandler(callback, pass_update_queue=False, pass_user_data=True))
 
 
 
@@ -404,6 +498,10 @@ updating_to_database.start()
 
 auction_checking = Process(target = auction_checker, args = (), name = "Auction checking")
 auction_checking.start()
+
+
+matchmaking = Process(target = matchmaking, args=(), name="Matchmaking")
+matchmaking.start()
 
 #reconnect_database()
 

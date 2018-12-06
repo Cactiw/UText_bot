@@ -56,6 +56,10 @@ class Player:
         self.al_backpack = {}
         self.res_backpack = {}
 
+
+    def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
+        return self.id == other.id
+
     def add_item(self, list, item, count): # Добавление item в рюкзак list
         quanty = list.get(item.id)
         print(quanty)

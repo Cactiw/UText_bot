@@ -21,6 +21,8 @@ players = {}
 players_need_update = Queue()
 travel_jobs = {}
 
+matchmaking_players = Queue()
+
 #Подключаем базу данных, выставляем кодировку
 #print("Enter password for database:")
 passwd = 'fiP3Gahz'
