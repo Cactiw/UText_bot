@@ -19,7 +19,7 @@ class Battle:
     def __init__(self, average_lvl, need_players, mode):
         self.average_lvl = average_lvl
         self.need_players = need_players
-        self.teams = [int(need_players / 2), int(need_players / 2)]
+        self.__teams = [int(need_players / 2), int(need_players / 2)]
         self.mode = mode
 
 
@@ -28,10 +28,10 @@ class Battle:
         self.players.append(player)
         average_lvl = 0
         self.count = 0
-        for i in range(0, len(self.teams)):
-            if self.teams[i] > 0:
+        for i in range(0, len(self.__teams)):
+            if self.__teams[i] > 0:
                 player.team = i
-                self.teams[i] -= 1
+                self.__teams[i] -= 1
                 break
         for i in self.players:
             average_lvl += i.player.lvl
@@ -40,7 +40,7 @@ class Battle:
 
 
     def remove_player(self, player_in):
-        self.teams[player_in.team] += 1
+        self.__teams[player_in.team] += 1
         self.players.remove(player_in)
         average_lvl = 0
         self.count = 0
