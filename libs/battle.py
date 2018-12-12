@@ -13,14 +13,24 @@ class Player_in_battle:
 
 
 class Battle:
-    players = []
-    count = 0
-    starting_flag = 1
-    def __init__(self, average_lvl, need_players, mode):
+
+
+    def __init__(self, average_lvl, mode):
+        self.players = []
+        self.team1 = []
+        self.team2 = []
         self.average_lvl = average_lvl
-        self.need_players = need_players
-        self.__teams = [int(need_players / 2), int(need_players / 2)]
         self.mode = mode
+        self.count = 0
+        self.starting_flag = 1
+        if self.mode == 0:
+            self.need_players = 2
+        elif self.mode == 1:
+            self.need_players = 6
+        else:
+            self.need_players = 10
+        self.__teams = [int(self.need_players / 2), int(self.need_players / 2)]
+        print(self.mode, self.need_players, self.__teams)
 
 
     def add_player(self, player_in):
@@ -37,6 +47,9 @@ class Battle:
             average_lvl += i.player.lvl
             self.count += 1
         self.average_lvl = average_lvl / self.count
+        print("battle =,", self)
+        print("battle.players =", self.players, ", mode =", self.mode)
+
 
 
     def remove_player(self, player_in):
@@ -55,6 +68,29 @@ class Battle:
         return self.count >= self.need_players
 
     def start_battle(self):
+        players.sort(key = lambda player_in_battle: player_in_battle.player.lvl)
+        #for player in players:
+
         for i in self.players:
-            dispatcher.bot.send_message(chat_id=i.player.id, text="Противники найдены, битва начинается!\nВаша команда :{0}".format(i.team))
+            if not i.team:
+                self.team1.append(i.player)
+            else:
+                self.team2.append(i.player)
+        team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
+        team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
+        for i in self.team1:
+            team1_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+        team1_text += "\nВаши соперники:\n"
+        for i in self.team2:
+            team1_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+            team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+        team2_text += "\nВаши соперники:\n"
+        for i in self.team1:
+            team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+        for i in self.team1:
+            dispatcher.bot.send_message(chat_id=i.id, text=team1_text, parse_mode='HTML')
+        for i in self.team2:
+            dispatcher.bot.send_message(chat_id=i.id, text=team2_text, parse_mode='HTML')
+
+        self.players.clear()
         battles_need_treating.put(self)

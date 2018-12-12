@@ -32,14 +32,15 @@ def matchmaking():
                 waiting_players[i].append(data.player)
                 print("put into queue", i)
 
-        i = 0
+        battle_mode = 0
         for waiting_queue in waiting_players:
             for player in waiting_queue:
 
                 battle_found = 0
                 for battle in battles:
                     print(abs(player.lvl - battle.average_lvl))
-                    if abs(player.lvl - battle.average_lvl) <= 2 and battle.mode == 1:
+                    if abs(player.lvl - battle.average_lvl) <= 2 and battle.mode == battle_mode:
+                        print("adding player", player.nickname,  ",mode =", battle_mode)
                         battle.add_player(player)
                         waiting_queue.remove(player)
                         battle_found = 1
@@ -51,10 +52,12 @@ def matchmaking():
                             # Удаляю из матчмейкинга в других режимах
                             for waiting_queue in waiting_players:
                                 for player in waiting_queue:
-                                    if player == data:
+                                    if player == data.player:
                                         print("removing from queue")
                                         waiting_queue.remove(player)
                                         break
+
+
                             for battle in battles:
                                 for player_in_battle in battle.players:
                                     if player_in_battle.player == data.player:
@@ -65,11 +68,12 @@ def matchmaking():
                         break
                 if not battle_found:
                     print("creating battle")
-                    battle = Battle(0, 2, i)
+                    battle = Battle(0, battle_mode)
+                    print("adding player into new battle", player.nickname, ",mode =", battle_mode)
                     battle.add_player(player)
                     waiting_queue.remove(player)
                     battles.append(battle)
                     print(battle.average_lvl)
-            i += 1
+            battle_mode += 1
 
         data = matchmaking_players.get()
