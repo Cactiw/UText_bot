@@ -12,7 +12,7 @@ class Player_in_battle:
         return self.player == other.player
 
 
-class Battle:
+class BattleStarting:
     players = []
     count = 0
     starting_flag = 1
