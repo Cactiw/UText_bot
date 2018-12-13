@@ -68,8 +68,12 @@ class Battle:
         return self.count >= self.need_players
 
     def start_battle(self):
-        players.sort(key = lambda player_in_battle: player_in_battle.player.lvl)
-        #for player in players:
+        self.players.sort(key = lambda player_in_battle: player_in_battle.player.lvl)
+        if self.need_players > 2:
+            for i in range(0, len(self.players), 2):
+                self.players[i].team = 0
+                self.players[i + 1].team = 1
+
 
         for i in self.players:
             if not i.team:
