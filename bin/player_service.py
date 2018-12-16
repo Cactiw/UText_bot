@@ -14,6 +14,7 @@ def get_player(id):
         return player
     player = Player(id, 0, 0, 0, 0, 0, 0)
     if player.update_from_database() is None:
+        dispatcher.bot.send_message(chat_id=id, text = "Вы не зарегистрированы в игре. Нажмите /start")
         return None
     update_location(player.location, player, dispatcher.user_data[id])
     players.update({player.id: player})
