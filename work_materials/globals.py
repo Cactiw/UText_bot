@@ -11,9 +11,10 @@ from libs.locations.resource_loc import *
 from libs.locations.tower import *
 #from MySQLdb.cursors import Cursor
 from libs.bot_async_messaging import AsyncBot
+from libs.updater_async import AsyncUpdater
 
 bot = AsyncBot(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
-updater = Updater(bot = bot)
+updater = AsyncUpdater(bot = bot)
 job = updater.job_queue
 
 dispatcher = updater.dispatcher
