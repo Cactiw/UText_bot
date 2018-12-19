@@ -159,6 +159,7 @@ def auction(bot, update):
 
 
 def create_lot(bot, update):
+    print(time.time())
     args = update.message.text.split("_")
     if len(args) < 6:
         bot.send_message(chat_id=update.message.from_user.id, text="Неверный синтаксис")
@@ -184,7 +185,10 @@ def create_lot(bot, update):
         return
     lot = Lot(equipment, player, price, buyout_price, duration)
     new_id = lot.create()
+    print(time.time())
     bot.send_message(chat_id=update.message.from_user.id, text="Лот № <b>{0}</b> успешно создан\nОтменить лот: /cancel_lot_{0}".format(new_id), parse_mode='HTML')
+    print(time.time())
+
 
 
 def cancel_lot(bot, update):
