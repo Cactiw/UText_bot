@@ -36,9 +36,21 @@ from bin.travel_functions import *
 
 from libs.player_matchmaking import *
 
+
 sys.path.append('../')
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+
+log_file = logging.FileHandler(filename='error.log', mode='a')
+log_file.setLevel(logging.ERROR)
+
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level = logging.INFO, handlers=[log_file, console])
+
+
+
+logging.getLogger('').addHandler(console)
+
 #Подключение логгирования процессов
 multiprocessing.log_to_stderr()
 logger = multiprocessing.get_logger()
