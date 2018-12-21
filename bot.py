@@ -1,6 +1,8 @@
 # Настройки
 from telegram.ext import CommandHandler, MessageHandler, Filters, Job, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.error import (TelegramError, Unauthorized, BadRequest,
+                            TimedOut, ChatMigrated, NetworkError)
 #updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
 
 #dispatcher = updater.dispatcher
@@ -8,6 +10,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import threading
 import multiprocessing
 import work_materials.globals as globals
+import traceback
 
 from work_materials.filters.class_filters import *
 from work_materials.filters.fraction_filters import *
@@ -18,6 +21,7 @@ from work_materials.filters.info_filters import *
 from work_materials.filters.equipment_filters import *
 from work_materials.filters.merchant_filters import *
 from work_materials.filters.auction_filters import *
+from work_materials.filters.battle_filters import *
 
 from bin.service_commands import *
 from bin.starting_player import *
@@ -26,6 +30,7 @@ from bin.lvl_up_player import *
 from bin.item_service import *
 from bin.auction_checker import *
 from bin.matchmaking import *
+from bin.status_monitor import *
 
 import work_materials.globals
 from libs.resorses import *
@@ -355,15 +360,18 @@ def callback(bot, update, user_data):
             player = get_player(update.callback_query.from_user.id)
 
             if update.callback_query.data == "mm cancel":
-                if user_data.get("status") != "Matchmaking":
+                if user_data.get("status") != "Matchmaking" and user_data.get("status") != "Battle": #  TODO Как битвы будут готовы, удалить проверку на статус "Battle", сейчас используется для отладки
                     bot.send_message(chat_id=update.callback_query.from_user.id, text="Вы не находитесь в поиске битвы")
                     return
                 player_matchmaking = Player_matchmaking(player, 0, matchmaking)
                 matchmaking_players.put(player_matchmaking)
                 bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                                         text="Подбор игроков успешно отменён", show_alert=False)
-                bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
-                new_status = user_data.get('saved_status')
+                try:
+                    bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+                except Unauthorized:
+                    pass
+                new_status = user_data.get('saved_battle_status')
                 update_status(new_status, player, user_data)
                 matchmaking_start(bot, update.callback_query, user_data)
                 return
@@ -381,7 +389,6 @@ def callback(bot, update, user_data):
                 return
 
             player_matchmaking = Player_matchmaking(player, 1, matchmaking)
-            matchmaking_players.put(player_matchmaking)
             #bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text = "Подбор игроков успешно запущен!", show_alert = False)
             button_list = [
                 InlineKeyboardButton("Отменить подбор игроков", callback_data="mm cancel")
@@ -390,8 +397,9 @@ def callback(bot, update, user_data):
             bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
             bot.send_message(chat_id=update.callback_query.from_user.id, text="Подбор игроков запущен!", reply_markup=reply_markup)
             status = user_data.get("status")
-            user_data.update(saved_status = status) if status != 'Matchmaking' else 0
+            user_data.update(saved_battle_status = status) if status != 'Matchmaking' else 0
             update_status('Matchmaking', player, user_data)
+            matchmaking_players.put(player_matchmaking)
             return
 
         # Настройки матчмейкинга битв
@@ -415,8 +423,12 @@ def callback(bot, update, user_data):
             InlineKeyboardButton("Начать поиск", callback_data="mm start")
         ]
         reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
-        bot.editMessageReplyMarkup(chat_id=mes.chat_id, message_id=mes.message_id, reply_markup=reply_markup)
-        bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+        try:
+            bot.editMessageReplyMarkup(chat_id=mes.chat_id, message_id=mes.message_id, reply_markup=reply_markup)
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+        except TelegramError:
+            logging.error(traceback.format_exc)
+            pass
 
 
 #Фильтр на старт игры
@@ -431,7 +443,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, n
 dispatcher.add_handler(CommandHandler("setstatus", set_status, pass_user_data=True, filters = filter_is_admin, pass_args=True))
 dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("update_player", update_player, pass_args=True, filters=filter_is_admin))
-dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True, filters = filter_is_admin))
+dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True))#, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("kill_myself", delete_self, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
@@ -476,6 +488,9 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_my_bids, my_bids, 
 
 
 dispatcher.add_handler(CommandHandler("matchmaking_start", matchmaking_start, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_start_battle, matchmaking_start, pass_user_data=True))
+
+
 dispatcher.add_handler(CallbackQueryHandler(callback, pass_update_queue=False, pass_user_data=True))
 
 
@@ -519,6 +534,9 @@ auction_checking.start()
 matchmaking = Process(target = matchmaking, args=(), name="Matchmaking")
 matchmaking.start()
 
+status_monitor_thread = threading.Thread(target = status_monitor, args = [])
+status_monitor_thread.start()
+
 #reconnect_database()
 
 
@@ -530,6 +548,7 @@ updater.idle()
 work_materials.globals.processing = 0
 conn.close()
 players_need_update.put(None)
+statuses.put(None)
 try:
     updating_to_database.join()
 except:

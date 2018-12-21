@@ -44,15 +44,23 @@ def get_location_buttons(id):
 
 def show_general_buttons(bot, update, user_data):
     status = user_data.get('status')
-    player = get_player(update.message.chat_id)
+    try:
+        chat_id = update.message.chat_id
+    except AttributeError:
+        try:
+            chat_id = int(update)
+        except TypeError:
+            return
+    player = get_player(chat_id)
     if status == 'In Location':
         location = user_data.get('location')
-        bot.send_message(chat_id=update.message.chat_id, text=location_lines[player.location],reply_markup=get_location_buttons(location))
+        bot.send_message(chat_id=chat_id, text=location_lines[player.location],reply_markup=get_location_buttons(location))
         #show_ads (Доска объявлений, если нужно)
     elif status == 'Traveling':
-        bot.send_message(chat_id=update.message.chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
+        bot.send_message(chat_id=chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
     elif status == 'Merchant':
-        bot.send_message(chat_id=update.message.chat_id, text="Выберите категорию товара:", reply_markup=merchant_buttons)
+        bot.send_message(chat_id=chat_id, text="Выберите категорию товара:", reply_markup=merchant_buttons)
     elif status == 'Merchant_buy':
-        bot.send_message(chat_id=update.message.chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buttons)
-
+        bot.send_message(chat_id=chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buttons)
+    elif status == 'Battle':
+        bot.send_message(chat_id=chat_id, text="Вы в бою",reply_markup=battle_buttons)

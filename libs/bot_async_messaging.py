@@ -56,8 +56,8 @@ class AsyncBot(Bot):
                     lock.release()
                     break
                 lock.release()
-                print("in lock, ", self.messages_per_second, messages_per_current_chat)
-                print("waiting")
+                #print("in lock, ", self.messages_per_second, messages_per_current_chat)
+                #print("waiting")
                 lock.wait()
         finally:
             try:

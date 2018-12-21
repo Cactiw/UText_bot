@@ -1,5 +1,7 @@
 from libs.player import *
 from work_materials.globals import *
+from libs.status_interprocess import *
+from bin.show_general_buttons import show_general_buttons
 
 
 class Player_in_battle:
@@ -92,9 +94,14 @@ class Battle:
         for i in self.team1:
             team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
         for i in self.team1:
-            dispatcher.bot.send_message(chat_id=i.id, text=team1_text, parse_mode='HTML')
+            dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML')
+            show_general_buttons(bot, i.id, {"status" : "Battle"})
+            status = StatusInterprocess(i.id, "Battle")
+            statuses.put(status)
         for i in self.team2:
-            dispatcher.bot.send_message(chat_id=i.id, text=team2_text, parse_mode='HTML')
-
+            dispatcher.bot.sync_send_message(chat_id=i.id, text=team2_text, parse_mode='HTML')
+            show_general_buttons(bot, i.id, {"status" : "Battle"})
+            status = StatusInterprocess(i.id, "Battle")
+            statuses.put(status)
         self.players.clear()
         battles_need_treating.put(self)

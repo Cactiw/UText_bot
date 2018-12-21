@@ -23,6 +23,7 @@ players = {}
 players_need_update = Queue()
 travel_jobs = {}
 
+statuses = Queue()
 matchmaking_players = Queue()
 
 battles_need_treating = Queue()
@@ -36,7 +37,7 @@ conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(pa
 cursor = conn.cursor()
 print("Connection successful, starting bot")
 
-admin_id_list = [231900398, 212657053, 307125511]
+admin_id_list = [231900398, 212657053, 307125511, 618831598]    #   618831598 - мой твинк (Князь)
 
 processing = 1
 
