@@ -14,7 +14,7 @@ class Player_in_battle:
         return self.player == other.player
 
 
-class Battle:
+class BattleStarting:
 
 
     def __init__(self, average_lvl, mode):
@@ -65,6 +65,9 @@ class Battle:
         if self.count == 0:
             return 1
         self.average_lvl = average_lvl / self.count
+
+    def is_suitable(self, player, battle_mode):
+        return abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode
 
     def ready_to_start(self):
         return self.count >= self.need_players

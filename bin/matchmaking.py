@@ -40,7 +40,7 @@ def matchmaking():
                     battle_found = 0
                     for battle in battles:
                         print(abs(player.lvl - battle.average_lvl))
-                        if abs(player.lvl - battle.average_lvl) <= 2 and battle.mode == battle_mode:
+                        if battle.is_suitable(player, battle_mode):
                             print("adding player", player.nickname,  ",mode =", battle_mode)
                             battle.add_player(player)
                             waiting_queue.remove(player)
@@ -69,7 +69,7 @@ def matchmaking():
                             break
                     if not battle_found:
                         print("creating battle")
-                        battle = Battle(0, battle_mode)
+                        battle = BattleStarting(0, battle_mode)
                         print("adding player into new battle", player.nickname, ",mode =", battle_mode)
                         battle.add_player(player)
                         waiting_queue.remove(player)

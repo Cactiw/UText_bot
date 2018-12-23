@@ -29,6 +29,3 @@ def start_battle(battle_starting):
 	battle = Battle(battle_starting)
 	for i in range(battle.players_number):
 		pass
-
-
-
