@@ -23,6 +23,8 @@ from work_materials.filters.merchant_filters import *
 from work_materials.filters.auction_filters import *
 from work_materials.filters.battle_filters import *
 
+from work_materials.buttons.auction_buttons import auction_reply_markup
+
 from bin.service_commands import *
 from bin.starting_player import *
 from bin.save_load_user_data import *
@@ -171,9 +173,34 @@ def auction(bot, update):
     response += "Выставить предмет на продажу: /create_lot_{id предмета}_{начальная цена}_{цена выкупа}_{время в часах}\n"
     response += "\nВаши лоты: /my_lots\n"
     response += "Ваши ставки: /my_bids\n"
-    bot.send_message(chat_id=update.message.from_user.id, text=response)
+    bot.send_message(chat_id=update.message.from_user.id, text=response, reply_markup = auction_reply_markup)
 
+def auction_callback(bot, update, user_data):
+    response = "Доступные лоты:\n"
+    type = update.callback_query.data.split()[1]
 
+    if type == "nahuy":
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+        show_general_buttons(bot, update.callback_query.from_user.id, user_data)
+        return
+
+    request = "select lot_id, item_name, time_end, price, buyout_price from lots " \
+              "where item_type = '{0}' order by time_end limit 10".format(type)
+    cursor.execute(request)
+    row = cursor.fetchone()
+    while row:
+        time_end = row[2] - datetime.datetime.now(tz=pytz.timezone('UTC'))
+        new_response = "<b>{0}</b>\nТекущая цена - 💰<b>{1}</b>\nВремя до окончания: <b>{2}</b>\nСделать ставку: /bet_{3}_[Новая цена]\n\n".format(
+            row[1], row[3], time_end, row[0])
+        response += new_response
+
+        row = cursor.fetchone()
+    try:
+        bot.editMessageText(chat_id=update.callback_query.from_user.id, message_id=update.callback_query.message.message_id,
+                            text=response, parse_mode='HTML', reply_markup=auction_reply_markup)
+    except BadRequest:
+        pass
+    bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
 
 def create_lot(bot, update):
     print(time.time())
@@ -274,9 +301,7 @@ def bet(bot, update):
 
 def lots(bot, update):
     item_name = "" + update.message.text.partition(" ")[2]
-    #print(item_name)
     request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* '{0}' order by time_end".format(item_name)
-    #print(request)
     cursor.execute(request)
     row = cursor.fetchone()
     response = "Список лотов:\n\n"
@@ -354,6 +379,8 @@ def matchmaking_start(bot, update, user_data):
 
 def callback(bot, update, user_data):
     mes = update.callback_query.message
+    if update.callback_query.data.find("au") == 0:
+        auction_callback(bot, update, user_data)
     if update.callback_query.data.find("mm") == 0:
         matchmaking = user_data.get("matchmaking")
         if update.callback_query.data == "mm start" or update.callback_query.data == "mm cancel":
@@ -370,6 +397,8 @@ def callback(bot, update, user_data):
                 try:
                     bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
                 except Unauthorized:
+                    pass
+                except BadRequest:
                     pass
                 new_status = user_data.get('saved_battle_status')
                 update_status(new_status, player, user_data)
