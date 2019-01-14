@@ -13,11 +13,13 @@ from libs.locations.tower import *
 from libs.bot_async_messaging import AsyncBot
 from libs.updater_async import AsyncUpdater
 
-bot = AsyncBot(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk')
+bot = AsyncBot(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk', workers=8)
 updater = AsyncUpdater(bot = bot)
 job = updater.job_queue
 
 dispatcher = updater.dispatcher
+
+muted_players = {}
 
 players = {}
 players_need_update = Queue()
@@ -37,7 +39,7 @@ conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(pa
 cursor = conn.cursor()
 print("Connection successful, starting bot")
 
-admin_id_list = [231900398, 212657053, 307125511, 618831598]    #   618831598 - мой твинк (Князь)
+admin_id_list = [231900398, 212657053, 307125511]    #   618831598 - мой твинк (Князь)
 
 processing = 1
 

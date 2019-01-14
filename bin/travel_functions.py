@@ -61,7 +61,7 @@ def choose_way(bot, update, user_data):
         if filter_is_admin(update.message):
             bot.send_message(chat_id=update.message.chat_id, text="Вы можете использовать /fasttravel")
         user_data.update({'new_location': new_loc_id})
-        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 5, context=contexts)
+        tmp_job = job.run_once(move_player, paths.get(new_loc_id) * 60, context=contexts)
         j = MyJob(tmp_job, paths.get(new_loc_id) * 60, update.message.chat_id)
         travel_jobs.update({player.id: j})
         return

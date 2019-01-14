@@ -12,7 +12,7 @@ MESSAGE_PER_CHAT_LIMIT = 3
 class AsyncBot(Bot):
 
 
-    def __init__(self, token, workers = 4, request_kwargs = None):
+    def __init__(self, token, workers = 8, request_kwargs = None):
         counter_rlock = threading.RLock()
         self.counter_lock = threading.Condition(counter_rlock)
         self.message_queue = multiprocessing.Queue()

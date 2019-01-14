@@ -12,6 +12,7 @@ import multiprocessing
 import work_materials.globals as globals
 import traceback
 
+from work_materials.filters.muted_filters import *
 from work_materials.filters.class_filters import *
 from work_materials.filters.fraction_filters import *
 from work_materials.filters.other_initiate_filters import *
@@ -25,6 +26,7 @@ from work_materials.filters.battle_filters import *
 
 from work_materials.buttons.auction_buttons import auction_reply_markup
 
+from bin.spam_resist import *
 from bin.service_commands import *
 from bin.starting_player import *
 from bin.save_load_user_data import *
@@ -459,6 +461,10 @@ def callback(bot, update, user_data):
             logging.error(traceback.format_exc)
             pass
 
+#Фильтры на спам
+dispatcher.add_handler(MessageHandler(filter_is_not_admin and filter_player_muted, ignore), group = 0)
+dispatcher.add_handler(MessageHandler(filter_is_not_admin and filter_player_muted, ignore), group = 1)
+dispatcher.add_handler(MessageHandler(Filters.text and filter_is_not_admin, commands_count), group = 1)
 
 #Фильтр на старт игры
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
@@ -562,6 +568,9 @@ auction_checking.start()
 
 matchmaking = Process(target = matchmaking, args=(), name="Matchmaking")
 matchmaking.start()
+
+spam_zeroing = threading.Thread(target = zeroing, args = [])
+spam_zeroing.start()
 
 status_monitor_thread = threading.Thread(target = status_monitor, args = [])
 status_monitor_thread.start()
