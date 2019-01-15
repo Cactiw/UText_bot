@@ -49,15 +49,12 @@ class AsyncBot(Bot):
                 messages_per_current_chat = self.messages_per_chat.get(chat_id)
                 if messages_per_current_chat is None:
                     messages_per_current_chat = 0
-                #print("in lock, ", self.messages_per_second, messages_per_current_chat)
                 if self.messages_per_second < MESSAGE_PER_SECOND_LIMIT and messages_per_current_chat < MESSAGE_PER_CHAT_LIMIT:
                     self.messages_per_second += 1
                     self.messages_per_chat.update({chat_id : messages_per_current_chat + 1})
                     lock.release()
                     break
                 lock.release()
-                #print("in lock, ", self.messages_per_second, messages_per_current_chat)
-                #print("waiting")
                 lock.wait()
         finally:
             try:
@@ -70,8 +67,10 @@ class AsyncBot(Bot):
         except Unauthorized:
             print("Unauthorized")
         except TimedOut:
+            time.sleep(0.05)
             super(AsyncBot, self).send_message(*args, **kwargs)
         except NetworkError:
+            time.sleep(0.05)
             super(AsyncBot, self).send_message(*args, **kwargs)
 
     def start(self):

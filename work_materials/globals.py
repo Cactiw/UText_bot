@@ -1,6 +1,6 @@
 from telegram.ext import Updater
 from telegram import KeyboardButton, ReplyKeyboardMarkup
-import MySQLdb, sys, logging, psycopg2
+import MySQLdb, sys, logging, psycopg2, pytz, tzlocal
 from multiprocessing import Process, Queue
 from libs.locations.capital import *
 from libs.locations.castle import *
@@ -18,6 +18,13 @@ updater = AsyncUpdater(bot = bot)
 job = updater.job_queue
 
 dispatcher = updater.dispatcher
+
+STATUS_REPORT_CHANNEL_ID = -1001275825401
+moscow_tz = pytz.timezone('Europe/Moscow')
+try:
+    local_tz = tzlocal.get_localzone()
+except pytz.UnknownTimeZoneError:
+    local_tz = pytz.timezone('Europe/Andorra')
 
 muted_players = {}
 
