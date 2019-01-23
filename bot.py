@@ -113,7 +113,7 @@ def unequip(bot, update):
 def merchant(bot, update, user_data):
     player = get_player(update.message.from_user.id)
     update_status('Merchant', player, user_data)
-    user_data.update({'saved_status' : 'In Location'})
+    user_data.update({'saved_merchant_status' : 'In Location'})
     show_general_buttons(bot, update, user_data)
 
 
@@ -314,7 +314,7 @@ dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_location
 #Фильтры для торговца
 dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant, merchant, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant_buy, merchant_buy, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_info, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_merchant, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_buy_equipment, buy, pass_user_data=True))
 
 

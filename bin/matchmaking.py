@@ -8,7 +8,6 @@ MAX_TIME_WITHOUT_PLAYER = datetime.timedelta(minutes=2)
 players_in_search_count = {}
 
 def matchmaking():
-    raise RuntimeError
     try:
         data = matchmaking_players.get()
         waiting_players = [ [], [], [] ]

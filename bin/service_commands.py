@@ -34,6 +34,12 @@ def return_from_info(bot, update, user_data):
     update_status(user_data.get('saved_status'), player, user_data)
     show_general_buttons(bot, update, user_data)
 
+def return_from_merchant(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    update_status(user_data.get('saved_merchant_status'), player, user_data)
+    user_data.pop('saved_merchant_status')
+    show_general_buttons(bot, update, user_data)
+
 
 def update_player(bot, update, args):
     id = None
