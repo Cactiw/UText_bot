@@ -3,7 +3,7 @@ from work_materials.globals import build_menu
 
 def get_general_battle_buttons(player):
     __general_battle_buttons = [
-        KeyboardButton('Атака ебать')
+        KeyboardButton('Атака')
     ]
     n_cols = 3
     for i in range(0, 5):
@@ -33,3 +33,22 @@ def get_enemies_buttons(battle, team):
     for i in enemy_team:
         __enemies_buttons.append(KeyboardButton(i.participant.player.nickname))		#TODO Check
     __enemies_buttons.append(KeyboardButton('Отмена'))
+    return ReplyKeyboardMarkup(build_menu(__enemies_buttons, 2), resize_keyboard=True)
+
+
+def get_allies_buttons(battle, team):
+    __ally_buttons = []
+    ally_team = battle.teams[team]
+    for i in ally_team:
+        __ally_buttons.append(KeyboardButton(i.participant.player.nickname))  # TODO Check
+    __ally_buttons.append(KeyboardButton('Отмена'))
+    return ReplyKeyboardMarkup(build_menu(__ally_buttons, 2), resize_keyboard=True)
+
+
+def get_all_targets_buttons(battle, team):
+    __all_buttons = []
+    all_team = battle.teams[team]
+    for i in all_team:
+        __all_buttons.append(KeyboardButton(i.participant.player.nickname))  # TODO Check
+    __all_buttons.append(KeyboardButton('Отмена'))
+    return ReplyKeyboardMarkup(build_menu(__all_buttons, 2), resize_keyboard=True)
