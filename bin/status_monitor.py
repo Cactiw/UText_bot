@@ -7,6 +7,12 @@ def status_monitor():
     while data is not None:
         user_data = dispatcher.user_data.get(data.id)
         player = get_player(data.id)
-        update_status(data.new_status, player, user_data)
+        keys = list(data.data.keys())
+        if 'status' in keys:
+            update_status(data.new_status, player, user_data)
+            data.data.pop('status')
+            keys.remove('status')
+        for user_data_record in keys:
+            user_data.update({ user_data_record : data.data.get(user_data_record)})
         data = statuses.get()
     return 0

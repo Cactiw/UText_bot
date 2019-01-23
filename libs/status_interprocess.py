@@ -2,6 +2,6 @@
 
 class StatusInterprocess:
 
-    def __init__(self, id, new_status):
+    def __init__(self, id, data):
         self.id = id
-        self.new_status = new_status
+        self.data = data
