@@ -1,3 +1,5 @@
+import datetime
+
 from libs.player import *
 from work_materials.globals import *
 from libs.status_interprocess import *
@@ -52,6 +54,7 @@ class BattleStarting:
         self.mode = mode
         self.count = 0
         self.starting_flag = 1
+        self.last_time_player_add = datetime.datetime.now()
         if self.mode == 0:
             self.need_players = 2
         elif self.mode == 1:
@@ -75,6 +78,7 @@ class BattleStarting:
             average_lvl += i.player.lvl
             self.count += 1
         self.average_lvl = average_lvl / self.count
+        self.last_time_player_add = datetime.datetime.now()
         print("battle =,", self)
         print("battle.players =", self.players, ", mode =", self.mode)
 

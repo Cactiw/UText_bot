@@ -1,6 +1,6 @@
 from telegram.ext import Updater
 from telegram import KeyboardButton, ReplyKeyboardMarkup
-import MySQLdb, sys, logging, psycopg2, pytz, tzlocal
+import sys, logging, psycopg2, pytz, tzlocal
 from multiprocessing import Process, Queue
 from libs.locations.capital import *
 from libs.locations.castle import *
@@ -13,7 +13,12 @@ from libs.locations.tower import *
 from libs.bot_async_messaging import AsyncBot
 from libs.updater_async import AsyncUpdater
 
-bot = AsyncBot(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk', workers=8)
+try:
+    from config import request_kwargs
+except ImportError:
+    request_kwargs = None
+
+bot = AsyncBot(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk', workers=8, request_kwargs=request_kwargs)
 updater = AsyncUpdater(bot = bot)
 job = updater.job_queue
 
