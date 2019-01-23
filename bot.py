@@ -1,11 +1,7 @@
 # Настройки
 from telegram.ext import CommandHandler, MessageHandler, Filters, Job, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.error import (TelegramError, Unauthorized, BadRequest,
-                            TimedOut, ChatMigrated, NetworkError)
-#updater = Updater(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk') # Токен API к Telegram        # Сам бот
-
-#dispatcher = updater.dispatcher
+from telegram.error import (Unauthorized)
 
 import threading
 import multiprocessing
@@ -42,7 +38,7 @@ from bin.travel_functions import *
 from libs.battle_group import BattleGroup
 
 from libs.player_matchmaking import *
-
+from bin.battle_processing import choose_enemy_target, choose_friendly_target
 
 sys.path.append('../')
 
@@ -217,18 +213,24 @@ def callback(bot, update, user_data):
     if update.callback_query.data.find("mm") == 0:
         matchmaking_callback(bot, update, user_data)
 
+
+#Фильтры на битву
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy, choose_enemy_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_ally, choose_friendly_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_anyone, choose_friendly_target, pass_user_data=True))
+
 #Фильтры на спам
-dispatcher.add_handler(MessageHandler(filter_is_not_admin and filter_player_muted, ignore), group = 0)
-dispatcher.add_handler(MessageHandler(filter_is_not_admin and filter_player_muted, ignore), group = 1)
-dispatcher.add_handler(MessageHandler(Filters.text and filter_is_not_admin, commands_count), group = 1)
+dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 0)
+dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 1)
+dispatcher.add_handler(MessageHandler(Filters.text & filter_is_not_admin, commands_count), group = 1)
 
 #Фильтр на старт игры
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_fractions, fraction_select, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_race, race_select, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_classes, class_select, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_sex_select, sex_select, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_nickname_select, nickname_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_fractions, fraction_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_race, race_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_classes, class_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_sex_select, sex_select, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_nickname_select, nickname_select, pass_user_data=True))
 
 #Команды для админов
 dispatcher.add_handler(CommandHandler("setstatus", set_status, pass_user_data=True, filters = filter_is_admin, pass_args=True))
@@ -243,43 +245,43 @@ dispatcher.add_handler(CommandHandler("buttons", show_general_buttons, pass_user
 
 #Фильтр для вывода информации об игроке
 dispatcher.add_handler(MessageHandler(Filters.text & filter_already_in_info & filter_info & filter_not_in_lvl_up, print_player, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
-dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True, filters=filter_already_in_info and filter_not_in_lvl_up))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_in_info & filter_print_backpack, print_backpacks, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True, filters=filter_already_in_info & filter_not_in_lvl_up))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_implants, show_equipment))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_info_return, return_from_info, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_implants, show_equipment))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_info_return, return_from_info, pass_user_data=True))
 
 #Фильтры для повышения уровня игрока
 dispatcher.add_handler(CommandHandler("lvl_up", lvl_up, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_skill, lvl_up_skill, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_lvl_up_skill, lvl_up_skill, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_lvl_up_points, lvl_up_points, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_lvl_up_points, lvl_up_points, pass_user_data=True))
 
 #Фильтр для перемещения
-dispatcher.add_handler(MessageHandler(Filters.text and location_filter and travel_filter, travel, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and choosing_way_filter, choose_way, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_return_to_location, return_to_location, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & location_filter & travel_filter, travel, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & choosing_way_filter, choose_way, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_return_to_location, return_to_location, pass_user_data=True))
 
 #Фильтры для торговца
-dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant, merchant, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_merchant_buy, merchant_buy, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_return_from_merchant, return_from_merchant, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_buy_equipment, buy, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_merchant, merchant, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_merchant_buy, merchant_buy, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_return_from_merchant, return_from_merchant, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_buy_equipment, buy, pass_user_data=True))
 
 
 #Фильтры для аукциона
-dispatcher.add_handler(MessageHandler(Filters.text and filter_auction, auction, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_create_lot, create_lot, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_cancel_lot, cancel_lot, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_bet, bet, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_lots, lots, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_my_lots, my_lots, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_my_bids, my_bids, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_auction, auction, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_create_lot, create_lot, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_cancel_lot, cancel_lot, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_bet, bet, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_lots, lots, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_my_lots, my_lots, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_my_bids, my_bids, pass_user_data=False))
 
 
 
 dispatcher.add_handler(CommandHandler("matchmaking_start", matchmaking_start, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text and filter_start_battle, matchmaking_start, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_start_battle, matchmaking_start, pass_user_data=True))
 
 
 dispatcher.add_handler(CallbackQueryHandler(callback, pass_update_queue=False, pass_user_data=True))
