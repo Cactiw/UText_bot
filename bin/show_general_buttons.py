@@ -3,7 +3,8 @@ from work_materials.globals import *
 from work_materials.lines.location_lines import *
 from work_materials.buttons.location_buttons import *
 from work_materials.buttons.merchant_buttons import *
-
+from work_materials.buttons.battle_buttons import get_general_battle_buttons
+from bin.player_service import print_player
 
 def update_location(location, player, user_data):
     player.location = location
@@ -55,7 +56,7 @@ def show_general_buttons(bot, update, user_data):
     if status == 'In Location':
         location = user_data.get('location')
         bot.send_message(chat_id=chat_id, text=location_lines[player.location],reply_markup=get_location_buttons(location))
-        #show_ads (Доска объявлений, если нужно)
+        #show_table (Доска объявлений, если нужно)
     elif status == 'Traveling':
         bot.send_message(chat_id=chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)
     elif status == 'Merchant':
@@ -63,4 +64,6 @@ def show_general_buttons(bot, update, user_data):
     elif status == 'Merchant_buy':
         bot.send_message(chat_id=chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buttons)
     elif status == 'Battle':
-        bot.send_message(chat_id=chat_id, text="Вы в бою",reply_markup=battle_buttons)
+        bot.send_message(chat_id=chat_id, text="Вы в бою",reply_markup=get_general_battle_buttons(player))
+    elif status == 'Info':
+        print_player(bot, update, user_data)

@@ -1,8 +1,6 @@
-from bin.show_general_buttons import show_general_buttons
 from work_materials.globals import *
 from libs.player import *
 from bin.equipment_service import *
-from bin.starting_player import start
 from work_materials.filters.service_filters import filter_is_admin
 import work_materials.globals as globals
 
@@ -90,19 +88,19 @@ def print_player(bot, update, user_data):
     player = get_player(id)
     if player is None:
         return
-    if player.status != 'Info' and player.status != user_data.get('saved_status'):
-        user_data.update({'saved_status': player.status})
+    if player.status != 'Info' and player.status != user_data.get('saved_info_status'):
+        user_data.update({'saved_info_status': player.status})
     update_status('Info', player, user_data)
     if player.sex == 0:
         sex = 'Мужской'
     else:
         sex = 'Женский'
     task = ''
-    if user_data.get('saved_status') == 'In Location':
+    if user_data.get('saved_info_status') == 'In Location':
         task += 'Отдых'
-    elif user_data.get('saved_status') == 'Choosing way':
+    elif user_data.get('saved_info_status') == 'Choosing way':
         task += 'Выбираете путь'
-    elif user_data.get('saved_status') == 'Traveling':
+    elif user_data.get('saved_info_status') == 'Traveling':
         j = travel_jobs.get(player.id)
         if j is not None:
             time = j.get_time_left()
@@ -133,8 +131,8 @@ def print_player(bot, update, user_data):
         player.nickname, sex, player.race, player.fraction,
         player.game_class, player.exp, player.lvl,
         player.free_points, player.free_skill_points, player.fatigue,
-        player.first_skill_lvl, player.second_skill_lvl, player.third_skill_lvl,
-        player.fourth_skill_lvl, player.fifth_skill_lvl, player.stats["endurance"],
+        player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
+        player.skill_lvl[3], player.skill_lvl[4], player.stats["endurance"],
         player.stats["armor"], player.stats["power"], player.stats["speed"], player.stats["charge"], task,
         locations.get(player.location).name, lvl_up_str, player.resources.get('gold'), player.resources.get('wood'), player.resources.get('metal')),  #25
         parse_mode="HTML", reply_markup=info_buttons)

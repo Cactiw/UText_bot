@@ -1,5 +1,9 @@
 from telegram import ReplyKeyboardRemove
-from bin.player_service import *
+from bin.player_service import players, players_need_update, update_status, get_player
+from bin.starting_player import start
+from telegram import KeyboardButton, ReplyKeyboardMarkup
+from work_materials.globals import build_menu
+from bin.show_general_buttons import show_general_buttons
 
 
 def choose_points(bot, update, user_data):
@@ -22,7 +26,8 @@ def choose_points(bot, update, user_data):
                          parse_mode = "HTML", reply_markup = ReplyKeyboardRemove())
         players.update({id: player})
         players_need_update.put(player)
-        update_status(user_data.get('saved_status'), player, user_data)
+        update_status(user_data.get('saved_lvl_up_status'), player, user_data)
+        user_data.pop('saved_lvl_up_status')
         show_general_buttons(bot, update, user_data)
         return
 
@@ -61,7 +66,8 @@ def lvl_up_points(bot, update, user_data):
     if player is None:
         return
     if update.message.text == "Готово":
-        update_status(user_data.get('saved_status'), player, user_data)
+        update_status(user_data.get('saved_lvl_up_status'), player, user_data)
+        user_data.pop('saved_lvl_up_status')
         show_general_buttons(bot, update, user_data)
         return
     else:
@@ -86,8 +92,7 @@ def lvl_up(bot, update, user_data):  # Сюда игрок попадает пр
     if player is None:
         start(bot, update, user_data)
         return
-    if player.status != 'Info':
-        user_data.update({'saved_status': user_data.get('status')})
+    user_data.update({'saved_lvl_up_status': user_data.get('status')})
     choose_skill(bot, update, user_data)
 
 
@@ -105,9 +110,8 @@ def choose_skill(bot, update, user_data):
                          text = "У вас нет очков навыков\n\n"
                                  "Первый навык - {0}-го уровня\nВторой навык - {1}-го уровня\n"
                                  "Третий навык - {2}-го уровня\nЧетвертый навык - {3}-го уровня\n"
-                                 "Пятый навык - {4}-го уровня".format( player.first_skill_lvl, player.second_skill_lvl,
-                                                                        player.third_skill_lvl, player.fourth_skill_lvl,
-                                                                        player.fifth_skill_lvl),
+                                 "Пятый навык - {4}-го уровня".format( player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
+                                                                        player.skill_lvl[3], player.skill_lvl[4]),
                          reply_markup = ReplyKeyboardRemove()
                          )
         update_status("Lvl_up_points", player, user_data)
@@ -138,9 +142,8 @@ def choose_skill(bot, update, user_data):
                      text="Вы можете улучшить <b>{5}</b> {6}\n\nВыберите навык, который хотите улучшить\n\n"
                           "Первый навык - {0}-го уровня\nВторой навык - {1}-го уровня\n"
                           "Третий навык - {2}-го уровня\nЧетвертый навык - {3}-го уровня\n"
-                          "Пятый навык - {4}-го уровня".format(player.first_skill_lvl, player.second_skill_lvl,
-                                                               player.third_skill_lvl, player.fourth_skill_lvl,
-                                                               player.fifth_skill_lvl, free_skill, s),
+                          "Пятый навык - {4}-го уровня".format(player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
+                                                                        player.skill_lvl[3], player.skill_lvl[4], free_skill, s),
                      parse_mode='HTML', reply_markup=buttons)
     players.update({id: player})
     players_need_update.put(player)
@@ -153,7 +156,7 @@ def lvl_up_skill(bot, update, user_data):
         return
     if update.message.text == "Готово":
         update_status("Lvl_up_points", player, user_data)
-        bot.send_message(chat_id = update.message.from_user.id, text="Теперь выберите очки характеристик", reply_markup=ReplyKeyboardRemove())
+        bot.send_message(chat_id = update.message.from_user.id, text="Теперь выберите очки характеристик")
         choose_points(bot, update, user_data)
     else:
         player.lvl_up_skill(update.message.text)

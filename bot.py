@@ -26,11 +26,9 @@ from work_materials.filters.battle_filters import *
 
 from bin.supervisor import *
 from bin.spam_resist import *
-from bin.service_commands import *
 from bin.starting_player import *
 from bin.save_load_user_data import *
 from bin.lvl_up_player import *
-from bin.item_service import *
 from bin.auction import *
 from bin.auction_checker import *
 from bin.matchmaking import *
@@ -39,8 +37,6 @@ from bin.status_monitor import *
 import work_materials.globals
 from libs.resorses import *
 from libs.equipment import *
-from libs.myJob import MyJob
-from libs.lot import *
 from bin.travel_functions import *
 
 from libs.player_matchmaking import *
@@ -136,10 +132,6 @@ def merchant_buy(bot, update, user_data):
         type = "e"
     location_id = player.location
     location_type = 0 if (location_id >= 14 and location_id <= 16) else 1
-    #if location_id >= 14 and location_id <= 16:
-    #    location_type = 0
-    #else:
-    #    location_type = 1
     request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = '{0}' and item_type = '{1}'".format(location_type, type)
     cursor.execute(request)
     row = cursor.fetchone()
@@ -293,9 +285,9 @@ dispatcher.add_handler(CommandHandler("return", return_to_location_admin, pass_u
 dispatcher.add_handler(CommandHandler("buttons", show_general_buttons, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода информации об игроке
-dispatcher.add_handler(MessageHandler(Filters.text and filter_info, print_player, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_already_in_info & filter_info & filter_not_in_lvl_up, print_player, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_in_info and filter_print_backpack, print_backpacks, pass_user_data=True))
-dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("me", print_player, pass_user_data=True, filters=filter_already_in_info and filter_not_in_lvl_up))
 dispatcher.add_handler(CommandHandler("equipment", show_equipment))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_implants, show_equipment))
 dispatcher.add_handler(MessageHandler(Filters.text and filter_info_return, return_from_info, pass_user_data=True))

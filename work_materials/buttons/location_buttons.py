@@ -66,9 +66,3 @@ __traveling_buttons_list = [
     KeyboardButton('Вернуться')
 ]
 traveling_buttons = ReplyKeyboardMarkup(build_menu(__traveling_buttons_list, n_cols=2), resize_keyboard=True)
-
-__battle_buttons_list = [
-    KeyboardButton('БОЙ')
-]
-
-battle_buttons = ReplyKeyboardMarkup(build_menu(__battle_buttons_list, n_cols=2), resize_keyboard=True)

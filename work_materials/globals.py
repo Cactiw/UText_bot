@@ -35,6 +35,7 @@ travel_jobs = {}
 statuses = Queue()
 matchmaking_players = Queue()
 
+pending_battles = {}
 battles_need_treating = Queue()
 
 #Подключаем базу данных, выставляем кодировку

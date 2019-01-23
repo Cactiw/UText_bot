@@ -29,18 +29,27 @@ class Player:
         self.free_skill_points = 2
         self.fatigue = 0
 
-        self.first_skill_lvl = 1
-        self.second_skill_lvl = 1
-        self.third_skill_lvl = 0
-        self.fourth_skill_lvl = 0
-        self.fifth_skill_lvl = 0
+        self.battle_id = -1
+
+        #self.first_skill_lvl = 1
+        #self.second_skill_lvl = 1
+        #self.third_skill_lvl = 0
+        #self.fourth_skill_lvl = 0
+        #self.fifth_skill_lvl = 0
+        self.skill_lvl = [1, 1, 0, 0, 0]
+        self.skill_name = [
+            'Первый скилл',
+            'Второй скилл',
+            'Третий скилл',
+            'Четвертый скилл',
+            'Пятый скилл'
+                           ]
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
                     'speed': 5}
 
         self.charge = self.stats['charge'] * 15
         self.hp = self.stats['endurance'] * 15
-        #self.damage_taken_by_armor = 0
 
         self.location = 0
 
@@ -62,7 +71,6 @@ class Player:
         self.eq_backpack = {}
         self.al_backpack = {}
         self.res_backpack = {}
-
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id
@@ -155,16 +163,8 @@ class Player:
                 pass
 
     def lvl_up_skill(self, skill_number):
-        if skill_number == '1':
-            self.first_skill_lvl += 1
-        elif skill_number == "2":
-            self.second_skill_lvl += 1
-        elif skill_number == "3":
-            self.third_skill_lvl += 1
-        elif skill_number == "4":
-            self.fourth_skill_lvl += 1
-        elif skill_number == "5":
-            self.fifth_skill_lvl += 1
+        if int(skill_number) in range(0, 5):
+            self.skill_lvl[int(skill_number) - 1] += 1
         else:
             return None
 
@@ -250,11 +250,11 @@ class Player:
         self.free_points = row[9]
         self.free_skill_points = row[10]
         self.fatigue = row[11]
-        self.first_skill_lvl = row[12]
-        self.second_skill_lvl = row[13]
-        self.third_skill_lvl = row[14]
-        self.fourth_skill_lvl = row[15]
-        self.fifth_skill_lvl = row[16]
+        self.skill_lvl[0] = row[12]
+        self.skill_lvl[1] = row[13]
+        self.skill_lvl[2] = row[14]
+        self.skill_lvl[3] = row[15]
+        self.skill_lvl[4] = row[16]
         self.stats.update(endurance = row[17], power = row[18], armor = row[19], charge = row[20], speed = row[21])
         self.charge = row[22]
         self.hp = row[23]
@@ -292,8 +292,8 @@ class Player:
                   "right_arm = '{34}', mount = '{35}' WHERE id = '{36}'".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
                                                            self.free_points, self.free_skill_points, self.fatigue,
-                                                           self.first_skill_lvl,self.second_skill_lvl, self.third_skill_lvl,
-                                                           self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
+                                                           self.skill_lvl[0], self.skill_lvl[1], self.skill_lvl[2],
+                                                           self.skill_lvl[3], self.skill_lvl[4], self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,
@@ -322,8 +322,8 @@ class Player:
                   "'{16}', '{17}','{18}','{19}', '{20}', '{21}', '{22}', '{23}', '{24}'," \
                   "'{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}', '{33}', '{34}', '{35}')".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.free_skill_points, self.fatigue, self.first_skill_lvl,
-                                                           self.second_skill_lvl, self.third_skill_lvl, self.fourth_skill_lvl, self.fifth_skill_lvl, self.stats['endurance'],
+                                                           self.free_points, self.free_skill_points, self.fatigue, self.skill_lvl[0], self.skill_lvl[1], self.skill_lvl[2],
+                                                           self.skill_lvl[3], self.skill_lvl[4], self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,
