@@ -126,16 +126,17 @@ class BattleStarting:
         for i in self.team1:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
             #show_general_buttons(bot, i.id, {"status" : "Battle"})
-            status = StatusInterprocess(i.id, {"status" : "Battle"})
+            status = StatusInterprocess(i.id, "user_data", {"status" : "Battle"})
             statuses.put(status)
-            dispatcher.user_data.get(i.id).update({'Team': 0})
+            status = StatusInterprocess(i.id, "user_data", {'Team': 0})
+            statuses.put(status)
         for i in self.team2:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team2_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
             #show_general_buttons(bot, i.id, {"status" : "Battle"})
-            status = StatusInterprocess(i.id, {"status" : "Battle"})
+            status = StatusInterprocess(i.id, "user_data", {"status" : "Battle"})
             statuses.put(status)
-            dispatcher.user_data.get(i.id).update({'Team': 1})
-        self.players.clear()
+            status = StatusInterprocess(i.id, "user_data", {'Team': 1})
+            statuses.put(status)
         battle = Battle(self)
         battle_id = random.randint(1, 4294967295)
         ids = list(pending_battles)
@@ -143,5 +144,7 @@ class BattleStarting:
             battle_id = random.randint(1, 4294967295)
         for player in self.players:
             player.battle_id = battle_id
-            dispatcher.user_data.get(player.id).update({'Battle id': battle_id})
-        pending_battles.update({battle_id: battle})
+            status = StatusInterprocess(player.player.id, "user_data", {'Battle id': battle_id})
+            statuses.put(status)
+        battle_status = StatusInterprocess(None, "battles_pending", {battle_id: battle})
+        statuses.put(battle_status)

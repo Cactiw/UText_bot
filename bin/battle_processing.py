@@ -3,6 +3,7 @@ from work_materials.globals import pending_battles
 
 
 def get_battle(battle_id):
+    print(battle_id)
     return pending_battles.get(battle_id)
 
 

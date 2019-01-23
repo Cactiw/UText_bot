@@ -31,7 +31,7 @@ def get_enemies_buttons(battle, team):
     __enemies_buttons = []
     enemy_team = battle.teams[enemy_team_n]
     for i in enemy_team:
-        __enemies_buttons.append(KeyboardButton(i.participant.player.nickname))		#TODO Check
+        __enemies_buttons.append(KeyboardButton(i.participant.nickname))
     __enemies_buttons.append(KeyboardButton('Отмена'))
     return ReplyKeyboardMarkup(build_menu(__enemies_buttons, 2), resize_keyboard=True)
 
@@ -40,7 +40,7 @@ def get_allies_buttons(battle, team):
     __ally_buttons = []
     ally_team = battle.teams[team]
     for i in ally_team:
-        __ally_buttons.append(KeyboardButton(i.participant.player.nickname))  # TODO Check
+        __ally_buttons.append(KeyboardButton(i.participant.nickname))
     __ally_buttons.append(KeyboardButton('Отмена'))
     return ReplyKeyboardMarkup(build_menu(__ally_buttons, 2), resize_keyboard=True)
 
@@ -49,6 +49,6 @@ def get_all_targets_buttons(battle, team):
     __all_buttons = []
     all_team = battle.teams[team]
     for i in all_team:
-        __all_buttons.append(KeyboardButton(i.participant.player.nickname))  # TODO Check
+        __all_buttons.append(KeyboardButton(i.participant.nickname))
     __all_buttons.append(KeyboardButton('Отмена'))
     return ReplyKeyboardMarkup(build_menu(__all_buttons, 2), resize_keyboard=True)
