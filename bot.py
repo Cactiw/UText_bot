@@ -39,6 +39,7 @@ import work_materials.globals
 from libs.resorses import *
 from libs.equipment import *
 from bin.travel_functions import *
+from libs.battle_group import BattleGroup
 
 from libs.player_matchmaking import *
 
@@ -110,7 +111,8 @@ def unequip(bot, update):
 def group_invite(bot, update, user_data):
     group = user_data.get("battle_group")
     if group is None:
-        pass
+        group = BattleGroup(update.message.from_user.id)
+
 
 def matchmaking_start(bot, update, user_data):
     if user_data.get("status") != "In Location":

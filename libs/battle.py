@@ -126,12 +126,12 @@ class BattleStarting:
         for i in self.team1:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
             #show_general_buttons(bot, i.id, {"status" : "Battle"})
-            status = StatusInterprocess(i.id, "Battle")
+            status = StatusInterprocess(i.id, {"status" : "Battle"})
             statuses.put(status)
         for i in self.team2:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team2_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
             #show_general_buttons(bot, i.id, {"status" : "Battle"})
-            status = StatusInterprocess(i.id, "Battle")
+            status = StatusInterprocess(i.id, {"status" : "Battle"})
             statuses.put(status)
         self.players.clear()
         battle = Battle(self)
