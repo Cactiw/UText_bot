@@ -14,9 +14,9 @@ def process_monitor(processes):
         response = "Status report for {0}:\n".format(datetime.datetime.now(tz=moscow_tz))
         for process in processes:
             response += "{0}{1}\n".format("✅" if process.is_alive() else "🛑", process.name)
-            if not process.is_alive:
+            if not process.is_alive():
                 OK = False
-        response += "\n{0}".format("❇️ Everything is OK" if OK else "‼️‼️ ALERT ‼️‼️ @Cactiw @@KhGleb")
+        response += "\n{0}".format("❇️ Everything is OK" if OK else "‼️‼️ ALERT ‼️‼️\n@Cactiw @KhGleb")
         try:
             dispatcher.bot.editMessageText(chat_id=message.chat_id, message_id=message.message_id, text=response, parse_mode='HTML')
         except TelegramError:
