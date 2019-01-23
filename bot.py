@@ -33,6 +33,7 @@ from bin.auction import *
 from bin.auction_checker import *
 from bin.matchmaking import *
 from bin.status_monitor import *
+from bin.merchant import *
 
 import work_materials.globals
 from libs.resorses import *
@@ -106,59 +107,6 @@ def unequip(bot, update):
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
 
 
-def merchant(bot, update, user_data):
-    player = get_player(update.message.from_user.id)
-    update_status('Merchant', player, user_data)
-    user_data.update({'saved_merchant_status' : 'In Location'})
-    show_general_buttons(bot, update, user_data)
-
-
-def merchant_buy(bot, update, user_data):
-    text = update.message.text
-    player = get_player(update.message.from_user.id)
-    if text == 'Голова':
-        type = "eh"
-    elif text == 'Тело':
-        type = "eb"
-    elif text == 'Перчатки':
-        type = "es"
-    elif text == 'Ноги':
-        type = "ez"
-    elif text == 'Средства передвижения':
-        type = "em"
-    elif text == 'Импланты':
-        type = "ei"
-    else:
-        type = "e"
-    location_id = player.location
-    location_type = 0 if (location_id >= 14 and location_id <= 16) else 1
-    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = '{0}' and item_type = '{1}'".format(location_type, type)
-    cursor.execute(request)
-    row = cursor.fetchone()
-    if row is None:
-        bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
-                                                                   " лишь пыль на давно пустующих полках. Что же, может, в другой раз?")
-        return
-    response = "Список товаров:\n"
-    while row:
-        response += "\n<b>{0}</b>\n<b>💰{1}</b>\nПодробнее: /item_{2}\nКупить: /buy_{2}\n".format(row[2], row[3], row[0])
-        row = cursor.fetchone()
-    bot.send_message(chat_id = update.message.from_user.id, text = response, parse_mode="HTML")
-
-def buy(bot, update, user_data):
-    player = get_player(update.message.from_user.id)
-    request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = '{0}'".format(update.message.text.partition('_')[2])
-    cursor.execute(request)
-    row = cursor.fetchone()
-    equipment = get_equipment(row[0])
-    gold = player.resources.get("gold")
-    if row is None or equipment is None or gold < row[1]:
-        bot.send_message(chat_id=update.message.from_user.id, text="Указанный предмет не найден")
-        return
-    player.resources.update({"gold": gold - row[1]})
-    player.add_item(player.eq_backpack, equipment, 1)
-    players_need_update.put(player)
-    bot.send_message(chat_id=update.message.from_user.id, text="Вы наслаждаетесь видом новой шмотки")
 
 
 def matchmaking_start(bot, update, user_data):
@@ -178,87 +126,91 @@ def matchmaking_start(bot, update, user_data):
     reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
     bot.send_message(chat_id=update.message.chat_id, text = "Выберите настройки битвы:", reply_markup=reply_markup)
 
-def callback(bot, update, user_data):
+def matchmaking_callback(bot, update, user_data):
     mes = update.callback_query.message
+    matchmaking = user_data.get("matchmaking")
+    if update.callback_query.data == "mm start" or update.callback_query.data == "mm cancel":
+        player = get_player(update.callback_query.from_user.id)
+
+        if update.callback_query.data == "mm cancel":
+            if user_data.get("status") != "Matchmaking" and user_data.get(
+                    "status") != "Battle":  # TODO Как битвы будут готовы, удалить проверку на статус "Battle", сейчас используется для отладки
+                bot.send_message(chat_id=update.callback_query.from_user.id, text="Вы не находитесь в поиске битвы")
+                return
+            player_matchmaking = Player_matchmaking(player, 0, matchmaking)
+            matchmaking_players.put(player_matchmaking)
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
+                                    text="Подбор игроков успешно отменён", show_alert=False)
+            try:
+                bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+            except Unauthorized:
+                pass
+            except BadRequest:
+                pass
+            new_status = user_data.get('saved_battle_status')
+            update_status(new_status, player, user_data)
+            matchmaking_start(bot, update.callback_query, user_data)
+            return
+
+        #   Начало подбора игроков
+        flag = 0
+        for i in matchmaking:
+            if i == 1:
+                flag = 1
+                break
+        if flag == 0:
+            bot.send_message(chat_id=update.callback_query.from_user.id, text="Необходимо выбрать хотя бы один режим")
+            return
+
+        player_matchmaking = Player_matchmaking(player, 1, matchmaking)
+        # bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text = "Подбор игроков успешно запущен!", show_alert = False)
+        button_list = [
+            InlineKeyboardButton("Отменить подбор игроков", callback_data="mm cancel")
+        ]
+        reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=1))
+        bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+        bot.send_message(chat_id=update.callback_query.from_user.id, text="Подбор игроков запущен!",
+                         reply_markup=reply_markup)
+        status = user_data.get("status")
+        user_data.update(saved_battle_status=status) if status != 'Matchmaking' else 0
+        update_status('Matchmaking', player, user_data)
+        matchmaking_players.put(player_matchmaking)
+        return
+
+    # Настройки матчмейкинга битв
+    # print(matchmaking)
+    callback_data = update.callback_query.data
+    if callback_data == "mm 1x1":
+        matchmaking[0] = (matchmaking[0] + 1) % 2
+    elif callback_data == "mm 3x3":
+        matchmaking[1] = (matchmaking[1] + 1) % 2
+    elif callback_data == "mm 5x5":
+        matchmaking[2] = (matchmaking[2] + 1) % 2
+    first_button_text = "{0}1 x 1".format('✅' if matchmaking[0] else "")
+    second_button_text = "{0}3 x 3".format('✅' if matchmaking[1] else "")
+    third_button_text = "{0}5 x 5".format('✅' if matchmaking[2] else "")
+    button_list = [
+        InlineKeyboardButton(first_button_text, callback_data="mm 1x1"),
+        InlineKeyboardButton(second_button_text, callback_data="mm 3x3"),
+        InlineKeyboardButton(third_button_text, callback_data="mm 5x5")
+    ]
+    footer_buttons = [
+        InlineKeyboardButton("Начать поиск", callback_data="mm start")
+    ]
+    reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
+    try:
+        bot.editMessageReplyMarkup(chat_id=mes.chat_id, message_id=mes.message_id, reply_markup=reply_markup)
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+    except TelegramError:
+        logging.error(traceback.format_exc)
+        pass
+
+
+def callback(bot, update, user_data):
     if update.callback_query.data.find("au") == 0:
         auction_callback(bot, update, user_data)
     if update.callback_query.data.find("mm") == 0:
-        matchmaking = user_data.get("matchmaking")
-        if update.callback_query.data == "mm start" or update.callback_query.data == "mm cancel":
-            player = get_player(update.callback_query.from_user.id)
-
-            if update.callback_query.data == "mm cancel":
-                if user_data.get("status") != "Matchmaking" and user_data.get("status") != "Battle": #  TODO Как битвы будут готовы, удалить проверку на статус "Battle", сейчас используется для отладки
-                    bot.send_message(chat_id=update.callback_query.from_user.id, text="Вы не находитесь в поиске битвы")
-                    return
-                player_matchmaking = Player_matchmaking(player, 0, matchmaking)
-                matchmaking_players.put(player_matchmaking)
-                bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
-                                        text="Подбор игроков успешно отменён", show_alert=False)
-                try:
-                    bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
-                except Unauthorized:
-                    pass
-                except BadRequest:
-                    pass
-                new_status = user_data.get('saved_battle_status')
-                update_status(new_status, player, user_data)
-                matchmaking_start(bot, update.callback_query, user_data)
-                return
-
-
-
-            #   Начало подбора игроков
-            flag = 0
-            for i in matchmaking:
-                if i == 1:
-                    flag = 1
-                    break
-            if flag == 0:
-                bot.send_message(chat_id=update.callback_query.from_user.id, text="Необходимо выбрать хотя бы один режим")
-                return
-
-            player_matchmaking = Player_matchmaking(player, 1, matchmaking)
-            #bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text = "Подбор игроков успешно запущен!", show_alert = False)
-            button_list = [
-                InlineKeyboardButton("Отменить подбор игроков", callback_data="mm cancel")
-            ]
-            reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=1))
-            bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
-            bot.send_message(chat_id=update.callback_query.from_user.id, text="Подбор игроков запущен!", reply_markup=reply_markup)
-            status = user_data.get("status")
-            user_data.update(saved_battle_status = status) if status != 'Matchmaking' else 0
-            update_status('Matchmaking', player, user_data)
-            matchmaking_players.put(player_matchmaking)
-            return
-
-        # Настройки матчмейкинга битв
-        #print(matchmaking)
-        callback_data = update.callback_query.data
-        if callback_data == "mm 1x1":
-            matchmaking[0] = (matchmaking[0] + 1) % 2
-        elif callback_data == "mm 3x3":
-            matchmaking[1] = (matchmaking[1] + 1) % 2
-        elif callback_data == "mm 5x5":
-            matchmaking[2] = (matchmaking[2] + 1) % 2
-        first_button_text = "{0}1 x 1".format('✅' if matchmaking[0] else "")
-        second_button_text = "{0}3 x 3".format('✅' if matchmaking[1] else "")
-        third_button_text = "{0}5 x 5".format('✅' if matchmaking[2] else "")
-        button_list = [
-            InlineKeyboardButton(first_button_text, callback_data="mm 1x1"),
-            InlineKeyboardButton(second_button_text, callback_data="mm 3x3"),
-            InlineKeyboardButton(third_button_text, callback_data="mm 5x5")
-        ]
-        footer_buttons = [
-            InlineKeyboardButton("Начать поиск", callback_data="mm start")
-        ]
-        reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
-        try:
-            bot.editMessageReplyMarkup(chat_id=mes.chat_id, message_id=mes.message_id, reply_markup=reply_markup)
-            bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
-        except TelegramError:
-            logging.error(traceback.format_exc)
-            pass
+        matchmaking_callback(bot, update, user_data)
 
 #Фильтры на спам
 dispatcher.add_handler(MessageHandler(filter_is_not_admin and filter_player_muted, ignore), group = 0)
