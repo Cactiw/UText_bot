@@ -107,7 +107,10 @@ def unequip(bot, update):
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
 
 
-
+def group_invite(bot, update, user_data):
+    group = user_data.get("battle_group")
+    if group is None:
+        pass
 
 def matchmaking_start(bot, update, user_data):
     if user_data.get("status") != "In Location":
