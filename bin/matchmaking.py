@@ -84,7 +84,7 @@ def matchmaking():
                     for player in battle.players:
                         search_counts = players_in_search_count.get(player.player.id)
                         if search_counts == 1:
-                            new_status = StatusInterprocess(player.player.id, {"status" : "In Location"})
+                            new_status = StatusInterprocess(player.player.id, "user_data", {"status" : "In Location"})
                             statuses.put(new_status)
                             dispatcher.bot.send_message(chat_id=player.player.id, text = "Игроки для битвы не найдены. Попробуйте позже")
                         else:

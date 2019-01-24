@@ -5,14 +5,15 @@ from work_materials.filters.service_filters import filter_is_admin
 import work_materials.globals as globals
 
 
-def get_player(id):
+def get_player(id, notify_not_found = True):
     player = players.get(id)
     if player is not None:
         update_location(player.location, player, dispatcher.user_data[id])
         return player
     player = Player(id, 0, 0, 0, 0, 0, 0)
     if player.update_from_database() is None:
-        dispatcher.bot.send_message(chat_id=id, text = "Вы не зарегистрированы в игре. Нажмите /start")
+        if notify_not_found:
+            dispatcher.bot.send_message(chat_id=id, text = "Вы не зарегистрированы в игре. Нажмите /start")
         return None
     update_location(player.location, player, dispatcher.user_data[id])
     players.update({player.id: player})
