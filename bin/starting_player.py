@@ -83,6 +83,12 @@ def sex_select(bot, update, user_data):
 
 
 def nickname_select(bot, update, user_data):
+    request = "select id from players where nickname = %s"
+    cursor.execute(request, (update.message.text, ))
+    row = cursor.fetchone()
+    if row is not None:
+        bot.send_message(chat_id = update.message.chat_id, text = "Это имя уже занято. Попробуйте выбрать другое имя!")
+        return
     user_data.update(username=update.message.text, type=6)
     player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
                     user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
