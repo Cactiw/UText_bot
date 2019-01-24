@@ -19,6 +19,7 @@ from work_materials.filters.equipment_filters import *
 from work_materials.filters.merchant_filters import *
 from work_materials.filters.auction_filters import *
 from work_materials.filters.battle_filters import *
+from work_materials.filters.group_filters import group_kick_filter
 
 from bin.supervisor import *
 from bin.spam_resist import *
@@ -30,6 +31,7 @@ from bin.auction_checker import *
 from bin.matchmaking import *
 from bin.status_monitor import *
 from bin.merchant import *
+from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
 
 import work_materials.globals
 from libs.resorses import *
@@ -104,10 +106,6 @@ def unequip(bot, update):
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
 
 
-def group_invite(bot, update, user_data):
-    group = user_data.get("battle_group")
-    if group is None:
-        group = BattleGroup(update.message.from_user.id)
 
 
 def matchmaking_start(bot, update, user_data):
@@ -210,14 +208,26 @@ def matchmaking_callback(bot, update, user_data):
 def callback(bot, update, user_data):
     if update.callback_query.data.find("au") == 0:
         auction_callback(bot, update, user_data)
+        return
     if update.callback_query.data.find("mm") == 0:
         matchmaking_callback(bot, update, user_data)
+        return
+    if update.callback_query.data.find("bg") == 0:
+        battle_group_callback(bot, update, user_data)
+        return
 
 
 #Фильтры на битву
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy, choose_enemy_target, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_ally, choose_friendly_target, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_anyone, choose_friendly_target, pass_user_data=True))
+
+#Фильтры на группы
+dispatcher.add_handler(CommandHandler("group_invite", group_invite, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("group_info", group_info, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("group_leave", group_leave, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.command & group_kick_filter, group_kick, pass_user_data=True))
+
 
 #Фильтры на спам
 dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 0)
