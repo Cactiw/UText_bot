@@ -4,6 +4,7 @@ from bin.starting_player import start
 from telegram import KeyboardButton, ReplyKeyboardMarkup
 from work_materials.globals import build_menu
 from bin.show_general_buttons import show_general_buttons
+from work_materials.globals import skill_names
 
 
 def choose_points(bot, update, user_data):
@@ -106,12 +107,12 @@ def choose_skill(bot, update, user_data):
         player.free_skill_points = 0
         free_skill = 0
     if free_skill == 0:
+        skills = skill_names.get(player.game_class)
         bot.send_message(chat_id = update.message.chat_id,
                          text = "У вас нет очков навыков\n\n"
-                                 "Первый навык - {0}-го уровня\nВторой навык - {1}-го уровня\n"
-                                 "Третий навык - {2}-го уровня\nЧетвертый навык - {3}-го уровня\n"
-                                 "Пятый навык - {4}-го уровня".format( player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
-                                                                        player.skill_lvl[3], player.skill_lvl[4]),
+                                 "{4} - {0}-го уровня\n{5} - {1}-го уровня\n"
+                                 "{6} - {2}-го уровня\n{7} - {3}-го уровня\n".format( player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
+                                                                        player.skill_lvl[3], skills[1], skills[2], skills[3], skills[4]),
                          reply_markup = ReplyKeyboardRemove()
                          )
         update_status("Lvl_up_points", player, user_data)
@@ -127,7 +128,6 @@ def choose_skill(bot, update, user_data):
         KeyboardButton("2"),
         KeyboardButton("3"),
         KeyboardButton("4"),
-        KeyboardButton("5"),
         KeyboardButton("Готово")
     ]
     buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True, one_time_keyboard = False)
@@ -138,12 +138,12 @@ def choose_skill(bot, update, user_data):
         s = "навыка"
     elif free_skill >= 5:
         s = "навыков"
+    skills = skill_names.get(player.game_class)
     bot.send_message(chat_id=update.message.chat_id,
-                     text="Вы можете улучшить <b>{5}</b> {6}\n\nВыберите навык, который хотите улучшить\n\n"
-                          "Первый навык - {0}-го уровня\nВторой навык - {1}-го уровня\n"
-                          "Третий навык - {2}-го уровня\nЧетвертый навык - {3}-го уровня\n"
-                          "Пятый навык - {4}-го уровня".format(player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
-                                                                        player.skill_lvl[3], player.skill_lvl[4], free_skill, s),
+                     text="Вы можете улучшить <b>{4}</b> {5}\n\nВыберите навык, который хотите улучшить\n\n"
+                          "{6} - {0}-го уровня\n{7} - {1}-го уровня\n"
+                          "{8} - {2}-го уровня\n{9} - {3}-го уровня\n".format(player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
+                                                                        player.skill_lvl[3], free_skill, s, skills[1], skills[2], skills[3], skills[4]),
                      parse_mode='HTML', reply_markup=buttons)
     players.update({id: player})
     players_need_update.put(player)

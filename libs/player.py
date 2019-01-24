@@ -1,8 +1,8 @@
 import math
 import work_materials.globals as globals
-from work_materials.globals import dispatcher, cursor, conn, players_need_update
+from work_materials.globals import dispatcher, players_need_update, skill_names
 from bin.equipment_service import *
-from libs.buff import *
+from work_materials.buttons.battle_buttons import get_general_battle_buttons
 
 
 class Player:
@@ -31,19 +31,8 @@ class Player:
 
         self.battle_id = -1
 
-        #self.first_skill_lvl = 1
-        #self.second_skill_lvl = 1
-        #self.third_skill_lvl = 0
-        #self.fourth_skill_lvl = 0
-        #self.fifth_skill_lvl = 0
         self.skill_lvl = [1, 1, 0, 0, 0]
-        self.skill_name = [
-            'Первый скилл',
-            'Второй скилл',
-            'Третий скилл',
-            'Четвертый скилл',
-            'Пятый скилл'
-                           ]
+        self.skill_cooldown = [0, 0, 0, 0, 0]
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
                     'speed': 5}
@@ -116,51 +105,90 @@ class Player:
         conn.commit()
         return 0
 
-    def use_skill(self, skill, target):
+    def skill_avaliable(self, skill_name): #-1 - нет такого скилла, -2 - не разблокирован, -3 - КД
+        avaliable_skills = skill_names.get(self.game_class)
+        if skill_name == 'Атака':
+            return 1
+        if skill_name not in avaliable_skills:
+            return -1
+        for i in range(len(avaliable_skills) - 1):
+            if avaliable_skills[i + 1] == skill_name:
+                if self.skill_lvl[i] <= 0:
+                    return -2
+                else:
+                    if self.skill_cooldown[i] > 0:
+                        return -3
+                    else:
+                        return 1
+
+    def use_skill(self, skill_name, target): #skill_name - имя скилла, target - класс цели(Player/Enemy)
+        #TODO check
+        avaliable_skills = skill_names.get(self.game_class)
+        skill = 0
+        for i in range(len(avaliable_skills)):
+            if avaliable_skills[i] == skill_name:
+                    skill = i
+
         if self.game_class == 'Оператор':
-            if skill == 1:
+            if skill == 0:
+                target.hp -= 25
+            elif skill == 1:
+                self.skill_cooldown[skill - 1] += 2
+            elif skill == 2:
                 pass
-            if skill == 2:
+            elif skill == 3:
                 pass
-            if skill == 3:
+            elif skill == 4:
                 pass
-            if skill == 4:
+            elif skill == 5:
                 pass
-            if skill == 5:
-                pass
+            elif skill == 6:
+                return
         elif self.game_class == 'Канонир':
-            if skill == 1:
+            if skill == 0:
+                target.hp -= 25
+            elif skill == 1:
+                self.skill_cooldown[skill - 1] += 2
+            elif skill == 2:
                 pass
-            if skill == 2:
+            elif skill == 3:
                 pass
-            if skill == 3:
+            elif skill == 4:
                 pass
-            if skill == 4:
+            elif skill == 5:
                 pass
-            if skill == 5:
-                pass
+            elif skill == 6:
+                return
         elif self.game_class == 'Хакер':
-            if skill == 1:
+            if skill == 0:
+                target.hp -= 25
+            elif skill == 1:
+                self.skill_cooldown[skill - 1] += 2
+            elif skill == 2:
                 pass
-            if skill == 2:
+            elif skill == 3:
                 pass
-            if skill == 3:
+            elif skill == 4:
                 pass
-            if skill == 4:
+            elif skill == 5:
                 pass
-            if skill == 5:
-                pass
+            elif skill == 6:
+                return
         elif self.game_class == 'Биомеханик':
-            if skill == 1:
+            if skill == 0:
+                target.hp -= 25
+            elif skill == 1:
+                self.skill_cooldown[skill - 1] += 2
+            elif skill == 2:
                 pass
-            if skill == 2:
+            elif skill == 3:
                 pass
-            if skill == 3:
+            elif skill == 4:
                 pass
-            if skill == 4:
+            elif skill == 5:
                 pass
-            if skill == 5:
-                pass
+            elif skill == 6:
+                return
 
     def lvl_up_skill(self, skill_number):
         if int(skill_number) in range(0, 5):

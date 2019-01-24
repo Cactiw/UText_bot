@@ -1,9 +1,9 @@
 from work_materials.globals import *
 from bin.player_service import get_player, update_status
-from libs.status_interprocess import *
+from libs.interprocess_dictionaty import InterprocessDictionary
 
 def status_monitor():
-    data = statuses.get()
+    data = interprocess_queue.get()
     while data is not None:
         keys = list(data.data.keys())
         if data.type == "user_data":
@@ -18,5 +18,5 @@ def status_monitor():
         elif data.type == "battles_pending":
             for record in keys:
                 pending_battles.update({ record: data.data.get(record)})
-        data = statuses.get()
+        data = interprocess_queue.get()
     return 0

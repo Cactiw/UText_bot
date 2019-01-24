@@ -1,6 +1,6 @@
 
 
-class StatusInterprocess:
+class InterprocessDictionary:
 
     def __init__(self, id, type, data):
         self.id = id

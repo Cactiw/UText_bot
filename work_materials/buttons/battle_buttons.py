@@ -1,14 +1,20 @@
 from telegram import KeyboardButton, ReplyKeyboardMarkup
-from work_materials.globals import build_menu
+from work_materials.globals import build_menu, skill_names
 
 def get_general_battle_buttons(player):
-    __general_battle_buttons = [
-        KeyboardButton('Атака')
-    ]
+    if player.dead == 1:
+        return ReplyKeyboardMarkup(build_menu([KeyboardButton('Пропуск хода')], 1), resize_keyboard=True)
+
+    __general_battle_buttons = []
     n_cols = 3
-    for i in range(0, 5):
-        if player.skill_lvl[i] == 1:
-            __general_battle_buttons.append(KeyboardButton(player.skill_name[i]))
+    all_skills = skill_names.get(player.game_class)
+    for i in range(len(all_skills) - 1):
+        if i == 0:
+            __general_battle_buttons.append(KeyboardButton(all_skills[i]))
+            n_cols += 1
+            continue
+        if player.skill_lvl[i - 1] > 0:
+            __general_battle_buttons.append(KeyboardButton(all_skills[i]))
             n_cols += 1
     __general_battle_buttons.append(KeyboardButton('Использовать предмет'))     #TODO Сделать использование предметов в сообщении по /use_
     __general_battle_buttons.append(KeyboardButton('Голосование ((флекс))'))
@@ -52,3 +58,8 @@ def get_all_targets_buttons(battle, team):
         __all_buttons.append(KeyboardButton(i.participant.nickname))
     __all_buttons.append(KeyboardButton('Отмена'))
     return ReplyKeyboardMarkup(build_menu(__all_buttons, 2), resize_keyboard=True)
+
+__cancel =[
+    KeyboardButton('Отмена')
+]
+cancel_button = ReplyKeyboardMarkup(build_menu(__cancel, 1), resize_keyboard=True)

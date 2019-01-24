@@ -6,7 +6,8 @@ from telegram.error import (Unauthorized)
 import threading
 import multiprocessing
 import work_materials.globals as globals
-import traceback
+import traceback, sys
+from multiprocessing import Process
 
 from work_materials.filters.muted_filters import *
 from work_materials.filters.class_filters import *
@@ -38,7 +39,7 @@ from bin.travel_functions import *
 from libs.battle_group import BattleGroup
 
 from libs.player_matchmaking import *
-from bin.battle_processing import choose_enemy_target, choose_friendly_target
+from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, battle_skip_turn
 
 sys.path.append('../')
 
@@ -66,13 +67,11 @@ work_materials.globals.processing = 1
 def add_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
-    print("code = ", player.add_item(player.res_backpack, item, int(args[1])))
 
 
 def remove_resource(bot, update, args):
     item = Resourse(int(args[0]))
     player = get_player(update.message.from_user.id)
-    print("code = ", player.remove_item(player.res_backpack, item, int(args[1])))
 
 
 def equip(bot, update):
@@ -179,7 +178,6 @@ def matchmaking_callback(bot, update, user_data):
         return
 
     # Настройки матчмейкинга битв
-    # print(matchmaking)
     callback_data = update.callback_query.data
     if callback_data == "mm 1x1":
         matchmaking[0] = (matchmaking[0] + 1) % 2
@@ -215,9 +213,12 @@ def callback(bot, update, user_data):
 
 
 #Фильтры на битву
-dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy, choose_enemy_target, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_ally, choose_friendly_target, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_anyone, choose_friendly_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_cancel, battle_cancel_choosing, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_status_battle & filter_battle_skip_turn, battle_skip_turn, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy & filter_status_battle, choose_enemy_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_ally & filter_status_battle, choose_friendly_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_anyone & filter_status_battle, choose_friendly_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_status_choosing_target, set_target, pass_user_data=True))
 
 #Фильтры на спам
 dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 0)
@@ -240,7 +241,7 @@ dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data
 dispatcher.add_handler(CommandHandler("kill_myself", delete_self, pass_user_data=True, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
-dispatcher.add_handler(CommandHandler("return", return_to_location_admin, pass_user_data=True, filters=filter_is_admin))
+dispatcher.add_handler(CommandHandler("return", return_to_location_admin, pass_user_data=True)) #filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("buttons", show_general_buttons, pass_user_data=True, filters=filter_is_admin))
 
 #Фильтр для вывода информации об игроке
@@ -353,7 +354,7 @@ updater.idle()
 work_materials.globals.processing = 0
 conn.close()
 players_need_update.put(None)
-statuses.put(None)
+interprocess_queue.put(None)
 try:
     updating_to_database.join()
 except:
