@@ -10,9 +10,10 @@ from work_materials.buttons.battle_buttons import get_general_battle_buttons
 
 class Player_in_battle:
 
-    def __init__(self, player, team):
+    def __init__(self, player, team, group):
         self.player = player
         self.team = team
+        self.group = group
 
     def __eq__(self, other):
         return self.player == other.player
@@ -30,9 +31,9 @@ class Battle:
 
     def __init__(self, battle_starting):
         self.teams = [ [], [] ]
-        for i in range(0, len(battle_starting.team1)):
-            self.teams[0].append(PlayerChoosing(battle_starting.team1[i], None, None))
-            self.teams[1].append(PlayerChoosing(battle_starting.team2[i], None, None))
+        for i in range(0, len(battle_starting.teams[0])):
+            self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None))
+            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None))
         self.team_players_count = len(self.teams[0])
         self.last_tick_time = time.time()
 
@@ -48,8 +49,8 @@ class BattleStarting:
 
     def __init__(self, average_lvl, mode):
         self.players = []
-        self.team1 = []
-        self.team2 = []
+        self.teams = [[], []]
+        self.teams_avg_lvls = [0, 0]
         self.average_lvl = average_lvl
         self.mode = mode
         self.count = 0
@@ -64,16 +65,26 @@ class BattleStarting:
         self.__teams = [int(self.need_players / 2), int(self.need_players / 2)]
         print(self.mode, self.need_players, self.__teams)
 
-    def add_player(self, player_in):
-        player = Player_in_battle(player_in, -1)
+    def add_player(self, player_in, group):
+        if group is not None:
+            return
+            #if group.num_players()
+        player = Player_in_battle(player_in, -1, group)
         self.players.append(player)
         average_lvl = 0
         self.count = 0
-        for i in range(0, len(self.__teams)):
-            if self.__teams[i] > 0:
-                player.team = i
-                self.__teams[i] -= 1
-                break
+
+        if player.player.lvl >= self.teams_avg_lvls[0]:
+            if self.teams_avg_lvls[0] < self.teams_avg_lvls[1]:
+                if len(self.teams[0]) < self.need_players / 2:
+                    self.teams[0].append(player.player)
+                else:
+                    self.teams[1].append(player.player)
+            else:
+                if len(self.teams[1]) < self.need_players / 2:
+                    self.teams[1].append(player.player)
+                else:
+                    self.teams[0].append(player.player)
         for i in self.players:
             average_lvl += i.player.lvl
             self.count += 1
@@ -94,43 +105,52 @@ class BattleStarting:
             return 1
         self.average_lvl = average_lvl / self.count
 
-    def is_suitable(self, player, battle_mode):
-        return abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode
+    def is_suitable(self, player, battle_mode, group):
+        if group is None:
+            if abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode:    #   Пока норм, можно дальше чекать
+                if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1]:                    #   Сильного в первую, слабого - во вторую
+                    if player.lvl > self.teams_avg_lvls[0]:                             #   Сильный
+                        if len(self.teams[0]) < (self.need_players / 2):
+                            return True
+                        return False
+                    if len(self.teams[1]) < (self.need_players / 2):
+                        return True
+                    return False
+                if player.lvl > self.teams_avg_lvls[1]:  # Сильный
+                    if len(self.teams[1]) < (self.need_players / 2):
+                        return True
+                    return False
+                if len(self.teams[0]) < (self.need_players / 2):
+                    return True
+                return False
+
+        else:
+            return self.mode == battle_mode and abs(group.avg_lvl() - self.average_lvl) <= 2 and len(group.players) <= self.need_players - self.count and \
+               (self.need_players - len(self.teams[0]) >= len(group.players) or self.need_players - len(self.teams[1]) >= len(group.players))
 
     def ready_to_start(self):
         return self.count >= self.need_players
 
     def start_battle(self):
-        self.players.sort(key = lambda player_in_battle: player_in_battle.player.lvl)
-        if self.need_players > 2:
-            for i in range(0, len(self.players), 2):
-                self.players[i].team = 0
-                self.players[i + 1].team = 1
-
-        for i in self.players:
-            if not i.team:
-                self.team1.append(i.player)
-            else:
-                self.team2.append(i.player)
         team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
-        for i in self.team1:
+        for i in self.teams[0]:
             team1_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
         team1_text += "\nВаши соперники:\n"
-        for i in self.team2:
+        for i in self.teams[1]:
             team1_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
             team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
         team2_text += "\nВаши соперники:\n"
-        for i in self.team1:
+        for i in self.teams[0]:
             team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
-        for i in self.team1:
+        for i in self.teams[1]:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
             #show_general_buttons(bot, i.id, {"status" : "Battle"})
             status = StatusInterprocess(i.id, "user_data", {"status" : "Battle"})
             statuses.put(status)
             status = StatusInterprocess(i.id, "user_data", {'Team': 0})
             statuses.put(status)
-        for i in self.team2:
+        for i in self.teams[0]:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team2_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
             #show_general_buttons(bot, i.id, {"status" : "Battle"})
             status = StatusInterprocess(i.id, "user_data", {"status" : "Battle"})
