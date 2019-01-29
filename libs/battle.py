@@ -7,6 +7,7 @@ from bin.show_general_buttons import show_general_buttons
 import time
 import random
 from work_materials.buttons.battle_buttons import get_general_battle_buttons
+from bin.service_commands import get_player
 
 class Player_in_battle:
 
@@ -71,8 +72,21 @@ class BattleStarting:
 
     def add_player(self, player_in, group):
         if group is not None:
-            return 0
-            #if group.num_players() <= self.need_players - len(self.teams[0]):
+            #return 0
+            if group.num_players() <= self.need_players - len(self.teams[0]):
+                team = 0
+            else:
+                team = 1
+            for player in group.players:
+                self.teams[team].append(player)
+                player = get_player(player)
+                player_in_battle = Player_in_battle(player, team, group)
+                self.players.append(player_in_battle)
+                self.count += 1
+                print("adding player from group, id = {0}".format(player))
+            self.groups.append(group)
+            return
+        print("battle.count = {0}".format(self.count))
 
         player = Player_in_battle(player_in, -1, group)
         self.players.append(player)
@@ -95,6 +109,8 @@ class BattleStarting:
             self.count += 1
         self.average_lvl = average_lvl / self.count
         self.last_time_player_add = datetime.datetime.now()
+        print("battle.count = {0}".format(self.count))
+
 
     def remove_player(self, player_in):
         self.__teams[player_in.team] += 1
@@ -113,20 +129,39 @@ class BattleStarting:
             return abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode    #   Пока норм, можно дальше чекать
 
         else:
+            print(self.mode == battle_mode, abs(group.avg_lvl() - self.average_lvl) <= 2, len(group.players) <= self.need_players - self.count, self.need_players - len(self.teams[0]) >= len(group.players) or self.need_players - len(self.teams[1]) >= len(group.players))
             return self.mode == battle_mode and abs(group.avg_lvl() - self.average_lvl) <= 2 and len(group.players) <= self.need_players - self.count and \
                (self.need_players - len(self.teams[0]) >= len(group.players) or self.need_players - len(self.teams[1]) >= len(group.players))
 
     def ready_to_start(self):
+        print("self.count = {0}, self.need_players = {1}".format(self.count, self.need_players))
         return self.count >= self.need_players
 
     def start_battle(self):
         self.teams_avg_lvls = [0, 0]
+        self.players_need_to_be_distributed = self.players.copy()
         self.teams[0].clear()
         self.teams[1].clear()
         self.players.sort(key=lambda player_in_battle: player_in_battle.player.lvl)
-        for i in range(len(self.players)):
+        for group in self.groups:
+            if (self.need_players / 2) - len(self.teams[0]) >= group.num_players():
+                team = 0
+            else:
+                team = 1
+            for player_id in group.players:
+                player = get_player(player_id)
+                player_in_battle = Player_in_battle(player, team, group)
+                self.teams[team].append(player)
+                self.teams_avg_lvls[team] = 0
+                count = 0
+                for j in self.teams[team]:
+                    self.teams_avg_lvls[team] += j.lvl
+                    count += 1
+                self.teams_avg_lvls[team] /= count
+                self.players_need_to_be_distributed.remove(player_in_battle)
+        for i in range(len(self.players_need_to_be_distributed)):
             if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1] and len(self.teams[0]) < (self.need_players / 2):
-                self.teams[0].append(self.players[i].player)
+                self.teams[0].append(self.players_need_to_be_distributed[i].player)
                 self.teams_avg_lvls[0] = 0
                 count = 0
                 for j in self.teams[0]:
@@ -134,7 +169,7 @@ class BattleStarting:
                     count += 1
                 self.teams_avg_lvls[0] /= count
             else:
-                self.teams[1].append(self.players[i].player)
+                self.teams[1].append(self.players_need_to_be_distributed[i].player)
                 self.teams_avg_lvls[1] = 0
                 count = 0
                 for j in self.teams[1]:

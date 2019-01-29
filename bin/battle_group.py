@@ -47,12 +47,13 @@ def group_invite(bot, update, user_data):
 
 
 def battle_group_callback(bot, update, user_data):
+    chat_id = update.callback_query.from_user.id
     mes = update.callback_query.message
     data = update.callback_query.data
     player_id = update.callback_query.from_user.id
     player = get_player(player_id)
     if user_data.get("status") != "In Location":
-        bot.send_message(chat_id=update.message.chat_id, text="Сейчас вы заняты чем-то ещё")
+        bot.send_message(chat_id=chat_id, text="Сейчас вы заняты чем-то ещё")
         return
     group_id = int(data.partition(" ")[2])
     group = dispatcher.user_data.get(group_id).get("battle_group")
@@ -92,7 +93,8 @@ def group_info(bot, update, user_data):
         player = get_player(group.players[i])
         response += "<b>{0}</b>, <b>{1}</b>, Уровень: <b>{2}</b>\n".format(player.nickname, player.game_class, player.lvl)
         if group.creator == mes.from_user.id and group.creator != player.id:
-            response += "Выгнать из группы: /group_kick_{0}\n\n".format(i)
+            response += "Выгнать из группы: /group_kick_{0}\n".format(i)
+        response += "\n"
     response += "\nПокинуть группу: /group_leave"
     bot.send_message(chat_id = mes.chat_id, text = response, parse_mode = 'HTML')
 
@@ -137,5 +139,5 @@ def group_leave(bot, update, user_data):
     except ValueError:
         logging.error(traceback.format_exc())
     player = get_player(mes.from_user.id)
-    bot.send_message(chat_id = group.creator, text = "<b>{0}</b> покинул вашу группу".format(player.username))
+    bot.send_message(chat_id = group.creator, text = "<b>{0}</b> покинул вашу группу".format(player.nickname), parse_mode = 'HTML')
     bot.send_message(chat_id = mes.chat_id, text = "Вы успешно покинули группу")

@@ -113,7 +113,7 @@ def matchmaking_start(bot, update, user_data):
         bot.send_message(chat_id=update.message.chat_id, text="Сейчас вы заняты чем-то ещё")
         return
     group = user_data.get("battle_group")
-    if group is not None and group.creator != update.message.from_user.id:
+    if group is not None and group.creator != update.message.chat_id:
         bot.send_message(chat_id=update.message.chat_id, text="Только лидер группы может начинать поиск")
         return
     user_data.update(matchmaking = [0, 0, 0])

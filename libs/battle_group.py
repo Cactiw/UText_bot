@@ -1,4 +1,4 @@
-
+from bin.player_service import get_player
 
 class BattleGroup:
 
@@ -11,7 +11,8 @@ class BattleGroup:
         lvl_sum = 0
         total_players = 0
         for curr in self.players:
-            lvl_sum += curr.lvl
+            player = get_player(curr)
+            lvl_sum += player.lvl
             total_players += 1
         return lvl_sum / total_players
 
