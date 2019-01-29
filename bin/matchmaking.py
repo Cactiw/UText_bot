@@ -36,7 +36,6 @@ def matchmaking():
                 for i in range(0, len(data.game_modes)):
                     if data.game_modes[i]:
                         waiting_players[i].append(data.player)
-                        print("put into queue", i)
                 group = data.group
                 battle_mode = 0
                 for waiting_queue in waiting_players:
@@ -44,9 +43,7 @@ def matchmaking():
                         print("in player")
                         battle_found = 0
                         for battle in battles:
-                            print(abs(player.lvl - battle.average_lvl))
                             if battle.is_suitable(player, battle_mode, group):
-                                print("adding player", player.nickname,  ",mode =", battle_mode)
                                 search_counts = players_in_search_count.get(player.id)
                                 if search_counts is None:
                                     search_counts = 0
