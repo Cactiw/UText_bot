@@ -34,6 +34,7 @@ class Battle:
         for i in range(0, len(battle_starting.team1)):
             self.teams[0].append(PlayerChoosing(battle_starting.team1[i], None, None, 0))
             self.teams[1].append(PlayerChoosing(battle_starting.team2[i], None, None, 1))
+        self.id = None
         self.team_players_count = len(self.teams[0])
         self.last_tick_time = time.time()
         self.skills_queue = []
@@ -140,6 +141,7 @@ class BattleStarting:
         ids = list(pending_battles)
         while battle_id in ids:
             battle_id = random.randint(1, 4294967295)
+        battle.id = battle_id
         for player in self.players:
             player.battle_id = battle_id
             interprocess_dictionary = InterprocessDictionary(player.player.id, "user_data", {'Battle id': battle_id})

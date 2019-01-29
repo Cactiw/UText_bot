@@ -58,6 +58,11 @@ class FilterBattleSkipTurn(BaseFilter):
     def filter(self, message):
         return message.text in skip_skill
 
+
+class FilterBattleWaitingUpdate(BaseFilter):
+    def filter(self, message):
+        return dispatcher.user_data.get(message.from_user.id).get('status') == 'Battle waiting update'
+
 filter_use_skill_on_enemy = FilterUseSkillOnEnemy()
 filter_use_skill_on_ally = FilterUseSkillOnAlly()
 filter_use_skill_on_anyone = FilterUseSkillOnAnyone()
@@ -65,3 +70,4 @@ filter_status_battle = FilterStatusBattle()
 filter_status_choosing_target = FilterStatusChoosingTarget()
 filter_battle_cancel = FilterBattleCancel()
 filter_battle_skip_turn = FilterBattleSkipTurn()
+filter_battle_waiting_update = FilterBattleWaitingUpdate()

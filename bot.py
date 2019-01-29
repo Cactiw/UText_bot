@@ -41,7 +41,8 @@ from bin.travel_functions import *
 from libs.battle_group import BattleGroup
 
 from libs.player_matchmaking import *
-from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, battle_skip_turn
+from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, \
+                                    battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue
 
 sys.path.append('../')
 
@@ -216,6 +217,7 @@ def callback(bot, update, user_data):
 
 
 #Фильтры на битву
+dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_waiting_update, send_waiting_msg, pass_user_data=False))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_cancel, battle_cancel_choosing, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_status_battle & filter_battle_skip_turn, battle_skip_turn, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy & filter_status_battle, choose_enemy_target, pass_user_data=True))
@@ -353,6 +355,14 @@ status_monitor = threading.Thread(target = status_monitor, args = (), name = "Pl
 status_monitor.start()
 processes.append(status_monitor)
 
+battle_processing = Process(target= battle_count, args=(), name= "Battle Processing")
+battle_processing.start()
+processes.append(battle_processing)
+
+updating_pending_battles = threading.Thread(target=put_in_pending_battles_from_queue, args=(), name="Updating pending battles")
+updating_pending_battles.start()
+processes.append(updating_pending_battles)
+
 supervisor = threading.Thread(target = process_monitor, args = (processes,), name = "Supervisor")
 supervisor.start()
 
@@ -365,12 +375,4 @@ work_materials.globals.processing = 0
 conn.close()
 players_need_update.put(None)
 interprocess_queue.put(None)
-try:
-    updating_to_database.join()
-except:
-    pass
-
-try:
-    auction_checking.join()
-except:
-    pass
+treated_battles.put(None)

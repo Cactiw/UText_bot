@@ -1,6 +1,7 @@
-from work_materials.globals import *
-from libs.player_matchmaking import *
-from libs.battle import *
+from work_materials.globals import interprocess_queue, dispatcher
+from libs.interprocess_dictionaty import InterprocessDictionary
+from libs.battle import matchmaking_players, BattleStarting
+import datetime
 from queue import Empty
 
 MAX_TIME_WITHOUT_PLAYER = datetime.timedelta(minutes=2)
@@ -84,12 +85,13 @@ def matchmaking():
                     for player in battle.players:
                         search_counts = players_in_search_count.get(player.player.id)
                         if search_counts == 1:
-                            new_status = StatusInterprocess(player.player.id, "user_data", {"status" : "In Location"})
-                            statuses.put(new_status)
+                            new_status = InterprocessDictionary(player.player.id, "user_data", {"status" : "In Location"})  #TODO сделать вход битву не только из локации
+                            interprocess_queue.put(new_status)
                             dispatcher.bot.send_message(chat_id=player.player.id, text = "Игроки для битвы не найдены. Попробуйте позже")
                         else:
                             search_counts -= 1
                             players_in_search_count.update({player.player.id: search_counts})
+                    battles.remove(battle)
             try:
                 data = matchmaking_players.get(timeout=datetime.timedelta(minutes=2).total_seconds())
             except Empty:
