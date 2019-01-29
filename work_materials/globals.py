@@ -1,7 +1,6 @@
-from telegram.ext import Updater
 from telegram import KeyboardButton, ReplyKeyboardMarkup
-import sys, logging, psycopg2, pytz, tzlocal
-from multiprocessing import Process, Queue
+import psycopg2, pytz, tzlocal
+from multiprocessing import Queue
 from libs.locations.capital import *
 from libs.locations.castle import *
 from libs.locations.farm_location import *
@@ -9,7 +8,6 @@ from libs.locations.headquarters import *
 from libs.locations.portal import *
 from libs.locations.resource_loc import *
 from libs.locations.tower import *
-#from MySQLdb.cursors import Cursor
 from libs.bot_async_messaging import AsyncBot
 from libs.updater_async import AsyncUpdater
 
@@ -37,20 +35,57 @@ players = {}
 players_need_update = Queue()
 travel_jobs = {}
 
-statuses = Queue()
+interprocess_queue = Queue()
 matchmaking_players = Queue()
 
 pending_battles = {}
 battles_need_treating = Queue()
+treated_battles = Queue()
 
 #Подключаем базу данных, выставляем кодировку
-#print("Enter password for database:")
 passwd = 'fiP3Gahz'
 
-#conn = MySQLdb.connect('localhost', 'UText_bot', passwd, 'UText_bot')
 conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
 cursor = conn.cursor()
 print("Connection successful, starting bot")
+
+skill_names = {
+    'Оператор': [
+        'Атака',
+        'Первый скилл',
+        'Второй скилл',
+        'Третий скилл',
+        'Четвертый скилл',
+        'Пропуск хода'
+    ],
+    'Канонир': [
+        'Атака',
+        'Первый скилл',
+        'Второй скилл',
+        'Третий скилл',
+        'Четвертый скилл',
+        'Пропуск хода'
+    ],
+    'Хакер': [
+        'Атака',
+        'Первый скилл',
+        'Второй скилл',
+        'Третий скилл',
+        'Четвертый скилл',
+        'Пропуск хода'
+    ],
+    'Биомеханик': [
+        'Атака',
+        'Первый скилл',
+        'Второй скилл',
+        'Третий скилл',
+        'Четвертый скилл',
+        'Пропуск хода'
+    ],
+    'Item': [
+
+    ]
+}
 
 admin_id_list = [231900398, 212657053, 307125511]    #   618831598 - мой твинк (Князь)
 

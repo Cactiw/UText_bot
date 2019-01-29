@@ -2,7 +2,7 @@ import datetime
 
 from libs.player import *
 from work_materials.globals import *
-from libs.status_interprocess import *
+from libs.interprocess_dictionaty import *
 from bin.show_general_buttons import show_general_buttons
 import time
 import random
@@ -21,10 +21,11 @@ class Player_in_battle:
 
 class PlayerChoosing:	#Игрок выбирает ход
 
-    def __init__(self, player_in_battle, target, skill):
-        self.participant = player_in_battle
+    def __init__(self, player, target, skill, team):
+        self.participant = player  #class Player
         self.target = target
         self.skill = skill
+        self.team = team
 
 
 class Battle:
@@ -32,10 +33,12 @@ class Battle:
     def __init__(self, battle_starting):
         self.teams = [ [], [] ]
         for i in range(0, len(battle_starting.teams[0])):
-            self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None))
-            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None))
+            self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None, 0))
+            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1))
         self.team_players_count = len(self.teams[0])
         self.last_tick_time = time.time()
+        self.skills_queue = []
+        self.dead_list = []
 
     def is_ready(self):
         for team in self.teams:
@@ -63,7 +66,6 @@ class BattleStarting:
         else:
             self.need_players = 10
         self.__teams = [int(self.need_players / 2), int(self.need_players / 2)]
-        print(self.mode, self.need_players, self.__teams)
 
     def add_player(self, player_in, group):
         if group is not None:
@@ -90,8 +92,6 @@ class BattleStarting:
             self.count += 1
         self.average_lvl = average_lvl / self.count
         self.last_time_player_add = datetime.datetime.now()
-        print("battle =,", self)
-        print("battle.players =", self.players, ", mode =", self.mode)
 
     def remove_player(self, player_in):
         self.__teams[player_in.team] += 1
@@ -145,18 +145,16 @@ class BattleStarting:
             team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
         for i in self.teams[1]:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
-            #show_general_buttons(bot, i.id, {"status" : "Battle"})
-            status = StatusInterprocess(i.id, "user_data", {"status" : "Battle"})
-            statuses.put(status)
-            status = StatusInterprocess(i.id, "user_data", {'Team': 0})
-            statuses.put(status)
+            interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {"status" : "Battle"})
+            interprocess_queue.put(interprocess_dictionary)
+            status = InterprocessDictionary(i.id, "user_data", {'Team': 0})
+            interprocess_queue.put(status)
         for i in self.teams[0]:
             dispatcher.bot.sync_send_message(chat_id=i.id, text=team2_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
-            #show_general_buttons(bot, i.id, {"status" : "Battle"})
-            status = StatusInterprocess(i.id, "user_data", {"status" : "Battle"})
-            statuses.put(status)
-            status = StatusInterprocess(i.id, "user_data", {'Team': 1})
-            statuses.put(status)
+            interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {"status" : "Battle"})
+            interprocess_queue.put(interprocess_dictionary)
+            interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {'Team': 1})
+            interprocess_queue.put(interprocess_dictionary)
         battle = Battle(self)
         battle_id = random.randint(1, 4294967295)
         ids = list(pending_battles)
@@ -164,7 +162,7 @@ class BattleStarting:
             battle_id = random.randint(1, 4294967295)
         for player in self.players:
             player.battle_id = battle_id
-            status = StatusInterprocess(player.player.id, "user_data", {'Battle id': battle_id})
-            statuses.put(status)
-        battle_status = StatusInterprocess(None, "battles_pending", {battle_id: battle})
-        statuses.put(battle_status)
+            interprocess_dictionary = InterprocessDictionary(player.player.id, "user_data", {'Battle id': battle_id})
+            interprocess_queue.put(interprocess_dictionary)
+        battle_status = InterprocessDictionary(None, "battles_pending", {battle_id: battle})
+        interprocess_queue.put(battle_status)
