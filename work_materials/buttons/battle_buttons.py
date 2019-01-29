@@ -1,10 +1,10 @@
-from telegram import KeyboardButton, ReplyKeyboardMarkup
-from work_materials.globals import build_menu, skill_names
+from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+from work_materials.globals import build_menu, skill_names, dispatcher
+
 
 def get_general_battle_buttons(player):
-    if player.dead == 1:
-        return ReplyKeyboardMarkup(build_menu([KeyboardButton('Пропуск хода')], 1), resize_keyboard=True)
-
+    if dispatcher.user_data.get(player.id).get('status') == "Battle_dead":
+        return ReplyKeyboardRemove()
     __general_battle_buttons = []
     n_cols = 3
     all_skills = skill_names.get(player.game_class)

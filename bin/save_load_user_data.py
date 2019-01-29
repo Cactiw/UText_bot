@@ -1,5 +1,5 @@
 import work_materials.globals
-from work_materials.globals import *
+from work_materials.globals import pending_battles
 import time, pickle
 import logging
 
@@ -8,8 +8,14 @@ log = logging.getLogger("Save load user data")
 def loadData():
     try:
         f = open('backup/userdata', 'rb')
-        dispatcher.user_data = pickle.load(f)
+        work_materials.globals.dispatcher.user_data = pickle.load(f)
         f.close()
+        f = open('backup/battles', 'rb')
+        pending_battles_tmp = pickle.load(f)
+        for i in list(pending_battles_tmp):
+            pending_battles.update({i: pending_battles_tmp.get(i)})
+        f.close()
+        print(work_materials.globals.pending_battles)
         print("Data picked up")
     except FileNotFoundError:
         logging.error("Data file not found")
@@ -34,15 +40,18 @@ def saveData():
 
             try:
                 to_dump = {}
-                for i in travel_jobs:
-                    j = travel_jobs.get(i)
+                for i in work_materials.globals.travel_jobs:
+                    j = work_materials.globals.travel_jobs.get(i)
                     to_dump.update({i: [j.get_time_spent(), j.get_time_left()]})
 
                 f = open('backup/userdata', 'wb+')
-                pickle.dump(dispatcher.user_data, f)
+                pickle.dump(work_materials.globals.dispatcher.user_data, f)
                 f.close()
                 f = open('backup/travel_jobs', 'wb+')
                 pickle.dump(to_dump, f)
+                f.close()
+                f = open('backup/battles', 'wb+')
+                pickle.dump(pending_battles, f)
                 f.close()
                 log.debug("Data write completed\b")
             except:
@@ -51,7 +60,7 @@ def saveData():
         print("Writing data last time, do not shutdown bot...")
         try:
             f = open('backup/userdata', 'wb+')
-            pickle.dump(dispatcher.user_data, f)
+            pickle.dump(work_materials.globals.dispatcher.user_data, f)
             f.close()
             f = open('backup/travel_jobs', 'wb+')
             pickle.dump(to_dump, f)

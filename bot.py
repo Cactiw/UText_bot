@@ -42,7 +42,8 @@ from libs.battle_group import BattleGroup
 
 from libs.player_matchmaking import *
 from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, \
-                                    battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue
+                                    battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue, \
+                                    send_message_dead
 
 sys.path.append('../')
 
@@ -104,8 +105,6 @@ def unequip(bot, update):
     equipment = get_equipment(equipment_id)
     player.unequip(equipment)
     bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
-
-
 
 
 def matchmaking_start(bot, update, user_data):
@@ -221,6 +220,7 @@ def callback(bot, update, user_data):
 
 
 #Фильтры на битву
+dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_dead, send_message_dead, pass_user_data=False))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_waiting_update, send_waiting_msg, pass_user_data=False))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_cancel, battle_cancel_choosing, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_status_battle & filter_battle_skip_turn, battle_skip_turn, pass_user_data=True))
