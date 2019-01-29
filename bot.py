@@ -112,7 +112,10 @@ def matchmaking_start(bot, update, user_data):
     if user_data.get("status") != "In Location":
         bot.send_message(chat_id=update.message.chat_id, text="Сейчас вы заняты чем-то ещё")
         return
-
+    group = user_data.get("battle_group")
+    if group is not None and group.creator != update.message.from_user.id:
+        bot.send_message(chat_id=update.message.chat_id, text="Только лидер группы может начинать поиск")
+        return
     user_data.update(matchmaking = [0, 0, 0])
     button_list = [
         InlineKeyboardButton("1 x 1", callback_data="mm 1x1"),
@@ -129,6 +132,7 @@ def matchmaking_callback(bot, update, user_data):
     mes = update.callback_query.message
     matchmaking = user_data.get("matchmaking")
     if update.callback_query.data == "mm start" or update.callback_query.data == "mm cancel":
+        group = user_data.get("battle_group")
         player = get_player(update.callback_query.from_user.id)
 
         if update.callback_query.data == "mm cancel":
@@ -136,7 +140,7 @@ def matchmaking_callback(bot, update, user_data):
                     "status") != "Battle":  # TODO Как битвы будут готовы, удалить проверку на статус "Battle", сейчас используется для отладки
                 bot.send_message(chat_id=update.callback_query.from_user.id, text="Вы не находитесь в поиске битвы")
                 return
-            player_matchmaking = Player_matchmaking(player, 0, matchmaking)
+            player_matchmaking = Player_matchmaking(player, 0, matchmaking, group = group)
             matchmaking_players.put(player_matchmaking)
             bot.answerCallbackQuery(callback_query_id=update.callback_query.id,
                                     text="Подбор игроков успешно отменён", show_alert=False)
@@ -161,7 +165,7 @@ def matchmaking_callback(bot, update, user_data):
             bot.send_message(chat_id=update.callback_query.from_user.id, text="Необходимо выбрать хотя бы один режим")
             return
 
-        player_matchmaking = Player_matchmaking(player, 1, matchmaking)
+        player_matchmaking = Player_matchmaking(player, 1, matchmaking, group=group)
         # bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text = "Подбор игроков успешно запущен!", show_alert = False)
         button_list = [
             InlineKeyboardButton("Отменить подбор игроков", callback_data="mm cancel")

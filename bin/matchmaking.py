@@ -32,22 +32,26 @@ def matchmaking():
                     except Empty:
                         data = None
                     continue
+                                                         #   Добавляю в поиск
                 for i in range(0, len(data.game_modes)):
                     if data.game_modes[i]:
                         waiting_players[i].append(data.player)
-
+                        print("put into queue", i)
+                group = data.group
                 battle_mode = 0
                 for waiting_queue in waiting_players:
                     for player in waiting_queue:
 
                         battle_found = 0
                         for battle in battles:
-                            if battle.is_suitable(player, battle_mode):
+                            print(abs(player.lvl - battle.average_lvl))
+                            if battle.is_suitable(player, battle_mode, group):
+                                print("adding player", player.nickname,  ",mode =", battle_mode)
                                 search_counts = players_in_search_count.get(player.id)
                                 if search_counts is None:
                                     search_counts = 0
                                 players_in_search_count.update({ player.id : search_counts + 1})
-                                battle.add_player(player)
+                                battle.add_player(player, group)
                                 waiting_queue.remove(player)
                                 battle_found = 1
                                 if battle.ready_to_start():
@@ -72,7 +76,7 @@ def matchmaking():
                                 break
                         if not battle_found:
                             battle = BattleStarting(0, battle_mode)
-                            battle.add_player(player)
+                            battle.add_player(player, group)
                             waiting_queue.remove(player)
                             battles.append(battle)
                             search_counts = players_in_search_count.get(player.id)
