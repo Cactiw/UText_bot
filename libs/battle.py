@@ -144,18 +144,13 @@ class BattleStarting:
         team2_text += "\nВаши соперники:\n"
         for i in self.teams[0]:
             team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
-        for i in self.teams[1]:
-            dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
-            interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {"status" : "Battle"})
-            interprocess_queue.put(interprocess_dictionary)
-            status = InterprocessDictionary(i.id, "user_data", {'Team': 0})
-            interprocess_queue.put(status)
-        for i in self.teams[0]:
-            dispatcher.bot.sync_send_message(chat_id=i.id, text=team2_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
-            interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {"status" : "Battle"})
-            interprocess_queue.put(interprocess_dictionary)
-            interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {'Team': 1})
-            interprocess_queue.put(interprocess_dictionary)
+        for j in range(2):
+            for i in self.teams[j]:
+                dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
+                interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {"status" : "Battle"})
+                interprocess_queue.put(interprocess_dictionary)
+                status = InterprocessDictionary(i.id, "user_data", {'Team': j})
+                interprocess_queue.put(status)
         battle = Battle(self)
         battle_id = random.randint(1, 4294967295)
         ids = list(pending_battles)
