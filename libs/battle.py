@@ -54,6 +54,7 @@ class BattleStarting:
     def __init__(self, average_lvl, mode):
         self.players = []
         self.teams = [[], []]
+        self.groups = []
         self.teams_avg_lvls = [0, 0]
         self.average_lvl = average_lvl
         self.mode = mode
@@ -70,8 +71,9 @@ class BattleStarting:
 
     def add_player(self, player_in, group):
         if group is not None:
-            return
-            #if group.num_players()
+            return 0
+            #if group.num_players() <= self.need_players - len(self.teams[0]):
+
         player = Player_in_battle(player_in, -1, group)
         self.players.append(player)
         average_lvl = 0
@@ -108,22 +110,7 @@ class BattleStarting:
 
     def is_suitable(self, player, battle_mode, group):
         if group is None:
-            if abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode:    #   Пока норм, можно дальше чекать
-                if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1]:                    #   Сильного в первую, слабого - во вторую
-                    if player.lvl > self.teams_avg_lvls[0]:                             #   Сильный
-                        if len(self.teams[0]) < (self.need_players / 2):
-                            return True
-                        return False
-                    if len(self.teams[1]) < (self.need_players / 2):
-                        return True
-                    return False
-                if player.lvl > self.teams_avg_lvls[1]:  # Сильный
-                    if len(self.teams[1]) < (self.need_players / 2):
-                        return True
-                    return False
-                if len(self.teams[0]) < (self.need_players / 2):
-                    return True
-                return False
+            return abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode    #   Пока норм, можно дальше чекать
 
         else:
             return self.mode == battle_mode and abs(group.avg_lvl() - self.average_lvl) <= 2 and len(group.players) <= self.need_players - self.count and \
@@ -138,7 +125,7 @@ class BattleStarting:
         self.teams[1].clear()
         self.players.sort(key=lambda player_in_battle: player_in_battle.player.lvl)
         for i in range(len(self.players)):
-            if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1]:
+            if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1] and len(self.teams[0]) < (self.need_players / 2):
                 self.teams[0].append(self.players[i].player)
                 self.teams_avg_lvls[0] = 0
                 count = 0
@@ -154,6 +141,7 @@ class BattleStarting:
                     self.teams_avg_lvls[1] += j.lvl
                     count += 1
                 self.teams_avg_lvls[1] /= count
+
         team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         for i in self.teams[0]:
