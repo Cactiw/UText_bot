@@ -3,7 +3,7 @@ from work_materials.buttons.battle_buttons import get_allies_buttons, get_enemie
 from work_materials.globals import pending_battles, dispatcher, battles_need_treating, interprocess_queue, treated_battles, skill_names
 import logging
 from libs.interprocess_dictionaty import InterprocessDictionary
-from bin.show_general_buttons import show_general_buttons
+from telegram import ReplyKeyboardRemove
 
 
 def get_battle(battle_id):
@@ -128,10 +128,7 @@ def check_win(battle):
     if team2_alive == 0 and team1_alive > 0:
         return 0
 
-
-
 #skill == 6 => пропуск хода
-#target == 0 => на себя
 
 
 def battle_count():     #Тут считается битва в которой все выбрали действие, отдельный процесс, Не забыть сделать так, чтобы выполнялось в таком порядке, в котором было выбрано
@@ -143,13 +140,16 @@ def battle_count():     #Тут считается битва в которой 
             result_strings = ["Team 1:\n", "Team 2:\n"]
             for i in battle.skills_queue:
                 if i.participant.nickname in battle.dead_list:
-                    dispatcher.bot.send_message(chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id, text="Вы мертвы")
+                    dispatcher.bot.send_message(chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
+                                                text="Вы мертвы", reply_markup=ReplyKeyboardRemove)
                     continue
                 i.participant.use_skill(i.skill, i.target)
                 if i.target.hp <= 0:
                     battle.dead_list.append(i.target.nickname)
                     target_choosing = get_player_choosing_from_battle_via_id(battle, i.target.id)
                     target_choosing.dead = 1
+                    target_choosing.skill = 6
+                    target_choosing.target = target_choosing.participant
                 team_strings[i.team] += "<b>{0}</b> использовал <b>{1}</b> на <b>{2}</b>\n".format(i.participant.nickname, i.skill, i.target.nickname)
             team_strings[0] += '\n'
             battle.skills_queue.clear()
@@ -168,9 +168,12 @@ def battle_count():     #Тут считается битва в которой 
                             player.skill_cooldown[t] -= 1
                     player_choosing.target = None
                     player_choosing.skill = None
+                    reply_markup = get_general_battle_buttons(player)
+                    if player.nickname in battle.dead_list:
+                        reply_markup = None
                     dispatcher.bot.sync_send_message(chat_id=player.id,
                                                 text=team_strings[0] + team_strings[1],
-                                                parse_mode="HTML", reply_markup=get_general_battle_buttons(player))
+                                                parse_mode="HTML", reply_markup=reply_markup)
             result_strings[0] += '\n'
             for i in range(2):
                 for j in range(battle.team_players_count):
@@ -178,9 +181,12 @@ def battle_count():     #Тут считается битва в которой 
                     player = player_choosing.participant
                     interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle'})
                     interprocess_queue.put(interprocess_dictionary)
+                    reply_markup = get_general_battle_buttons(player)
+                    if player.nickname in battle.dead_list:
+                        reply_markup = None
                     dispatcher.bot.sync_send_message(chat_id=player.id, text =result_strings[0] + result_strings[1] +
                                                                          "\n/info_Имя Игрока - информация об игроке",
-                                                parse_mode="HTML", reply_markup=get_general_battle_buttons(player))         #TODO Добавить баффы/дебаффы
+                                                parse_mode="HTML", reply_markup=reply_markup)         #TODO Добавить баффы/дебаффы
             res = check_win(battle)
             if res != -1:
                 for i in range(2):
