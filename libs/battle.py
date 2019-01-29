@@ -133,6 +133,27 @@ class BattleStarting:
         return self.count >= self.need_players
 
     def start_battle(self):
+        self.teams_avg_lvls = [0, 0]
+        self.teams[0].clear()
+        self.teams[1].clear()
+        self.players.sort(key=lambda player_in_battle: player_in_battle.player.lvl)
+        for i in range(len(self.players)):
+            if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1]:
+                self.teams[0].append(self.players[i].player)
+                self.teams_avg_lvls[0] = 0
+                count = 0
+                for j in self.teams[0]:
+                    self.teams_avg_lvls[0] += j.lvl
+                    count += 1
+                self.teams_avg_lvls[0] /= count
+            else:
+                self.teams[1].append(self.players[i].player)
+                self.teams_avg_lvls[1] = 0
+                count = 0
+                for j in self.teams[1]:
+                    self.teams_avg_lvls[1] += j.lvl
+                    count += 1
+                self.teams_avg_lvls[1] /= count
         team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         for i in self.teams[0]:
