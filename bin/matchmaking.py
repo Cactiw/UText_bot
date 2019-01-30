@@ -15,7 +15,7 @@ def matchmaking():
         battles = []
         while True:
             if data is not None:
-                if data.add_to_matchmaking == 0:
+                if data.add_to_matchmaking == 0:        # Отмена мачмейкинга
 
                     for waiting_queue in waiting_players:
                         for player in waiting_queue:
@@ -27,10 +27,18 @@ def matchmaking():
                             if player_in_battle.player == data.player:
                                 if battle.remove_player(player_in_battle) == 1:
                                     battles.remove(battle)
+                    dispatcher.user_data.get(data.player.id).update({'status': dispatcher.user_data.get(data.player.id).get('saved_battle_status')})
+                    user_data = dispatcher.user_data.get(data.player.id)
+                    list_user_data = list(user_data)
+                    if 'matchmaking' in list_user_data:
+                        user_data.pop('matchmaking')
+                    if 'Team' in list_user_data:
+                        user_data.pop('Team')
                     try:
                         data = matchmaking_players.get(timeout=datetime.timedelta(minutes=2).total_seconds())
                     except Empty:
                         data = None
+
                     continue
                                                          #   Добавляю в поиск
                 for i in range(0, len(data.game_modes)):
