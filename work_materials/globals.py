@@ -23,6 +23,7 @@ job = updater.job_queue
 dispatcher = updater.dispatcher
 
 STATUS_REPORT_CHANNEL_ID = -1001275825401
+ALERT_NOTIFICATIONS_CHANNEL_ID = -1001437688300
 moscow_tz = pytz.timezone('Europe/Moscow')
 try:
     local_tz = tzlocal.get_localzone()

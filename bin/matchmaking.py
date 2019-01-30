@@ -15,7 +15,8 @@ def matchmaking():
         battles = []
         while True:
             if data is not None:
-                if data.add_to_matchmaking == 0:        # Отмена мачмейкинга
+                group = data.group
+                if data.add_to_matchmaking == 0:    # Отмена мачмейкинга
 
                     for waiting_queue in waiting_players:
                         for player in waiting_queue:
@@ -25,7 +26,7 @@ def matchmaking():
                     for battle in battles:
                         for player_in_battle in battle.players:
                             if player_in_battle.player == data.player:
-                                if battle.remove_player(player_in_battle) == 1:
+                                if battle.remove_player(player_in_battle, group) == 1:
                                     battles.remove(battle)
                     dispatcher.user_data.get(data.player.id).update({'status': dispatcher.user_data.get(data.player.id).get('saved_battle_status')})
                     user_data = dispatcher.user_data.get(data.player.id)
@@ -44,7 +45,6 @@ def matchmaking():
                 for i in range(0, len(data.game_modes)):
                     if data.game_modes[i]:
                         waiting_players[i].append(data.player)
-                group = data.group
                 battle_mode = 0
                 for waiting_queue in waiting_players:
                     for player in waiting_queue:
@@ -75,7 +75,7 @@ def matchmaking():
                                     for battle in battles:
                                         for player_in_battle in battle.players:
                                             if player_in_battle.player == data.player:
-                                                if battle.remove_player(player_in_battle) == 1:
+                                                if battle.remove_player(player_in_battle, group) == 1:
                                                     battles.remove(battle)
 
                                 break
