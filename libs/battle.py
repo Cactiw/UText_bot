@@ -138,13 +138,18 @@ class BattleStarting:
         self.average_lvl = average_lvl / self.count
 
     def is_suitable(self, player, battle_mode, group):
+        free_places_in_teams = [self.need_players - len(self.teams[0]), self.need_players - len(self.teams[1])]
         if group is None:
-            return abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode    #   Пока норм, можно дальше чекать
+            return abs(player.lvl - self.average_lvl) <= 2 and self.mode == battle_mode and \
+            (self.teams_avg_lvls[0] <= self.teams_avg_lvls[1] and player.lvl > self.teams_avg_lvls[0] and free_places_in_teams[0] >= 1) or \
+            (self.teams_avg_lvls[0] > self.teams_avg_lvls[1] and player.lvl > self.teams_avg_lvls[1] and free_places_in_teams[1] >= 1)     #   Пока норм, можно дальше чекать
 
         else:
             print(self.mode == battle_mode, abs(group.avg_lvl() - self.average_lvl) <= 2, len(group.players) <= self.need_players - self.count, self.need_players - len(self.teams[0]) >= len(group.players) or self.need_players - len(self.teams[1]) >= len(group.players))
             return self.mode == battle_mode and abs(group.avg_lvl() - self.average_lvl) <= 2 and len(group.players) <= self.need_players - self.count and \
-               (self.need_players - len(self.teams[0]) >= len(group.players) or self.need_players - len(self.teams[1]) >= len(group.players))
+                (free_places_in_teams[0] >= len(group.players) or free_places_in_teams[1] >= len(group.players)) and \
+                ((self.teams_avg_lvls[0] < self.teams_avg_lvls[1] and group.avg_lvl() > self.teams_avg_lvls[0] and free_places_in_teams[0] >= group.num_players()) or
+                (self.teams_avg_lvls[0] > self.teams_avg_lvls[1] and group.avg_lvl() > self.teams_avg_lvls[1] and free_places_in_teams[1] >= group.num_players()))
 
     def ready_to_start(self):
         print("self.count = {0}, self.need_players = {1}".format(self.count, self.need_players))

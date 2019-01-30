@@ -125,7 +125,9 @@ def matchmaking_start(bot, update, user_data):
         InlineKeyboardButton("Начать поиск", callback_data="mm start")
     ]
     reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=3, footer_buttons=footer_buttons))
-    bot.send_message(chat_id=update.message.chat_id, text = "Выберите настройки битвы:", reply_markup=reply_markup)
+    bot.send_message(chat_id=update.message.chat_id,
+                     text = "Выберите настройки битвы:\n\n{0}".format("Информация по группе: /group_info" if user_data.get("battle_group") else ""),
+                     reply_markup=reply_markup)
 
 def matchmaking_callback(bot, update, user_data):
     mes = update.callback_query.message

@@ -67,7 +67,7 @@ def matchmaking():
                                     for battle in battles:
                                         for player_in_battle in battle.players:
                                             if player_in_battle.player == data.player:
-                                                if battle.remove_player(player_in_battle) == 1:
+                                                if battle.remove_player(player_in_battle, group) == 1:
                                                     battles.remove(battle)
 
                                 break

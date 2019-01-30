@@ -21,6 +21,8 @@ def process_monitor(processes):
             dispatcher.bot.editMessageText(chat_id=message.chat_id, message_id=message.message_id, text=response, parse_mode='HTML')
         except TelegramError:
             message = dispatcher.bot.sync_send_message(chat_id = STATUS_REPORT_CHANNEL_ID, text=response, parse_mode='HTML')
+        if not OK:
+            dispatcher.bot.sync_send_message(chat_id=ALERT_NOTIFICATIONS_CHANNEL_ID, text=response, parse_mode='HTML')
         for i in range(0, TIME_BETWEEN_REPORTS):
             time.sleep(1)
             if not globals.processing:
