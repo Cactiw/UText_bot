@@ -162,6 +162,11 @@ def matchmaking_callback(bot, update, user_data):
                 break
         if flag == 0:
             bot.send_message(chat_id=update.callback_query.from_user.id, text="Необходимо выбрать хотя бы один режим")
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+            return
+        if group is not None and (matchmaking[0] or (group.num_players() > 3 and matchmaking[1]) or (group.num_players() > 5 and matchmaking[2])):
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+            bot.send_message(chat_id = update.callback_query.from_user.id, text = "Игроков в группе больше, чем разрешено в выбранных режимах! (Хотя бы одном)")
             return
 
         player_matchmaking = Player_matchmaking(player, 1, matchmaking, group=group)

@@ -15,6 +15,7 @@ def matchmaking():
         battles = []
         while True:
             if data is not None:
+                group = data.group
                 if data.add_to_matchmaking == 0:
 
                     for waiting_queue in waiting_players:
@@ -25,7 +26,7 @@ def matchmaking():
                     for battle in battles:
                         for player_in_battle in battle.players:
                             if player_in_battle.player == data.player:
-                                if battle.remove_player(player_in_battle) == 1:
+                                if battle.remove_player(player_in_battle, group) == 1:
                                     battles.remove(battle)
                     try:
                         data = matchmaking_players.get(timeout=datetime.timedelta(minutes=2).total_seconds())
@@ -36,7 +37,6 @@ def matchmaking():
                 for i in range(0, len(data.game_modes)):
                     if data.game_modes[i]:
                         waiting_players[i].append(data.player)
-                group = data.group
                 battle_mode = 0
                 for waiting_queue in waiting_players:
                     for player in waiting_queue:

@@ -112,9 +112,22 @@ class BattleStarting:
         print("battle.count = {0}".format(self.count))
 
 
-    def remove_player(self, player_in):
-        self.__teams[player_in.team] += 1
-        self.players.remove(player_in)
+    def remove_player(self, player_in, group):
+        if group is not None:
+            for player in group.players:
+                for pib in self.players:
+                    id = pib.player.id
+                    if player == id:
+                        self.players.remove(pib)
+                        self.count -= 1
+
+                        if id in self.teams[0]:
+                            self.teams[0].remove(id)
+                        elif id in self.teams[1]:
+                            self.teams[1].remove(id)
+                        continue
+        else:
+            self.players.remove(player_in)
         average_lvl = 0
         self.count = 0
         for i in self.players:
