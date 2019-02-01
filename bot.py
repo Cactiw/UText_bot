@@ -43,7 +43,7 @@ from libs.battle_group import BattleGroup
 from libs.player_matchmaking import *
 from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, \
                                     battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue, \
-                                    send_message_dead
+                                    send_message_dead, kick_out_players
 
 sys.path.append('../')
 
@@ -373,6 +373,10 @@ processes.append(battle_processing)
 updating_pending_battles = threading.Thread(target=put_in_pending_battles_from_queue, args=(), name="Updating pending battles")
 updating_pending_battles.start()
 processes.append(updating_pending_battles)
+
+kicking_out_thread = threading.Thread(target=kick_out_players, args=(), name="Kicking players out of battle")
+kicking_out_thread.start()
+processes.append(kicking_out_thread)
 
 supervisor = threading.Thread(target = process_monitor, args = (processes,), name = "Supervisor")
 supervisor.start()

@@ -1,11 +1,13 @@
 import work_materials.globals as globals
 from work_materials.buttons.battle_buttons import get_allies_buttons, get_enemies_buttons, \
     get_all_targets_buttons, cancel_button, get_general_battle_buttons
+import work_materials.globals as globals
 from work_materials.globals import pending_battles, dispatcher, battles_need_treating, interprocess_queue, treated_battles, skill_names
 import logging
 from libs.interprocess_dictionaty import InterprocessDictionary
 from telegram import ReplyKeyboardRemove
 import pickle
+import time
 
 
 def get_battle(battle_id):
@@ -94,7 +96,7 @@ def set_target(bot, update, user_data):
     target = new_target_choosing.participant
     player_choosing.target = target
     user_data.update({'status': 'Battle waiting'})
-    bot.send_message(chat_id= update.message.chat_id, text="Вы выбрали цель, ждем других игроков",
+    bot.sync_send_message(chat_id= update.message.chat_id, text="Вы выбрали цель, ждем других игроков",
                      reply_markup=cancel_button)        #TODO Сообщение должно быть до следующего сообщение о просчете битвы, sync
     battle.skills_queue.append(player_choosing)
     if battle.is_ready():
@@ -108,7 +110,7 @@ def battle_skip_turn(bot, update, user_data):
     player_choosing.skill = update.message.text
     player_choosing.target = player_choosing.participant
     user_data.update({'status': 'Battle waiting'})
-    bot.send_message(chat_id=player_choosing.participant.id, text="Ждем других игроков",
+    bot.sync_send_message(chat_id=player_choosing.participant.id, text="Ждем других игроков",
                                 reply_markup=cancel_button)     #TODO Сообщение должно быть до следующего сообщение о просчете битвы, sync
     battle.skills_queue.append(player_choosing)
     if battle.is_ready():
@@ -128,12 +130,35 @@ def check_win(battle):
             team2_alive += 1
     if team1_alive > 0 and team2_alive > 0:
         return -1
+    if team1_alive == 0 and team2_alive == 0:
+        return 2
     if team1_alive == 0 and team2_alive > 0:
         return 1
     if team2_alive == 0 and team1_alive > 0:
         return 0
 
 #skill == 6 => пропуск хода
+
+
+def kick_out_players():
+
+    while globals.processing:
+        curr_time = time.time()
+        for j in list(pending_battles):
+            i = pending_battles.get(j)
+            if curr_time - i.last_count_time >= 30:
+                for t in range(2):
+                    for l in range(i.team_players_count):
+                        player_choosing = i.teams[t][l]
+                        if player_choosing.skill is None or player_choosing.target is None:
+                            player_choosing.skill = "Пропуск хода"
+                            player_choosing.target = player_choosing.participant
+                            i.skills_queue.append(player_choosing)
+                            dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
+                            dispatcher.bot.send_message(chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
+                            if i.is_ready():
+                                battles_need_treating.put(i)
+                                pending_battles.pop(i.id)
 
 
 def battle_count():     #Тут считается битва в которой все выбрали действие, отдельный процесс, Не забыть сделать так, чтобы выполнялось в таком порядке, в котором было выбрано
@@ -204,14 +229,25 @@ def battle_count():     #Тут считается битва в которой 
                         interprocess_queue.put(interprocess_dictionary)
             res = check_win(battle)
             if res != -1:
-                for i in range(2):
-                    for j in range(battle.team_players_count):
-                        player_choosing = battle.teams[i][j]
-                        player = player_choosing.participant
-                        dispatcher.bot.sync_send_message(chat_id=player.id, text="{0} команда победила!".format(
-                            "Первая" if res == 0 else "Вторая"))
-                        interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
-                        interprocess_queue.put(interprocess_dictionary)
+                if res < 2:
+                    for i in range(2):
+                        for j in range(battle.team_players_count):
+                            player_choosing = battle.teams[i][j]
+                            player = player_choosing.participant
+                            dispatcher.bot.sync_send_message(chat_id=player.id, text="{0} команда победила!".format(
+                                "Первая" if res == 0 else "Вторая"))
+                            interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
+                            interprocess_queue.put(interprocess_dictionary)
+                elif res == 2:
+                    for i in range(2):
+                        for j in range(battle.team_players_count):
+                            player_choosing = battle.teams[i][j]
+                            player = player_choosing.participant
+                            dispatcher.bot.sync_send_message(chat_id=player.id, text="Ничья!")
+                            interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
+                            interprocess_queue.put(interprocess_dictionary)
+
+
             else:
                 for i in range(2):
                     for j in range(battle.team_players_count):
@@ -219,6 +255,7 @@ def battle_count():     #Тут считается битва в которой 
                         player = player_choosing.participant
                         interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle waiting update': 1})
                         interprocess_queue.put(interprocess_dictionary)
+                battle.last_count_time = time.time()
                 treated_battles.put(battle)
     except KeyboardInterrupt:
         return 0

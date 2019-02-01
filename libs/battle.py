@@ -41,6 +41,7 @@ class Battle:
         self.last_tick_time = time.time()
         self.skills_queue = []
         self.dead_list = []
+        self.last_count_time = time.time()
 
     def is_ready(self):
         for team in self.teams:

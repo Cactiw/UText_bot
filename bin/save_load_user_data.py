@@ -13,7 +13,9 @@ def loadData():
         f = open('backup/battles', 'rb')
         pending_battles_tmp = pickle.load(f)
         for i in list(pending_battles_tmp):
-            pending_battles.update({i: pending_battles_tmp.get(i)})
+            battle = pending_battles_tmp.get(i)
+            battle.last_count_time = time.time()
+            pending_battles.update({i: battle})
         f.close()
         print(work_materials.globals.pending_battles)
         print("Data picked up")

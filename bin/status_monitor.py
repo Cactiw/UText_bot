@@ -3,6 +3,7 @@ from bin.player_service import get_player, update_status
 from libs.interprocess_dictionaty import InterprocessDictionary
 from bin.show_general_buttons import show_general_buttons
 
+
 def status_monitor():
     data = interprocess_queue.get()
     while data is not None:
@@ -21,7 +22,23 @@ def status_monitor():
                 pending_battles.update({ record: data.data.get(record)})
         elif data.type == "battle status return":
             dispatcher.user_data.get(data.id).update({'status': dispatcher.user_data.get(data.id).get('saved_battle_status')})
-            dispatcher.user_data.get(data.id).pop('saved_battle_status')
+            user_data = dispatcher.user_data.get(data.id)
+            list_user_data = list(user_data)
+            if 'saved_battle_status' in list_user_data:
+                user_data.pop('saved_battle_status')
+            if 'chosen skill' in list_user_data:
+                user_data.pop('chosen skill')
+            if 'Battle waiting update' in list_user_data:
+                user_data.pop('Battle waiting update')
+            if 'Battle id' in list_user_data:
+                user_data.pop('Battle id')
+            if 'matchmaking' in list_user_data:
+                user_data.pop('matchmaking')
+            if 'Team' in list_user_data:
+                user_data.pop('Team')
+            if 'Test' in list_user_data:
+                user_data.pop('Test')
+
             show_general_buttons(dispatcher.bot, data.id, dispatcher.user_data.get(data.id))
         data = interprocess_queue.get()
     return 0
