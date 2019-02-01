@@ -75,12 +75,29 @@ def fast_travel(bot, update, user_data):
         j.job.schedule_removal()
         j.job.run(bot)
 
+
 def return_to_location_admin(bot, update, user_data):
-    player = get_player(update.message.from_user.id)
+    player_id = update.message.chat_id
+    player = get_player(player_id)
     update_status('In Location', player, user_data)
     update_location(player.location, player, user_data)
     j = travel_jobs.get(player.id)
-    bot.send_message(chat_id=update.message.chat_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
+    if user_data.get("Battle id") is not None:
+        pending_battles.pop(user_data.get("Battle id"))
+    list_user_data = list(user_data)
+    if 'saved_battle_status' in list_user_data:
+        user_data.pop('saved_battle_status')
+    if 'chosen skill' in list_user_data:
+        user_data.pop('chosen skill')
+    if 'Battle waiting update' in list_user_data:
+        user_data.pop('Battle waiting update')
+    if 'Battle id' in list_user_data:
+        user_data.pop('Battle id')
+    if 'matchmaking' in list_user_data:
+        user_data.pop('matchmaking')
+    if 'Team' in list_user_data:
+        user_data.pop('Team')
+    bot.send_message(chat_id=player_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
     show_general_buttons(bot, update, user_data)
     if j is None:
         return

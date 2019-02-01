@@ -224,6 +224,7 @@ class BattleStarting:
         battle.id = battle_id
         for player in self.players:
             player.battle_id = battle_id
+            player.player.update_cooldown()
             interprocess_dictionary = InterprocessDictionary(player.player.id, "user_data", {'Battle id': battle_id})
             interprocess_queue.put(interprocess_dictionary)
         battle_status = InterprocessDictionary(None, "battles_pending", {battle_id: battle})

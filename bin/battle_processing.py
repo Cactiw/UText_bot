@@ -6,6 +6,7 @@ from work_materials.globals import pending_battles, dispatcher, battles_need_tre
 import logging
 from libs.interprocess_dictionaty import InterprocessDictionary
 from telegram import ReplyKeyboardRemove
+from bin.travel_functions import return_to_location_admin
 import pickle
 import time
 import traceback
@@ -33,6 +34,11 @@ def get_player_choosing_from_battle_via_id(battle, player_id):
 
 def battle_cancel_choosing(bot, update, user_data):
     battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
     player_choosing.skill = None
     player_choosing.target = None
@@ -46,6 +52,11 @@ def battle_cancel_choosing(bot, update, user_data):
 def choose_enemy_target(bot, update, user_data):
     user_data.update({'chosen skill': update.message.text})
     battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     if add_chosen_skill(update, user_data) == -1:
         return
     bot.send_message(chat_id=update.message.chat_id, text="Выберите цель",
@@ -54,22 +65,39 @@ def choose_enemy_target(bot, update, user_data):
 
 def choose_friendly_target(bot, update, user_data):
     user_data.update({'chosen skill': update.message.text})
+    battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     if add_chosen_skill(update, user_data) == -1:
         return
     bot.send_message(chat_id=update.message.chat_id, text="Выберите цель",
-                     reply_markup=get_allies_buttons(get_battle(user_data.get('Battle id')), user_data.get('Team')))
+                     reply_markup=get_allies_buttons(battle, user_data.get('Team')))
 
 
 def choose_any_target(bot, update, user_data):
     user_data.update({'chosen skill': update.message.text})
+    battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     if add_chosen_skill(update, user_data) == -1:
         return
     bot.send_message(chat_id=update.message.chat_id, text="Выберите цель",
-                     reply_markup=get_all_targets_buttons(get_battle(user_data.get('Battle id')), user_data.get('Team')))
+                     reply_markup=get_all_targets_buttons(battle, user_data.get('Team')))
 
 
 def add_chosen_skill(update, user_data):
     battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        dispatcher.bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
     res = player_choosing.participant.skill_avaliable(update.message.text)
     text = ""
@@ -89,6 +117,11 @@ def add_chosen_skill(update, user_data):
 
 def set_target(bot, update, user_data):
     battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
     new_target_choosing = get_player_choosing_from_battle_via_nick(battle, update.message.text)
     if new_target_choosing is None:
@@ -107,6 +140,11 @@ def set_target(bot, update, user_data):
 
 def battle_skip_turn(bot, update, user_data):
     battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+        return
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
     player_choosing.skill = get_skill(player_choosing.participant.game_class, update.message.text)
     player_choosing.target = player_choosing.participant
