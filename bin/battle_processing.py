@@ -161,6 +161,7 @@ def kick_out_players():
                                 if i.is_ready():
                                     battles_need_treating.put(i)
                                     pending_battles.pop(i.id)
+            time.sleep(1)
         except Exception:
             logging.error(traceback.format_exc() + "\n")
 
