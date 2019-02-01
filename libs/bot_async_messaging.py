@@ -2,6 +2,7 @@ from telegram import Bot
 from telegram.utils.request import Request
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
+from libs.message_group import MessageInQueue, MessageGroup
 import multiprocessing
 import threading
 import time
@@ -83,6 +84,8 @@ class AsyncBot(Bot):
         except NetworkError:
             time.sleep(0.1)
             message = super(AsyncBot, self).send_message(*args, **kwargs)
+        except Exception:
+            logging.error(traceback.format_exc())
         release = threading.Timer(interval=1, function=self.__releasing_resourse, args=[chat_id])
         release.start()
         return message
@@ -129,19 +132,17 @@ class AsyncBot(Bot):
     def __work(self):
         message_in_queue = self.message_queue.get()
         while self.processing and message_in_queue:
-            try:
-                args = message_in_queue.args
-                kwargs = message_in_queue.kwargs
-                self.actually_send_message(*args, **kwargs)
-            finally:
-                message_in_queue = self.message_queue.get()
+            args = message_in_queue.args
+            kwargs = message_in_queue.kwargs
+            self.actually_send_message(*args, **kwargs)
+            message_in_queue = self.message_queue.get()
             if message_in_queue is None:
                 return 0
         return 0
 
-
-class MessageInQueue():
-
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
+    def check_workers(self):
+        workers_alive = 0
+        for worker in self.workers:
+            if worker.is_alive():
+                workers_alive += 1
+        return workers_alive
