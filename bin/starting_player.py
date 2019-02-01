@@ -92,6 +92,7 @@ def nickname_select(bot, update, user_data):
     user_data.update(username=update.message.text, type=6)
     player = Player(update.message.from_user.id, update.message.from_user.username, user_data.get('username'),
                     user_data.get('sex'), user_data.get('race'), user_data.get('fraction'), user_data.get('class'))
+    player.update_skills()
     player.status = 'In capital'  #TODO сделать статус 'starting' и сделать начальный квест
     if player.race == 'Федералы':
         player.location = 14

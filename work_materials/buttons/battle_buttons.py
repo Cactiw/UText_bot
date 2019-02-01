@@ -1,5 +1,5 @@
 from telegram import KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from work_materials.globals import build_menu, skill_names, dispatcher
+from work_materials.globals import build_menu, skills, dispatcher
 
 
 def get_general_battle_buttons(player):
@@ -7,14 +7,16 @@ def get_general_battle_buttons(player):
         return ReplyKeyboardRemove()
     __general_battle_buttons = []
     n_cols = 3
-    all_skills = skill_names.get(player.game_class)
-    for i in range(len(all_skills) - 1):
-        if i == 0:
-            __general_battle_buttons.append(KeyboardButton(all_skills[i]))
+    class_skills = skills.get(player.game_class)
+    for i in class_skills.values():
+        if i.priority == 0:
+            continue
+        if i.priority == 10:
+            __general_battle_buttons.append(KeyboardButton(i.name))
             n_cols += 1
             continue
-        if player.skill_lvl[i - 1] > 0:
-            __general_battle_buttons.append(KeyboardButton(all_skills[i]))
+        if player.skill_lvl.get(i.name) > 0:
+            __general_battle_buttons.append(KeyboardButton(i.name))
             n_cols += 1
     __general_battle_buttons.append(KeyboardButton('Использовать предмет'))     #TODO Сделать использование предметов в сообщении по /use_
     __general_battle_buttons.append(KeyboardButton('Голосование ((флекс))'))

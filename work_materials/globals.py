@@ -10,6 +10,7 @@ from libs.locations.resource_loc import *
 from libs.locations.tower import *
 from libs.bot_async_messaging import AsyncBot
 from libs.updater_async import AsyncUpdater
+from libs.skill import *
 
 try:
     from config import request_kwargs
@@ -50,43 +51,51 @@ conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(pa
 cursor = conn.cursor()
 print("Connection successful, starting bot")
 
-skill_names = {
-    'Оператор': [
-        'Атака',
-        'Первый скилл',
-        'Второй скилл',
-        'Третий скилл',
-        'Четвертый скилл',
-        'Пропуск хода'
-    ],
-    'Канонир': [
-        'Атака',
-        'Первый скилл',
-        'Второй скилл',
-        'Третий скилл',
-        'Четвертый скилл',
-        'Пропуск хода'
-    ],
-    'Хакер': [
-        'Атака',
-        'Первый скилл',
-        'Второй скилл',
-        'Третий скилл',
-        'Четвертый скилл',
-        'Пропуск хода'
-    ],
-    'Биомеханик': [
-        'Атака',
-        'Первый скилл',
-        'Второй скилл',
-        'Третий скилл',
-        'Четвертый скилл',
-        'Пропуск хода'
-    ],
-    'Item': [
-
-    ]
+skills = {
+    'Оператор': {
+        attack_skill.name: attack_skill,
+        operator_first_skill.name: operator_first_skill,
+        operator_second_skill.name: operator_second_skill,
+        operator_third_skill.name: operator_third_skill,
+        operator_fourth_skill.name: operator_fourth_skill,
+        operator_fifth_skill.name: operator_fifth_skill,
+        skip_turn_skill.name: skip_turn_skill
+    },
+    'Канонир': {
+        attack_skill.name: attack_skill,
+        gunner_first_skill.name: gunner_first_skill,
+        gunner_second_skill.name: gunner_second_skill,
+        gunner_third_skill.name: gunner_third_skill,
+        gunner_fourth_skill.name: gunner_fourth_skill,
+        gunner_fifth_skill.name: gunner_fifth_skill,
+        skip_turn_skill.name: skip_turn_skill
+    },
+    'Хакер': {
+        attack_skill.name: attack_skill,
+        hacker_first_skill.name: hacker_first_skill,
+        hacker_second_skill.name: hacker_second_skill,
+        hacker_third_skill.name: hacker_third_skill,
+        hacker_fourth_skill.name: hacker_fourth_skill,
+        hacker_fifth_skill.name: hacker_fifth_skill,
+        skip_turn_skill.name: skip_turn_skill
+    },
+    'Биомеханик': {
+        attack_skill.name: attack_skill,
+        biomechanic_first_skill.name: biomechanic_first_skill,
+        biomechanic_second_skill.name: biomechanic_second_skill,
+        biomechanic_third_skill.name: biomechanic_third_skill,
+        biomechanic_fourth_skill.name: biomechanic_fourth_skill,
+        biomechanic_fifth_skill.name: biomechanic_fifth_skill,
+        skip_turn_skill.name: skip_turn_skill
+    }
 }
+
+
+def get_skill(game_class, skill_name):
+    return skills.get(game_class).get(skill_name)
+
+
+skill_names = {}
 
 admin_id_list = [231900398, 212657053, 307125511]    #   618831598 - мой твинк (Князь)
 

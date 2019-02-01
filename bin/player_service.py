@@ -51,8 +51,6 @@ def players_update(q):
         return
 
 
-
-
 def set_status(bot, update, user_data, args):
     print('printing status')
     status = ''
@@ -132,8 +130,8 @@ def print_player(bot, update, user_data):
         player.nickname, sex, player.race, player.fraction,
         player.game_class, player.exp, player.lvl,
         player.free_points, player.free_skill_points, player.fatigue,
-        player.skill_lvl[0], player.skill_lvl[1], player.skill_lvl[2],
-        player.skill_lvl[3], player.skill_lvl[4], player.stats["endurance"],
+        list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2], list(player.skill_lvl.values())[3],
+        list(player.skill_lvl.values())[4], list(player.skill_lvl.values())[5], player.stats["endurance"],
         player.stats["armor"], player.stats["power"], player.stats["speed"], player.stats["charge"], task,
         locations.get(player.location).name, lvl_up_str, player.resources.get('gold'), player.resources.get('wood'), player.resources.get('metal')),  #25
         parse_mode="HTML", reply_markup=info_buttons)

@@ -1,6 +1,6 @@
 import math
 import work_materials.globals as globals
-from work_materials.globals import dispatcher, players_need_update, skill_names
+from work_materials.globals import dispatcher, players_need_update, skills
 from bin.equipment_service import *
 from work_materials.buttons.battle_buttons import get_general_battle_buttons
 
@@ -31,8 +31,8 @@ class Player:
 
         self.battle_id = -1
 
-        self.skill_lvl = [1, 1, 0, 0, 0]
-        self.skill_cooldown = [0, 0, 0, 0, 0]
+        self.skill_lvl = {}
+        self.skill_cooldown = {}
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
                     'speed': 5}
@@ -60,6 +60,21 @@ class Player:
         self.eq_backpack = {}
         self.al_backpack = {}
         self.res_backpack = {}
+
+    def update_skills(self):
+        class_skills = skills.get(self.game_class)
+        for i in class_skills.values():
+            if i.priority in [0, 10]:
+                pass
+            self.skill_cooldown.update({i.name: 0})
+            self.skill_lvl.update({i.name: 0})
+
+    def update_cooldown(self):
+        class_skills = skills.get(self.game_class)
+        for i in class_skills.values():
+            if i.priority in [0, 10]:
+                pass
+            self.skill_cooldown.update({i.name: 0})
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id
@@ -106,13 +121,17 @@ class Player:
         return 0
 
     def skill_avaliable(self, skill_name): #-1 - нет такого скилла, -2 - не разблокирован, -3 - КД
-        avaliable_skills = skill_names.get(self.game_class)
+        avaliable_skills = skills.get(self.game_class)
         if skill_name == 'Атака':
             return 1
-        if skill_name not in avaliable_skills:
+        flag = 0
+        for i in avaliable_skills:
+            if i.name == skill_name:
+                flag = 1
+        if flag == 0:
             return -1
         for i in range(len(avaliable_skills) - 1):
-            if avaliable_skills[i + 1] == skill_name:
+            if avaliable_skills[i + 1].name == skill_name:
                 if self.skill_lvl[i] <= 0:
                     return -2
                 else:
@@ -121,7 +140,7 @@ class Player:
                     else:
                         return 1
 
-    def use_skill(self, skill_name, target): #skill_name - имя скилла, target - класс цели(Player/Enemy)
+    """def use_skill(self, skill_name, target): #skill_name - имя скилла, target - класс цели(Player/Enemy)
         #TODO check
         avaliable_skills = skill_names.get(self.game_class)
         skill = 0
@@ -188,13 +207,14 @@ class Player:
             elif skill == 5:
                 pass
             elif skill == 6:
-                return
+                return"""
 
     def lvl_up_skill(self, skill_number):
-        if int(skill_number) in range(0, 5):
-            self.skill_lvl[int(skill_number) - 1] += 1
-        else:
+        if int(skill_number) not in range(6):
             return None
+        skill_names = list(skills.get(self.game_class))
+        print(skill_names)
+        self.skill_lvl.update({skill_names[int(skill_number)]: int(self.skill_lvl.get(skill_names[int(skill_number)])) + 1})
 
     def lvl_up_point(self, stat):
         if stat == "Выносливость":
@@ -278,11 +298,16 @@ class Player:
         self.free_points = row[9]
         self.free_skill_points = row[10]
         self.fatigue = row[11]
-        self.skill_lvl[0] = row[12]
+        skill_names = list(skills.get(self.game_class))
+        for i in range(len(skill_names) - 1):
+            if i == 0:
+                continue
+            self.skill_lvl.update({skill_names[i]: row[12 + i - 1]})
+        """self.skill_lvl[0] = row[12]
         self.skill_lvl[1] = row[13]
         self.skill_lvl[2] = row[14]
         self.skill_lvl[3] = row[15]
-        self.skill_lvl[4] = row[16]
+        self.skill_lvl[4] = row[16]"""
         self.stats.update(endurance = row[17], power = row[18], armor = row[19], charge = row[20], speed = row[21])
         self.charge = row[22]
         self.hp = row[23]
@@ -310,7 +335,6 @@ class Player:
         return self
 
     def update_to_database(self):
-        cursor = conn.cursor()
         request = "UPDATE players SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
                   "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', free_skill_points = '{10}', fatigue = '{11}', " \
                   "first_skill_lvl = '{12}', second_skill_lvl = '{13}', third_skill_lvl = '{14}', fourth_skill_lvl = '{15}', " \
@@ -320,8 +344,8 @@ class Player:
                   "right_arm = '{34}', mount = '{35}' WHERE id = '{36}'".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
                                                            self.free_points, self.free_skill_points, self.fatigue,
-                                                           self.skill_lvl[0], self.skill_lvl[1], self.skill_lvl[2],
-                                                           self.skill_lvl[3], self.skill_lvl[4], self.stats['endurance'],
+                                                           list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
+                                                           list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,
@@ -350,8 +374,8 @@ class Player:
                   "'{16}', '{17}','{18}','{19}', '{20}', '{21}', '{22}', '{23}', '{24}'," \
                   "'{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}', '{33}', '{34}', '{35}')".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.free_skill_points, self.fatigue, self.skill_lvl[0], self.skill_lvl[1], self.skill_lvl[2],
-                                                           self.skill_lvl[3], self.skill_lvl[4], self.stats['endurance'],
+                                                           self.free_points, self.free_skill_points, self.fatigue, list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
+                                                           list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[5], self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,

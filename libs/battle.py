@@ -48,6 +48,8 @@ class Battle:
             for player_choosing in team:
                 if player_choosing.skill is None or player_choosing.target is None:
                     return False
+
+        self.skills_queue.sort(key=lambda player_choosing: player_choosing.skill.priority)
         return True
 
 

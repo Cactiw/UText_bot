@@ -1,13 +1,14 @@
 import work_materials.globals as globals
 from work_materials.buttons.battle_buttons import get_allies_buttons, get_enemies_buttons, \
     get_all_targets_buttons, cancel_button, get_general_battle_buttons
-import work_materials.globals as globals
-from work_materials.globals import pending_battles, dispatcher, battles_need_treating, interprocess_queue, treated_battles, skill_names
+from work_materials.globals import pending_battles, dispatcher, battles_need_treating, interprocess_queue, treated_battles, skills,\
+                                    get_skill
 import logging
 from libs.interprocess_dictionaty import InterprocessDictionary
 from telegram import ReplyKeyboardRemove
 import pickle
 import time
+import traceback
 
 
 def get_battle(battle_id):
@@ -73,7 +74,7 @@ def add_chosen_skill(update, user_data):
     res = player_choosing.participant.skill_avaliable(update.message.text)
     text = ""
     if res == 1:
-        player_choosing.skill = update.message.text
+        player_choosing.skill = get_skill(player_choosing.participant.game_class, update.message.text)
         user_data.update({'status': 'Choosing target'})
         return 1
     elif res == -1:
@@ -107,7 +108,7 @@ def set_target(bot, update, user_data):
 def battle_skip_turn(bot, update, user_data):
     battle = get_battle(user_data.get('Battle id'))
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
-    player_choosing.skill = update.message.text
+    player_choosing.skill = get_skill(player_choosing.participant.game_class, update.message.text)
     player_choosing.target = player_choosing.participant
     user_data.update({'status': 'Battle waiting'})
     bot.sync_send_message(chat_id=player_choosing.participant.id, text="Ждем других игроков",
@@ -143,22 +144,25 @@ def check_win(battle):
 def kick_out_players():
 
     while globals.processing:
-        curr_time = time.time()
-        for j in list(pending_battles):
-            i = pending_battles.get(j)
-            if curr_time - i.last_count_time >= 30:
-                for t in range(2):
-                    for l in range(i.team_players_count):
-                        player_choosing = i.teams[t][l]
-                        if player_choosing.skill is None or player_choosing.target is None:
-                            player_choosing.skill = "Пропуск хода"
-                            player_choosing.target = player_choosing.participant
-                            i.skills_queue.append(player_choosing)
-                            dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
-                            dispatcher.bot.send_message(chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
-                            if i.is_ready():
-                                battles_need_treating.put(i)
-                                pending_battles.pop(i.id)
+        try:
+            curr_time = time.time()
+            for j in list(pending_battles):
+                i = pending_battles.get(j)
+                if curr_time - i.last_count_time >= 30:
+                    for t in range(2):
+                        for l in range(i.team_players_count):
+                            player_choosing = i.teams[t][l]
+                            if player_choosing.skill is None or player_choosing.target is None:
+                                player_choosing.skill = get_skill(player_choosing.participant.game_class, "Пропуск хода")
+                                player_choosing.target = player_choosing.participant
+                                i.skills_queue.append(player_choosing)
+                                dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
+                                dispatcher.bot.send_message(chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
+                                if i.is_ready():
+                                    battles_need_treating.put(i)
+                                    pending_battles.pop(i.id)
+        except Exception:
+            logging.error(traceback.format_exc() + "\n")
 
 
 def battle_count():     #Тут считается битва в которой все выбрали действие, отдельный процесс, Не забыть сделать так, чтобы выполнялось в таком порядке, в котором было выбрано
@@ -174,8 +178,11 @@ def battle_count():     #Тут считается битва в которой 
                     dispatcher.bot.send_message(chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                 text="Вы мертвы", reply_markup=ReplyKeyboardRemove())
                     continue
-                i.participant.use_skill(i.skill, i.target)
-                team_strings[i.team] += "<b>{0}</b> использовал <b>{1}</b> на <b>{2}</b>\n".format(i.participant.nickname, i.skill, i.target.nickname)
+                i.skill.use_skill(i.target)
+                if i.skill.priority == 0:
+                    team_strings[i.team] += i.skill.format_string.format(i.participant.nickname)
+                else:
+                    team_strings[i.team] += i.skill.format_string.format(i.participant.nickname, i.target.nickname)
             team_strings[0] += '\n'
             battle.skills_queue.clear()
             for i in range(2):
@@ -186,11 +193,11 @@ def battle_count():     #Тут считается битва в которой 
                                                                                                                player.game_class,
                                                                                                                player.hp,
                                                                                                                player.charge)   #TODO написать красиво
-                    skills = skill_names.get(player.game_class)
-                    for t in range(len(player.skill_cooldown)):
-                        if player.skill_cooldown[t] > 0:
-                            result_strings[i] += "    {0} - {1} ходов\n".format(skills[t + 1], player.skill_cooldown[t])
-                            player.skill_cooldown[t] -= 1
+                    class_skills = skills.get(player.game_class)
+                    for t in class_skills.values():
+                        if player.skill_cooldown.get(t.name) > 0:
+                            result_strings[i] += "    {0} - {1} ходов\n".format(class_skills.name, player.skill_cooldown.get(t.name))
+                            player.skill_cooldown.update({t.name: player.skill_cooldown.get(t.name) - 1})
                     player_choosing.target = None
                     player_choosing.skill = None
                     reply_markup = get_general_battle_buttons(player)
