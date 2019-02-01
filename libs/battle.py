@@ -75,7 +75,6 @@ class BattleStarting:
 
     def add_player(self, player_in, group):
         if group is not None:
-            #return 0
             if group.num_players() <= self.need_players - len(self.teams[0]):
                 team = 0
             else:
@@ -86,10 +85,8 @@ class BattleStarting:
                 player_in_battle = Player_in_battle(player, team, group)
                 self.players.append(player_in_battle)
                 self.count += 1
-                print("adding player from group, id = {0}".format(player))
             self.groups.append(group)
             return
-        print("battle.count = {0}".format(self.count))
 
         player = Player_in_battle(player_in, -1, group)
         self.players.append(player)
@@ -112,8 +109,6 @@ class BattleStarting:
             self.count += 1
         self.average_lvl = average_lvl / self.count
         self.last_time_player_add = datetime.datetime.now()
-        print("battle.count = {0}".format(self.count))
-
 
     def remove_player(self, player_in, group):
         if group is not None:
@@ -148,14 +143,12 @@ class BattleStarting:
             (self.teams_avg_lvls[0] > self.teams_avg_lvls[1] and player.lvl > self.teams_avg_lvls[1] and free_places_in_teams[1] >= 1)     #   Пока норм, можно дальше чекать
 
         else:
-            print(self.mode == battle_mode, abs(group.avg_lvl() - self.average_lvl) <= 2, len(group.players) <= self.need_players - self.count, self.need_players - len(self.teams[0]) >= len(group.players) or self.need_players - len(self.teams[1]) >= len(group.players))
             return self.mode == battle_mode and abs(group.avg_lvl() - self.average_lvl) <= 2 and len(group.players) <= self.need_players - self.count and \
                 (free_places_in_teams[0] >= len(group.players) or free_places_in_teams[1] >= len(group.players)) and \
                 ((self.teams_avg_lvls[0] < self.teams_avg_lvls[1] and group.avg_lvl() > self.teams_avg_lvls[0] and free_places_in_teams[0] >= group.num_players()) or
                 (self.teams_avg_lvls[0] > self.teams_avg_lvls[1] and group.avg_lvl() > self.teams_avg_lvls[1] and free_places_in_teams[1] >= group.num_players()))
 
     def ready_to_start(self):
-        print("self.count = {0}, self.need_players = {1}".format(self.count, self.need_players))
         return self.count >= self.need_players
 
     def start_battle(self):

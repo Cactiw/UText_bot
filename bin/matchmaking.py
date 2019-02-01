@@ -48,7 +48,6 @@ def matchmaking():
                 battle_mode = 0
                 for waiting_queue in waiting_players:
                     for player in waiting_queue:
-                        print("in player")
                         battle_found = 0
                         for battle in battles:
                             if battle.is_suitable(player, battle_mode, group):
@@ -80,7 +79,6 @@ def matchmaking():
 
                                 break
                         if not battle_found:
-                            print("not found")
                             battle = BattleStarting(0, battle_mode)
                             battle.add_player(player, group)
                             waiting_queue.remove(player)
