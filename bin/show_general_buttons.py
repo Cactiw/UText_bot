@@ -64,6 +64,11 @@ def show_general_buttons(bot, update, user_data):
     elif status == 'Merchant_buy':
         bot.send_message(chat_id=chat_id, text="Для возврата к выбору категории нажмите \"Назад\":",reply_markup=merchant_buttons)
     elif status == 'Battle':
-        bot.send_message(chat_id=chat_id, text="Вы в бою",reply_markup=get_general_battle_buttons(player))
+        stun = user_data.get('stunned')
+        if stun is None:
+            bot.send_message(chat_id=chat_id, text="Вы в бою",reply_markup=get_general_battle_buttons(player))
+        elif stun == 0:
+            user_data.pop('stunned')
+            bot.send_message(chat_id=chat_id, text="Вы в бою", reply_markup=get_general_battle_buttons(player))
     elif status == 'Info':
         print_player(bot, update, user_data)

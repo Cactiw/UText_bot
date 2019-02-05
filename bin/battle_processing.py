@@ -261,7 +261,8 @@ def battle_count():     #Тут считается битва в которой 
             result_strings = ["Team 1:\n", "Team 2:\n"]
             for i in battle.skills_queue:
                 if i.participant.nickname in battle.dead_list:
-                    dispatcher.bot.send_message(chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
+                    message_group = get_message_group(i.participant.id)
+                    dispatcher.bot.send_message(message_group, chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                 text="Вы мертвы", reply_markup=ReplyKeyboardRemove())
                     continue
                 i.skill.use_skill(i.targets, battle)
@@ -314,8 +315,6 @@ def battle_count():     #Тут считается битва в которой 
                     dispatcher.bot.group_send_message(message_group, chat_id=player.id, text =result_strings[0] + result_strings[1] +
                                                                          "\n/info_Имя Игрока - информация об игроке",
                                                 parse_mode="HTML", reply_markup=reply_markup)         #TODO Добавить баффы/дебаффы
-                    message_group.shedule_removal()
-                    print("sent message in group, text =", result_strings[0] + result_strings[1], "group =", message_group)
 
             for i in range(2):
                 for j in range(battle.team_players_count):
@@ -326,7 +325,8 @@ def battle_count():     #Тут считается битва в которой 
                         player.dead = 1
                         player_choosing.skill = 6
                         player_choosing.targets = player
-                        dispatcher.bot.send_message(chat_id=player.id, text="Вы мертвы!", reply_markup=ReplyKeyboardRemove())
+                        message_group = get_message_group(player.id)
+                        dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы мертвы!", reply_markup=ReplyKeyboardRemove())
                         interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle_dead'})
                         interprocess_queue.put(interprocess_dictionary)
             res = check_win(battle)
@@ -336,9 +336,10 @@ def battle_count():     #Тут считается битва в которой 
                         for j in range(battle.team_players_count):
                             player_choosing = battle.teams[i][j]
                             player = player_choosing.participant
-                            #message_group = get_message_group(player.id)
-                            dispatcher.bot.sync_send_message(chat_id=player.id, text="{0} команда победила!".format(
+                            message_group = get_message_group(player.id)
+                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="{0} команда победила!".format(
                                 "Первая" if res == 0 else "Вторая"))
+                            message_group.shedule_removal()
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
                 elif res == 2:
@@ -346,8 +347,9 @@ def battle_count():     #Тут считается битва в которой 
                         for j in range(battle.team_players_count):
                             player_choosing = battle.teams[i][j]
                             player = player_choosing.participant
-                            #message_group = get_message_group(player.id)
-                            dispatcher.bot.sync_send_message(chat_id=player.id, text="Ничья!")
+                            message_group = get_message_group(player.id)
+                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Ничья!")
+                            message_group.shedule_removal()
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
 
@@ -357,6 +359,8 @@ def battle_count():     #Тут считается битва в которой 
                     for j in range(battle.team_players_count):
                         player_choosing = battle.teams[i][j]
                         player = player_choosing.participant
+                        message_group = get_message_group(player.id)
+                        message_group.shedule_removal()
                         interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle waiting update': 1})
                         interprocess_queue.put(interprocess_dictionary)
                 battle.last_count_time = time.time()
