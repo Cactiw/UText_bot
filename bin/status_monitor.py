@@ -36,6 +36,8 @@ def status_monitor():
                 user_data.pop('matchmaking')
             if 'Team' in list_user_data:
                 user_data.pop('Team')
+            if 'stunned' in list_user_data:
+                user_data.pop('stunned')
             if 'Test' in list_user_data:
                 user_data.pop('Test')
 

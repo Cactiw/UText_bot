@@ -43,6 +43,7 @@ class Battle:
         self.dead_list = []
         self.last_count_time = time.time()
         self.taunt_list = {1: [], 2: []}
+        self.stun_list = {}
 
     def is_ready(self):
         for team in self.teams:

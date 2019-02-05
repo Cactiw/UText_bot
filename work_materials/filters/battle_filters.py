@@ -82,6 +82,17 @@ class FilterBattleDead(BaseFilter):
         return dispatcher.user_data.get(message.from_user.id).get('status') == "Battle_dead"
 
 
+class FilterIsNotStunned(BaseFilter):
+    def filter(self, message):
+        stun = dispatcher.user_data.get(message.from_user.id).get('stunned')
+        if stun is None:
+            return True
+        elif stun == 0:
+            return True
+        else:
+            return False
+
+
 filter_use_skill_on_enemy = FilterUseSkillOnEnemy()
 filter_use_skill_on_ally = FilterUseSkillOnAlly()
 filter_use_skill_on_anyone = FilterUseSkillOnAnyone()
@@ -93,3 +104,4 @@ filter_battle_waiting_update = FilterBattleWaitingUpdate()
 filter_battle_dead = FilterBattleDead()
 filter_use_skill_on_enemy_team = FilterUseSkillOnEnemyTeam()
 filter_use_skill_on_ally_team = FilterUseSkillOnAllyTeam()
+filter_is_not_stunned = FilterIsNotStunned()
