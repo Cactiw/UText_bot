@@ -160,7 +160,6 @@ def kick_out_players():
                             if i.is_ready():
                                 battles_need_treating.put(i)
                                 pending_battles.pop(i.id)
-        time.sleep(1)
 
 
 def battle_count():     #Тут считается битва в которой все выбрали действие, отдельный процесс, Не забыть сделать так, чтобы выполнялось в таком порядке, в котором было выбрано
