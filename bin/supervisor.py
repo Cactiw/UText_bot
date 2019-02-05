@@ -20,7 +20,7 @@ def process_monitor(processes):
         workers_total = dispatcher.bot.num_workers
         if workers_alive != workers_total:
             OK = False
-        response += "{2}{0} bot workers of {1} are alive\n".format(workers_alive, workers_total, "✅" if workers_alive == workers_total else "🛑")
+        response += "{2}bot workers: <b>{0}</b> of <b>{1}</b> are alive\n".format(workers_alive, workers_total, "✅" if workers_alive == workers_total else "🛑")
         response += "\n{0}".format("❇️ Everything is OK" if OK else "‼️‼️ ALERT ‼️‼️\n@Cactiw @KhGleb")
         try:
             dispatcher.bot.editMessageText(chat_id=message.chat_id, message_id=message.message_id, text=response, parse_mode='HTML')

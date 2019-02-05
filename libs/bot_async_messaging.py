@@ -2,7 +2,7 @@ from telegram import Bot
 from telegram.utils.request import Request
 from telegram.error import (TelegramError, Unauthorized, BadRequest,
                             TimedOut, ChatMigrated, NetworkError)
-from libs.message_group import MessageInQueue, MessageGroup
+from libs.message_group import MessageInQueue, MessageGroup, message_groups, groups_need_to_be_sent, message_groups_locks
 import multiprocessing
 import threading
 import time
@@ -27,6 +27,7 @@ class AsyncBot(Bot):
         self.messages_per_second = 0
         self.messages_per_chat = {}
         self.workers = []
+        self.group_workers = []
         if request_kwargs is None:
             request_kwargs = {}
         con_pool_size = workers + 4
@@ -40,6 +41,17 @@ class AsyncBot(Bot):
         message = MessageInQueue(*args, **kwargs)
         self.message_queue.put(message)
         return 0
+
+    def group_send_message(self, group, *args, **kwargs):
+        message = MessageInQueue(*args, **kwargs)
+        print(group)
+        if isinstance(group, int):
+            print(group)
+            group = message_groups.get(group)
+        if group is None:
+            raise TypeError
+        print("put message")
+        group.add_message(message)
 
     def sync_send_message(self, *args, **kwargs):
         return super(AsyncBot, self).send_message(*args, **kwargs)
@@ -95,11 +107,15 @@ class AsyncBot(Bot):
             worker = threading.Thread(target = self.__work, args = ())
             worker.start()
             self.workers.append(worker)
+            group_worker = threading.Thread(target = self.__group_work, args = ())
+            group_worker.start()
+            self.group_workers.append(group_worker)
 
     def stop(self):
         self.processing = False
         for i in range(0, self.num_workers):
             self.message_queue.put(None)
+            groups_need_to_be_sent.put(None)
         for i in self.workers:
             i.join()
 
@@ -139,6 +155,35 @@ class AsyncBot(Bot):
             if message_in_queue is None:
                 return 0
         return 0
+
+    def __group_work(self):
+        group = groups_need_to_be_sent.get()
+        print("got group")
+        while self.processing and group is not None:
+            print(group, group.id)
+            group_lock = message_groups_locks.get(group.id)
+            print(group_lock)
+            with group_lock:
+                print("empty =", group.is_empty())
+                while not group.is_empty():
+                    message = group.get_message()
+                    print(message)
+                    if message is 1:
+                        group.busy = False
+                        print("removing from processing, ", group.busy)
+                        break
+                    if message is None:
+                        message_groups.pop(group.id)
+                        print("DELETING GROUP")
+                        group = None
+                        break
+                    self.actually_send_message(*message.args, **message.kwargs)
+                if group is not None:
+                    group.busy = False
+                print("leaving lock", group.busy)
+            group = groups_need_to_be_sent.get()
+
+
 
     def check_workers(self):
         workers_alive = 0
