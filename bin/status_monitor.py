@@ -42,6 +42,11 @@ def status_monitor():
                 user_data.pop('Test')
             player = get_player(data.id)
             player.saved_battle_status = None
+        elif data.type == "remove stun":
+            user_data = dispatcher.user_data.get(data.id)
+            list_user_data = list(user_data)
+            if "stunned" in list_user_data:
+                user_data.pop('stunned')
 
         data = interprocess_queue.get()
     return 0

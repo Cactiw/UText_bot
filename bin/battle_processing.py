@@ -271,16 +271,6 @@ def battle_count():     #Тут считается битва в которой 
     try:
         while True:
             battle = battles_need_treating.get()
-            for i in range(2):
-                for j in range(battle.team_players_count):
-                    player_choosing = battle.teams[i][j]
-                    player = player_choosing.participant
-                    if player.nickname in list(battle.stun_list):
-                        stun = battle.stun_list.get(player.nickname)
-                        if stun <= 1:
-                            battle.stun_list.pop(player.nickname)
-                        else:
-                            battle.stun_list.update({player.nickname: stun - 1})
             team_strings = ["Team 1:\n", "Team 2:\n"]
             result_strings = ["Team 1:\n", "Team 2:\n"]
             for i in battle.skills_queue:
@@ -353,16 +343,20 @@ def battle_count():     #Тут считается битва в которой 
                         interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle_dead'})
                         interprocess_queue.put(interprocess_dictionary)
                     elif player.nickname in list(battle.stun_list):
-                        player_choosing.skill = 6
+                        player_choosing.skill = get_skill(player.game_class, "Пропуск хода")
                         player_choosing.targets = [player]
                         message_group = get_message_group(player.id)
                         stun = battle.stun_list.get(player.nickname)
-                        if stun - 1 > 0:
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы оглушены!",
-                                                              reply_markup=ReplyKeyboardRemove())
-                            interprocess_dictionary = InterprocessDictionary(player.id, "user_data",
-                                                                             {'stunned': battle.stun_list.get(player.nickname) - 1})
+                        if stun <= 1:
+                            battle.stun_list.pop(player.nickname)
+                            interprocess_dictionary = InterprocessDictionary(player.id, "remove stun", {})
                             interprocess_queue.put(interprocess_dictionary)
+                        else:
+                            battle.stun_list.update({player.nickname: stun - 1})
+                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы оглушены!", reply_markup=ReplyKeyboardRemove())
+                            interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'stunned': battle.stun_list.get(player.nickname)})
+                            interprocess_queue.put(interprocess_dictionary)
+                        battle.skills_queue.append(player_choosing)
 
             res = check_win(battle)
             if res != -1:
