@@ -39,6 +39,6 @@ def status_monitor():
             if 'Test' in list_user_data:
                 user_data.pop('Test')
 
-            show_general_buttons(dispatcher.bot, data.id, dispatcher.user_data.get(data.id))
+            #show_general_buttons(dispatcher.bot, data.id, dispatcher.user_data.get(data.id))
         data = interprocess_queue.get()
     return 0

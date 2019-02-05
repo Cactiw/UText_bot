@@ -171,6 +171,8 @@ def matchmaking_callback(bot, update, user_data):
             bot.send_message(chat_id = update.callback_query.from_user.id, text = "Игроков в группе больше, чем разрешено в выбранных режимах! (Хотя бы одном)")
             return
 
+        status = user_data.get("status")
+        player.saved_battle_status = status
         player_matchmaking = Player_matchmaking(player, 1, matchmaking, group=group)
         # bot.answerCallbackQuery(callback_query_id=update.callback_query.id, text = "Подбор игроков успешно запущен!", show_alert = False)
         button_list = [
@@ -183,7 +185,6 @@ def matchmaking_callback(bot, update, user_data):
             pass
         bot.send_message(chat_id=update.callback_query.from_user.id, text="Подбор игроков запущен!",
                          reply_markup=reply_markup)
-        status = user_data.get("status")
         user_data.update(saved_battle_status=status) if status != 'Matchmaking' else 0
         update_status('Matchmaking', player, user_data)
         matchmaking_players.put(player_matchmaking)

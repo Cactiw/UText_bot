@@ -43,7 +43,7 @@ def get_location_buttons(id):
         return resource_buttons
 
 
-def show_general_buttons(bot, update, user_data):
+def show_general_buttons(bot, update, user_data, message_group = None):
     status = user_data.get('status')
     try:
         chat_id = update.message.chat_id
@@ -55,7 +55,10 @@ def show_general_buttons(bot, update, user_data):
     player = get_player(chat_id)
     if status == 'In Location':
         location = user_data.get('location')
-        bot.send_message(chat_id=chat_id, text=location_lines[player.location],reply_markup=get_location_buttons(location))
+        if message_group is None:
+            bot.send_message(chat_id=chat_id, text=location_lines[player.location],reply_markup=get_location_buttons(location))
+        else:
+            bot.group_send_message(message_group, chat_id=chat_id, text=location_lines[player.location], reply_markup=get_location_buttons(location))
         #show_table (Доска объявлений, если нужно)
     elif status == 'Traveling':
         bot.send_message(chat_id=chat_id, text="Вы все еще идете до локации: {0}".format(locations.get(user_data.get('new_location')).name), reply_markup=traveling_buttons)

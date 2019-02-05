@@ -47,7 +47,6 @@ def saveData():
                     to_dump.update({i: [j.get_time_spent(), j.get_time_left()]})
 
                 f = open('backup/userdata', 'wb+')
-                print(work_materials.globals.dispatcher.user_data)
                 pickle.dump(work_materials.globals.dispatcher.user_data, f)
                 f.close()
                 f = open('backup/travel_jobs', 'wb+')

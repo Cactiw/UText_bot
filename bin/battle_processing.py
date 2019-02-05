@@ -3,6 +3,7 @@ from work_materials.buttons.battle_buttons import get_allies_buttons, get_enemie
     get_all_targets_buttons, cancel_button, get_general_battle_buttons
 from work_materials.globals import pending_battles, dispatcher, battles_need_treating, treated_battles, skills,\
                                     get_skill
+from bin.show_general_buttons import show_general_buttons
 import logging
 from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_queue
 from telegram import ReplyKeyboardRemove
@@ -297,7 +298,6 @@ def battle_count():     #Тут считается битва в которой 
                     dispatcher.bot.group_send_message(message_group, chat_id=player.id,
                                                 text=team_strings[0] + team_strings[1],
                                                 parse_mode="HTML", reply_markup=reply_markup)
-                    print("sent message in group, text =", team_strings[0] + team_strings[1], "group =", message_group)
             result_strings[0] += '\n'
             for i in range(2):
                 for j in range(battle.team_players_count):
@@ -339,9 +339,11 @@ def battle_count():     #Тут считается битва в которой 
                             message_group = get_message_group(player.id)
                             dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="{0} команда победила!".format(
                                 "Первая" if res == 0 else "Вторая"))
-                            message_group.shedule_removal()
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
+                            user_data = {'status' : player.saved_battle_status, 'location': player.location}
+                            show_general_buttons(dispatcher.bot, player.id, user_data, message_group)
+                            message_group.shedule_removal()
                 elif res == 2:
                     for i in range(2):
                         for j in range(battle.team_players_count):
@@ -349,9 +351,11 @@ def battle_count():     #Тут считается битва в которой 
                             player = player_choosing.participant
                             message_group = get_message_group(player.id)
                             dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Ничья!")
-                            message_group.shedule_removal()
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
+                            user_data = {'status': player.saved_battle_status, 'location': player.location}
+                            show_general_buttons(dispatcher.bot, player.id, user_data, message_group)
+                            message_group.shedule_removal()
 
 
             else:
