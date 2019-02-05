@@ -40,7 +40,8 @@ def status_monitor():
                 user_data.pop('stunned')
             if 'Test' in list_user_data:
                 user_data.pop('Test')
+            player = get_player(data.id)
+            player.saved_battle_status = None
 
-            show_general_buttons(dispatcher.bot, data.id, dispatcher.user_data.get(data.id))
         data = interprocess_queue.get()
     return 0

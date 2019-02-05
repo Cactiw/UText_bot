@@ -41,6 +41,7 @@ class Player:
         self.hp = self.stats['endurance'] * 15
 
         self.location = 0
+        self.saved_battle_status = None
 
         if self.fraction == 'Федералы':
             self.location = 14

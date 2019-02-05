@@ -50,7 +50,6 @@ class AsyncBot(Bot):
             group = message_groups.get(group)
         if group is None:
             raise TypeError
-        print("put message")
         group.add_message(message)
 
     def sync_send_message(self, *args, **kwargs):
@@ -161,15 +160,11 @@ class AsyncBot(Bot):
         #print("got group")
         while self.processing and group is not None:
             while True:
-                #print(group, group.id)
                 message = group.get_message()
-                #print(message)
                 if message is 1:
                     group.busy = False
-                    #print("removing from processing, ", group.busy)
                     break
                 if message is None:
-                    #print("DELETING GROUP")
                     group = None
                     break
                 self.actually_send_message(*message.args, **message.kwargs)
