@@ -51,6 +51,7 @@ class MessageGroup:
     def shedule_removal(self):
         self.messages.append(None)
         groups_need_to_be_sent.put(self)
+        message_groups.pop(self.id)
 
     def is_empty(self):
         return not self.messages

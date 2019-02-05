@@ -169,7 +169,6 @@ class AsyncBot(Bot):
                     #print("removing from processing, ", group.busy)
                     break
                 if message is None:
-                    message_groups.pop(group.id)
                     #print("DELETING GROUP")
                     group = None
                     break
