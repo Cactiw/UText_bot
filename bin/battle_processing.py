@@ -242,8 +242,8 @@ def battle_count():     #Тут считается битва в которой 
                         for j in range(battle.team_players_count):
                             player_choosing = battle.teams[i][j]
                             player = player_choosing.participant
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="{0} команда победила!".format(
+                            #message_group = get_message_group(player.id)
+                            dispatcher.bot.sync_send_message(chat_id=player.id, text="{0} команда победила!".format(
                                 "Первая" if res == 0 else "Вторая"))
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
@@ -252,9 +252,8 @@ def battle_count():     #Тут считается битва в которой 
                         for j in range(battle.team_players_count):
                             player_choosing = battle.teams[i][j]
                             player = player_choosing.participant
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Ничья!")
-                            message_group.shedule_removal()
+                            #message_group = get_message_group(player.id)
+                            dispatcher.bot.sync_send_message(chat_id=player.id, text="Ничья!")
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
 
