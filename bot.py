@@ -177,7 +177,10 @@ def matchmaking_callback(bot, update, user_data):
             InlineKeyboardButton("Отменить подбор игроков", callback_data="mm cancel")
         ]
         reply_markup = InlineKeyboardMarkup(build_menu(button_list, n_cols=1))
-        bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+        try:
+            bot.deleteMessage(chat_id=update.callback_query.from_user.id, message_id=mes.message_id)
+        except TelegramError:
+            pass
         bot.send_message(chat_id=update.callback_query.from_user.id, text="Подбор игроков запущен!",
                          reply_markup=reply_markup)
         status = user_data.get("status")

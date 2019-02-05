@@ -6,6 +6,7 @@ from work_materials.globals import pending_battles, dispatcher, battles_need_tre
 import logging
 from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_queue
 from telegram import ReplyKeyboardRemove
+from bin.player_service import get_message_group
 import pickle
 import time
 import traceback
@@ -291,9 +292,11 @@ def battle_count():     #Тут считается битва в которой 
                     reply_markup = get_general_battle_buttons(player)
                     if player.nickname in battle.dead_list:
                         reply_markup = None
-                    dispatcher.bot.sync_send_message(chat_id=player.id,
+                    message_group = get_message_group(player.id)
+                    dispatcher.bot.group_send_message(message_group, chat_id=player.id,
                                                 text=team_strings[0] + team_strings[1],
                                                 parse_mode="HTML", reply_markup=reply_markup)
+                    print("sent message in group, text =", team_strings[0] + team_strings[1], "group =", message_group)
             result_strings[0] += '\n'
             for i in range(2):
                 for j in range(battle.team_players_count):
@@ -307,9 +310,13 @@ def battle_count():     #Тут считается битва в которой 
                     reply_markup = get_general_battle_buttons(player)
                     if player.nickname in battle.dead_list:
                         reply_markup = None
-                    dispatcher.bot.sync_send_message(chat_id=player.id, text =result_strings[0] + result_strings[1] +
+                    message_group = get_message_group(player.id)
+                    dispatcher.bot.group_send_message(message_group, chat_id=player.id, text =result_strings[0] + result_strings[1] +
                                                                          "\n/info_Имя Игрока - информация об игроке",
                                                 parse_mode="HTML", reply_markup=reply_markup)         #TODO Добавить баффы/дебаффы
+                    message_group.shedule_removal()
+                    print("sent message in group, text =", result_strings[0] + result_strings[1], "group =", message_group)
+
             for i in range(2):
                 for j in range(battle.team_players_count):
                     player_choosing = battle.teams[i][j]
@@ -329,6 +336,7 @@ def battle_count():     #Тут считается битва в которой 
                         for j in range(battle.team_players_count):
                             player_choosing = battle.teams[i][j]
                             player = player_choosing.participant
+                            #message_group = get_message_group(player.id)
                             dispatcher.bot.sync_send_message(chat_id=player.id, text="{0} команда победила!".format(
                                 "Первая" if res == 0 else "Вторая"))
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
@@ -338,6 +346,7 @@ def battle_count():     #Тут считается битва в которой 
                         for j in range(battle.team_players_count):
                             player_choosing = battle.teams[i][j]
                             player = player_choosing.participant
+                            #message_group = get_message_group(player.id)
                             dispatcher.bot.sync_send_message(chat_id=player.id, text="Ничья!")
                             interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                             interprocess_queue.put(interprocess_dictionary)
@@ -382,4 +391,4 @@ def save_battles():
     f = open('backup/battles', 'wb+')
     pickle.dump(pending_battles, f)
     f.close()
-    logging.warning("Battles has been written")
+    logging.info("Battles has been written")

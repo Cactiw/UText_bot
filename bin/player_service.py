@@ -3,6 +3,7 @@ from libs.player import *
 from bin.equipment_service import *
 from work_materials.filters.service_filters import filter_is_admin
 import work_materials.globals as globals
+from libs.message_group import message_groups, MessageGroup
 
 
 def get_player(id, notify_not_found = True):
@@ -18,6 +19,27 @@ def get_player(id, notify_not_found = True):
     update_location(player.location, player, dispatcher.user_data[id])
     players.update({player.id: player})
     return player
+
+def get_message_group(player_id):
+    print("player_id =", player_id)
+    user_data = dispatcher.user_data.get(player_id)
+    id = user_data.get("message_group")
+    print("got group from user_data")
+    print(user_data)
+    print(id)
+    if id is None:
+        group = MessageGroup(player_id)
+        user_data.update({"message_group" : group.id})
+        print("created group, group =", group)
+    else:
+        group = message_groups.get(id)
+    print('returning', group)
+    if group is None or group.created_id != player_id:   #   Запись в user data устарела, группа уже не существует
+        print(message_groups)
+        user_data.pop("message_group")
+        print("recursion")
+        return get_message_group(player_id)
+    return group
 
 
 def update_location(location, player, user_data):
