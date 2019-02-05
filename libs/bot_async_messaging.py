@@ -158,32 +158,26 @@ class AsyncBot(Bot):
 
     def __group_work(self):
         group = groups_need_to_be_sent.get()
-        print("got group")
+        #print("got group")
         while self.processing and group is not None:
-            print(group, group.id)
-            group_lock = message_groups_locks.get(group.id)
-            print(group_lock)
-            with group_lock:
-                print("empty =", group.is_empty())
-                while not group.is_empty():
-                    message = group.get_message()
-                    print(message)
-                    if message is 1:
-                        group.busy = False
-                        print("removing from processing, ", group.busy)
-                        break
-                    if message is None:
-                        message_groups.pop(group.id)
-                        print("DELETING GROUP")
-                        group = None
-                        break
-                    self.actually_send_message(*message.args, **message.kwargs)
-                if group is not None:
+            while True:
+                #print(group, group.id)
+                message = group.get_message()
+                #print(message)
+                if message is 1:
                     group.busy = False
-                print("leaving lock", group.busy)
+                    #print("removing from processing, ", group.busy)
+                    break
+                if message is None:
+                    message_groups.pop(group.id)
+                    #print("DELETING GROUP")
+                    group = None
+                    break
+                self.actually_send_message(*message.args, **message.kwargs)
+            if group is not None:
+                group.busy = False
+                #print("leaving lock", group.busy)
             group = groups_need_to_be_sent.get()
-
-
 
     def check_workers(self):
         workers_alive = 0
