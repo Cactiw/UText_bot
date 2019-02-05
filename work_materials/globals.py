@@ -37,7 +37,6 @@ players = {}
 players_need_update = Queue()
 travel_jobs = {}
 
-interprocess_queue = Queue()
 matchmaking_players = Queue()
 
 pending_battles = {}

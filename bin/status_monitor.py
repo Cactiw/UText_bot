@@ -1,6 +1,6 @@
-from work_materials.globals import *
+from work_materials.globals import pending_battles, dispatcher
 from bin.player_service import get_player, update_status
-from libs.interprocess_dictionaty import InterprocessDictionary
+from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_queue
 from bin.show_general_buttons import show_general_buttons
 
 

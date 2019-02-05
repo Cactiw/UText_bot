@@ -1,5 +1,5 @@
-from work_materials.globals import interprocess_queue, dispatcher
-from libs.interprocess_dictionaty import InterprocessDictionary
+from work_materials.globals import dispatcher
+from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_queue
 from libs.battle import matchmaking_players, BattleStarting
 import datetime
 from queue import Empty

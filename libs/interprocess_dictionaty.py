@@ -1,3 +1,7 @@
+from multiprocessing import Queue
+
+
+interprocess_queue = Queue()
 
 
 class InterprocessDictionary:

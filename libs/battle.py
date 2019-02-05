@@ -22,9 +22,9 @@ class Player_in_battle:
 
 class PlayerChoosing:	#Игрок выбирает ход
 
-    def __init__(self, player, target, skill, team):
+    def __init__(self, player, targets, skill, team):
         self.participant = player  #class Player
-        self.target = target
+        self.targets = targets
         self.skill = skill
         self.team = team
 
@@ -42,13 +42,13 @@ class Battle:
         self.skills_queue = []
         self.dead_list = []
         self.last_count_time = time.time()
+        self.taunt_list = {1: [], 2: []}
 
     def is_ready(self):
         for team in self.teams:
             for player_choosing in team:
-                if player_choosing.skill is None or player_choosing.target is None:
+                if player_choosing.skill is None or player_choosing.targets is None:
                     return False
-
         self.skills_queue.sort(key=lambda player_choosing: player_choosing.skill.priority)
         return True
 

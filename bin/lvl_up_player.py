@@ -86,7 +86,7 @@ def lvl_up_points(bot, update, user_data):
         choose_points(bot, update, user_data)
 
 
-def lvl_up(bot, update, user_data):  # Сюда игрок попадает при нажатии /lvl_up, ему предлагается выбрать скилл, который он хочет вкачать
+def lvl_up(bot, update, user_data):  # Сюда игрок попадает при нажатии /lvl_up, ему предлагается выбрать скилл
     id = update.message.from_user.id
     player = get_player(id)
     if player is None:
@@ -102,20 +102,29 @@ def choose_skill(bot, update, user_data):
     if player is None:
         return
     free_skill = player.free_skill_points
-    if(free_skill < 0) :
+    if free_skill < 0:
         player.free_skill_points = 0
         free_skill = 0
     if free_skill == 0:
+        button_list = [
+            KeyboardButton("Выносливость"),
+            KeyboardButton("Броня"),
+            KeyboardButton("Сила"),
+            KeyboardButton("Скорость"),
+            KeyboardButton("Заряд"),
+            KeyboardButton("Готово")
+        ]
+        buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True, one_time_keyboard=False)
         bot.send_message(chat_id = update.message.chat_id,
                          text = "У вас нет очков навыков\n\n"
                                  "{5} - {0}-го уровня\n{6} - {1}-го уровня\n"
                                  "{7} - {2}-го уровня\n{8} - {3}-го уровня\n"
-                                "{9} - {4}-го уровня".format(list(player.skill_lvl.values())[0], list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2],
-                                                           list(player.skill_lvl.values())[3], list(player.skill_lvl.values())[4], list(player.skill_lvl)[0],
-                                                             list(player.skill_lvl)[1], list(player.skill_lvl)[2],
-                                                           list(player.skill_lvl)[3], list(player.skill_lvl)[4]),
-                         reply_markup = ReplyKeyboardRemove()
-                         )
+                                 "{9} - {4}-го уровня".format(list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2],
+                                                              list(player.skill_lvl.values())[3], list(player.skill_lvl.values())[4],
+                                                              list(player.skill_lvl.values())[5], list(player.skill_lvl)[1],
+                                                              list(player.skill_lvl)[2], list(player.skill_lvl)[3],
+                                                              list(player.skill_lvl)[4], list(player.skill_lvl)[5]),
+                         reply_markup = buttons)
         update_status("Lvl_up_points", player, user_data)
         players.update({id: player})
         players_need_update.put(player)
@@ -144,9 +153,9 @@ def choose_skill(bot, update, user_data):
                      text="Вы можете улучшить <b>{5}</b> {6}\n\nВыберите навык, который хотите улучшить\n\n"
                           "{7} - {0}-го уровня\n{8} - {1}-го уровня\n"
                           "{9} - {2}-го уровня\n{10} - {3}-го уровня\n"
-                          "{11} - {4}-го уровня".format(list(player.skill_lvl.values())[0], list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2],
-                                                        list(player.skill_lvl.values())[3], list(player.skill_lvl.values())[4],  free_skill, s,
-                                                        list(player.skill_lvl)[0], list(player.skill_lvl)[1], list(player.skill_lvl)[2], list(player.skill_lvl)[3], list(player.skill_lvl)[4]),
+                          "{11} - {4}-го уровня".format(list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2], list(player.skill_lvl.values())[3],
+                                                        list(player.skill_lvl.values())[4], list(player.skill_lvl.values())[5],  free_skill, s,
+                                                        list(player.skill_lvl)[1], list(player.skill_lvl)[2], list(player.skill_lvl)[3], list(player.skill_lvl)[4], list(player.skill_lvl)[5]),
                      parse_mode='HTML', reply_markup=buttons)
     players.update({id: player})
     players_need_update.put(player)

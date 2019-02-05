@@ -82,7 +82,7 @@ def return_to_location_admin(bot, update, user_data):
     update_status('In Location', player, user_data)
     update_location(player.location, player, user_data)
     j = travel_jobs.get(player.id)
-    if user_data.get("Battle id") is not None:
+    if pending_battles.get(user_data.get("Battle id")) is not None:
         pending_battles.pop(user_data.get("Battle id"))
     list_user_data = list(user_data)
     if 'saved_battle_status' in list_user_data:

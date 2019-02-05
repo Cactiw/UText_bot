@@ -43,7 +43,7 @@ from libs.battle_group import BattleGroup
 from libs.player_matchmaking import *
 from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, \
                                     battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue, \
-                                    send_message_dead, kick_out_players
+                                    send_message_dead, kick_out_players, set_skill_on_enemy_team, set_skill_on_ally_team
 
 sys.path.append('../')
 
@@ -234,6 +234,8 @@ dispatcher.add_handler(MessageHandler(Filters.text & filter_status_battle & filt
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy & filter_status_battle, choose_enemy_target, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_ally & filter_status_battle, choose_friendly_target, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_anyone & filter_status_battle, choose_friendly_target, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_enemy_team & filter_status_battle, set_skill_on_enemy_team, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & filter_use_skill_on_ally_team & filter_status_battle, set_skill_on_ally_team, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_status_choosing_target, set_target, pass_user_data=True))
 
 #Фильтры на группы

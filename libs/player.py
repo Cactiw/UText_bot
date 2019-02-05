@@ -64,16 +64,12 @@ class Player:
     def update_skills(self):
         class_skills = skills.get(self.game_class)
         for i in class_skills.values():
-            if i.priority in [0, 10]:
-                pass
             self.skill_cooldown.update({i.name: 0})
             self.skill_lvl.update({i.name: 0})
 
     def update_cooldown(self):
         class_skills = skills.get(self.game_class)
         for i in class_skills.values():
-            if i.priority in [0, 10]:
-                pass
             self.skill_cooldown.update({i.name: 0})
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
@@ -121,21 +117,22 @@ class Player:
         return 0
 
     def skill_avaliable(self, skill_name): #-1 - нет такого скилла, -2 - не разблокирован, -3 - КД
-        avaliable_skills = skills.get(self.game_class)
-        if skill_name == 'Атака':
+        if skill_name == 'Атака' or skill_name == 'Пропуск хода':
             return 1
+        avaliable_skills = skills.get(self.game_class)
         flag = 0
-        for i in avaliable_skills:
+        for i in list(avaliable_skills.values()):
             if i.name == skill_name:
                 flag = 1
+                break
         if flag == 0:
             return -1
-        for i in range(len(avaliable_skills) - 1):
-            if avaliable_skills[i + 1].name == skill_name:
-                if self.skill_lvl[i] <= 0:
+        for i in range(len(list(avaliable_skills.values()))):
+            if list(avaliable_skills.values())[i].name == skill_name:
+                if self.skill_lvl.get(skill_name) <= 0:
                     return -2
                 else:
-                    if self.skill_cooldown[i] > 0:
+                    if self.skill_cooldown.get(skill_name) > 0:
                         return -3
                     else:
                         return 1

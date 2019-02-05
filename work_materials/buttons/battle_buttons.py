@@ -56,12 +56,14 @@ def get_allies_buttons(battle, team):
 def get_all_targets_buttons(battle, team):
     __all_buttons = []
     all_team = battle.teams[team]
+    all_team += battle.teams[(team + 1) % 2]
     for i in all_team:
         __all_buttons.append(KeyboardButton(i.participant.nickname))
     __all_buttons.append(KeyboardButton('Отмена'))
     return ReplyKeyboardMarkup(build_menu(__all_buttons, 2), resize_keyboard=True)
 
-__cancel =[
+
+__cancel = [
     KeyboardButton('Отмена')
 ]
 cancel_button = ReplyKeyboardMarkup(build_menu(__cancel, 1), resize_keyboard=True)

@@ -7,6 +7,7 @@ from work_materials.globals import *
 
 TIME_BETWEEN_REPORTS = 10 * 60
 
+
 def process_monitor(processes):
     message = dispatcher.bot.sync_send_message(chat_id = STATUS_REPORT_CHANNEL_ID, text = "started, please wait...")
     while globals.processing:
