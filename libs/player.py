@@ -64,6 +64,8 @@ class Player:
 
     def update_skills(self):
         class_skills = skills.get(self.game_class)
+        print('class_skills in update_skills -', class_skills)
+        print('list -', list(class_skills.values()))
         for i in list(class_skills.values()):
             if i.name == 'Атака' or i.name == 'Пропуск хода':
                 continue
