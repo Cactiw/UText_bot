@@ -74,7 +74,7 @@ class FilterBattleSkipTurn(BaseFilter):
 
 class FilterBattleWaitingUpdate(BaseFilter):
     def filter(self, message):
-        return dispatcher.user_data.get(message.from_user.id).get('Battle waiting update') == 1
+        return dispatcher.user_data.get(message.from_user.id).get('status') == 'Battle waiting'
 
 
 class FilterBattleDead(BaseFilter):

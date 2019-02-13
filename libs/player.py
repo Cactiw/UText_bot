@@ -64,13 +64,17 @@ class Player:
 
     def update_skills(self):
         class_skills = skills.get(self.game_class)
-        for i in class_skills.values():
+        for i in list(class_skills.values()):
+            if i.name == 'Атака' or i.name == 'Пропуск хода':
+                continue
             self.skill_cooldown.update({i.name: 0})
             self.skill_lvl.update({i.name: 0})
 
     def update_cooldown(self):
         class_skills = skills.get(self.game_class)
-        for i in class_skills.values():
+        for i in list(class_skills.values()):
+            if i.name == 'Атака' or i.name == 'Пропуск хода':
+                continue
             self.skill_cooldown.update({i.name: 0})
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
@@ -78,11 +82,9 @@ class Player:
 
     def add_item(self, list, item, count): # Добавление item в рюкзак list
         quanty = list.get(item.id)
-        print(quanty)
         if quanty is None:
             quanty = int(count)
             list.update({item.id: quanty})
-            print(list)
             request = "INSERT INTO inventory(user_id, type, id, quanty) VALUES('{0}', '{1}', '{2}', '{3}')".format(self.id, item.type,
                                                                                                  item.id, quanty)
             cursor.execute(request)
@@ -90,7 +92,6 @@ class Player:
             return
         quanty += int(count)
         list.update({item.id: quanty})
-        print(list)
         request = "UPDATE inventory SET quanty = '{2}' WHERE user_id = '{0}' and id = '{1}'".format(self.id, item.id, quanty)
         cursor.execute(request)
         conn.commit()
@@ -110,7 +111,6 @@ class Player:
             return 0
         quanty -= int(count)
         list.update({item.id: quanty})
-        print(list)
         request = "UPDATE inventory SET type = '{1}', quanty = '{3}' WHERE user_id = '{0}'" \
                   " and id = '{2}'".format(self.id, item.type, item.id, quanty)
         cursor.execute(request)
@@ -188,7 +188,6 @@ class Player:
             pass
         return_key = self.remove_item(self.eq_backpack, equipment, 1)
         if return_key != 0:
-            print(return_key)
             return return_key
         self.on_character[equipment.place] = equipment.id
         for i in self.stats:
@@ -229,7 +228,7 @@ class Player:
         skill_names = list(skills.get(self.game_class))
         for i in range(len(skill_names)):
             if i in [0, len(skill_names) - 1]:
-                self.skill_lvl.update({skill_names[i]: 0})
+                continue
             self.skill_lvl.update({skill_names[i]: row[12 + i - 1]})
         """self.skill_lvl[0] = row[12]
         self.skill_lvl[1] = row[13]
@@ -272,8 +271,8 @@ class Player:
                   "right_arm = '{34}', mount = '{35}' WHERE id = '{36}'".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
                                                            self.free_points, self.free_skill_points, self.fatigue,
-                                                           list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2], list(self.skill_lvl.values())[3],
-                                                           list(self.skill_lvl.values())[4], list(self.skill_lvl.values())[5], self.stats['endurance'],
+                                                           list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
+                                                           list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,
@@ -291,7 +290,6 @@ class Player:
             self.sex = 0
         else:
             self.sex = 1
-
         request = "INSERT INTO players(id, username, nickname, sex, fraction, race, game_class," \
                   " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
                   "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, charge, speed, mana, hp," \
@@ -302,8 +300,8 @@ class Player:
                   "'{16}', '{17}','{18}','{19}', '{20}', '{21}', '{22}', '{23}', '{24}'," \
                   "'{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}', '{33}', '{34}', '{35}')".format(self.id, self.username, self.nickname, self.sex,
                                                            self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.free_skill_points, self.fatigue, list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2], list(self.skill_lvl.values())[3],
-                                                           list(self.skill_lvl.values())[4], list(self.skill_lvl.values())[5], self.stats['endurance'],
+                                                           self.free_points, self.free_skill_points, self.fatigue, list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
+                                                           list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
                                                            self.stats['power'], self.stats['armor'],
                                                            self.stats['charge'], self.stats['speed'],
                                                            self.charge, self.hp, self.location,

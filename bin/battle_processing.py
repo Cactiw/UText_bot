@@ -301,9 +301,12 @@ def battle_count():     #Тут считается битва в которой 
                                                                                                                player.charge)   #TODO написать красиво
                     class_skills = skills.get(player.game_class)
                     for t in list(class_skills.values()):
-                        if player.skill_cooldown.get(t.name) > 1:
+                        if t.name not in ['Атака', 'Пропуск хода'] and player.skill_cooldown.get(t.name) > 0:
                             player.skill_cooldown.update({t.name: player.skill_cooldown.get(t.name) - 1})
-                            result_strings[i] += "    {0} - {1} ходов\n".format(t.name, player.skill_cooldown.get(t.name))
+                            cooldown = player.skill_cooldown.get(t.name)
+                            if cooldown == 0:
+                                continue
+                            result_strings[i] += "    {0} - {1} ходов\n".format(t.name, cooldown)
                     player_choosing.targets = None
                     player_choosing.skill = None
                     reply_markup = get_general_battle_buttons(player)
@@ -404,7 +407,7 @@ def battle_count():     #Тут считается битва в которой 
 
 
 def send_waiting_msg(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text="Мммм, что это? Race condiotion? (Напишите разрабам, пожалуйста)")
+    bot.send_message(chat_id=update.message.chat_id, text="Битва еще обарабывается")
 
 
 def send_message_dead(bot, update):
@@ -414,18 +417,24 @@ def send_message_dead(bot, update):
 def put_in_pending_battles_from_queue():
     battle = treated_battles.get()
     while battle is not None:
-        pending_battles.update({battle.id: battle})
         if battle.is_ready():
+            print('battle is ready')
             battles_need_treating.put(battle)
-            pending_battles.pop(battle.id)
+            print('battle has been put')
         else:
+            print('battle is not ready')
+            pending_battles.update({battle.id: battle})
+            print('pending battles updates:', pending_battles)
             for i in range(2):
                 for j in range(battle.team_players_count):
                    player_choosing = battle.teams[i][j]
                    player = player_choosing.participant
+                   print('player -', player.nickname)
                    interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle waiting update': 0})
                    interprocess_queue.put(interprocess_dictionary)
+                   print('signal sent')
         battle = treated_battles.get()
+        print('got new battle')
     save_battles()
 
 

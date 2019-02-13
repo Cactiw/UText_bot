@@ -131,7 +131,6 @@ def print_player(bot, update, user_data):
             if filter_is_admin.filter(update.message):
                 task += " /return"
     lvl_up_str = "У вас остались нераспределенные очки /lvl_up\n" if (player.free_points != 0 or player.free_skill_points != 0) else ""
-    print(player.skill_lvl)
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {21}\n\nКласс - <b>{4}</b>"
                                                           "\nКредиты - <b>{23}</b>\nМеханизмы - <b>{24}</b>\nМетаполимены - <b>{25}</b>"
                                                           "\n\nexp = <b>{5}</b>\nlvl = <b>{6}</b>\nFree_points = <b>{7}</b>"

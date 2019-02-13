@@ -17,6 +17,8 @@ def status_monitor():
                 keys.remove('status')
             for user_data_record in keys:
                 user_data.update({ user_data_record : data.data.get(user_data_record)})
+            print('updated user_data for', player.nickname)
+            print(user_data)
         elif data.type == "battles_pending":
             for record in keys:
                 pending_battles.update({ record: data.data.get(record)})
@@ -44,6 +46,7 @@ def status_monitor():
                 user_data.pop('Test')
             player = get_player(data.id)
             player.saved_battle_status = None
+            show_general_buttons(dispatcher.bot, player.id, user_data)
         elif data.type == "remove stun":
             user_data = dispatcher.user_data.get(data.id)
             list_user_data = list(user_data)

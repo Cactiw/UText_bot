@@ -119,11 +119,11 @@ def choose_skill(bot, update, user_data):
                          text = "У вас нет очков навыков\n\n"
                                  "{5} - {0}-го уровня\n{6} - {1}-го уровня\n"
                                  "{7} - {2}-го уровня\n{8} - {3}-го уровня\n"
-                                 "{9} - {4}-го уровня".format(list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2],
-                                                              list(player.skill_lvl.values())[3], list(player.skill_lvl.values())[4],
-                                                              list(player.skill_lvl.values())[5], list(player.skill_lvl)[1],
-                                                              list(player.skill_lvl)[2], list(player.skill_lvl)[3],
-                                                              list(player.skill_lvl)[4], list(player.skill_lvl)[5]),
+                                 "{9} - {4}-го уровня".format(list(player.skill_lvl.values())[0], list(player.skill_lvl.values())[1],
+                                                              list(player.skill_lvl.values())[2], list(player.skill_lvl.values())[3],
+                                                              list(player.skill_lvl.values())[4], list(player.skill_lvl)[0],
+                                                              list(player.skill_lvl)[1], list(player.skill_lvl)[2],
+                                                              list(player.skill_lvl)[3], list(player.skill_lvl)[4]),
                          reply_markup = buttons)
         update_status("Lvl_up_points", player, user_data)
         players.update({id: player})
@@ -149,14 +149,13 @@ def choose_skill(bot, update, user_data):
         s = "навыка"
     elif free_skill >= 5:
         s = "навыков"
-    print('skill lvl:', list(player.skill_lvl))
     bot.send_message(chat_id=update.message.chat_id,
                      text="Вы можете улучшить <b>{5}</b> {6}\n\nВыберите навык, который хотите улучшить\n\n"
                           "{7} - {0}-го уровня\n{8} - {1}-го уровня\n"
                           "{9} - {2}-го уровня\n{10} - {3}-го уровня\n"
-                          "{11} - {4}-го уровня".format(list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2], list(player.skill_lvl.values())[3],
-                                                        list(player.skill_lvl.values())[4], list(player.skill_lvl.values())[5],  free_skill, s,
-                                                        list(player.skill_lvl)[1], list(player.skill_lvl)[2], list(player.skill_lvl)[3], list(player.skill_lvl)[4], list(player.skill_lvl)[5]),
+                          "{11} - {4}-го уровня".format(list(player.skill_lvl.values())[0], list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2],
+                                                        list(player.skill_lvl.values())[3], list(player.skill_lvl.values())[4],  free_skill, s,
+                                                        list(player.skill_lvl)[0], list(player.skill_lvl)[1], list(player.skill_lvl)[2], list(player.skill_lvl)[3], list(player.skill_lvl)[4]),
                      parse_mode='HTML', reply_markup=buttons)
     players.update({id: player})
     players_need_update.put(player)
