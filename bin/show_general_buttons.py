@@ -73,5 +73,7 @@ def show_general_buttons(bot, update, user_data, message_group = None):
         elif stun == 0:
             user_data.pop('stunned')
             bot.send_message(chat_id=chat_id, text="Вы в бою", reply_markup=get_general_battle_buttons(player))
+        else:
+            bot.send_message(chat_id=chat_id, text="Вы оглушены", reply_markup=get_general_battle_buttons(player))
     elif status == 'Info':
         print_player(bot, update, user_data)

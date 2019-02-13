@@ -21,15 +21,11 @@ class MessageGroup:
 
         with lock:
             group_id_list = list(message_groups)
-            print("group_id_list = ", group_id_list)
-            print("message_groups =", message_groups)
             if not group_id_list:
                 self.id = 0
             else:
-                print(group_id_list)
                 self.id = group_id_list[-1] + 1
             message_groups.update({self.id: self})
-        print("creating group, id =", self.id)
         self.messages = []
         self.created_id = created_id
         self_lock = RLock()

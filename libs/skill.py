@@ -51,8 +51,9 @@ def operator_fourth_func(targets, battle):
 
 def operator_fifth_func(targets, battle):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
         interprocess_queue.put(interprocess_dict)
+        battle.stun_list.update({i.nickname: 2})
 
 
 operator_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 1, operator_first_func)
@@ -85,8 +86,9 @@ def hacker_fourth_func(targets, battle):
 
 def hacker_fifth_func(targets, battle):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
         interprocess_queue.put(interprocess_dict)
+        battle.stun_list.update({i.nickname: 2})
 
 
 hacker_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 1, hacker_first_func)
@@ -119,8 +121,9 @@ def gunner_fourth_func(targets, battle):
 
 def gunner_fifth_func(targets, battle):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
         interprocess_queue.put(interprocess_dict)
+        battle.stun_list.update({i.nickname: 2})
 
 
 gunner_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 2, gunner_first_func)
@@ -150,10 +153,14 @@ def biomechanic_fourth_func(targets, battle):
         else:
             i.hp = i.stats['endurance'] * 15
 
+
 def biomechanic_fifth_func(targets, battle):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
         interprocess_queue.put(interprocess_dict)
+        stun = battle.stun_list.get(i.nickname)
+        if stun is None or stun <= 1:
+            battle.stun_list.update({i.nickname: 2})
 
 
 biomechanic_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 2, biomechanic_first_func)

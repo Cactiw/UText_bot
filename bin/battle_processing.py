@@ -224,6 +224,18 @@ def check_win(battle):
     if team2_alive == 0 and team1_alive > 0:
         return 0
 
+
+def battle_stunned(bot, update, user_data):
+    battle = get_battle(user_data.get('Battle id'))
+    if battle is None:
+        bot.send_message(chat_id=update.message.chat_id, text="<b>Битва не найдена!</b>", parse_mode="HTML")
+        interprocess_dictionary = InterprocessDictionary(update.message.from_user.id, "battle status return", {})
+        interprocess_queue.put(interprocess_dictionary)
+
+        return
+    player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
+    bot.send_message(chat_id = update.message.chat_id, text = "Вы оглушены и не можете этого сделать", reply_markup = get_general_battle_buttons(player_choosing.participant))
+
 #skill == 6 => пропуск хода
 
 
@@ -244,7 +256,8 @@ def kick_out_players():
                                 player_choosing.targets = targets
                                 i.skills_queue.append(player_choosing)
                                 dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
-                                dispatcher.bot.send_message(chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
+                                message_group = get_message_group(player_choosing.participant.id)
+                                dispatcher.bot.group_send_message(message_group, chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
                                 if i.is_ready():
                                     battles_need_treating.put(i)
                                     pending_battles.pop(i.id)
@@ -309,8 +322,8 @@ def battle_count():     #Тут считается битва в которой 
                     interprocess_dictionary = InterprocessDictionary(player.id, "user_data", dict)
                     interprocess_queue.put(interprocess_dictionary)
                     reply_markup = get_general_battle_buttons(player)
-                    if player.nickname in battle.dead_list:
-                        reply_markup = None
+                    if player.nickname in battle.dead_list or player.nickname in list(battle.stun_list):
+                        reply_markup = ReplyKeyboardRemove()
                     message_group = get_message_group(player.id)
                     dispatcher.bot.group_send_message(message_group, chat_id=player.id, text =result_strings[0] + result_strings[1] +
                                                                          "\n/info_Имя Игрока - информация об игроке",
@@ -324,11 +337,27 @@ def battle_count():     #Тут считается битва в которой 
                         battle.dead_list.append(player.nickname)
                         player.dead = 1
                         player_choosing.skill = 6
-                        player_choosing.targets = player
+                        player_choosing.targets = [player]
                         message_group = get_message_group(player.id)
                         dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы мертвы!", reply_markup=ReplyKeyboardRemove())
                         interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle_dead'})
                         interprocess_queue.put(interprocess_dictionary)
+                    elif player.nickname in list(battle.stun_list):
+                        player_choosing.skill = get_skill(player.game_class, "Пропуск хода")
+                        player_choosing.targets = [player]
+                        message_group = get_message_group(player.id)
+                        stun = battle.stun_list.get(player.nickname)
+                        if stun <= 1:
+                            battle.stun_list.pop(player.nickname)
+                            interprocess_dictionary = InterprocessDictionary(player.id, "remove stun", {})
+                            interprocess_queue.put(interprocess_dictionary)
+                        else:
+                            battle.stun_list.update({player.nickname: stun - 1})
+                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы оглушены!", reply_markup=ReplyKeyboardRemove())
+                            interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'stunned': battle.stun_list.get(player.nickname)})
+                            interprocess_queue.put(interprocess_dictionary)
+                        battle.skills_queue.append(player_choosing)
+
             res = check_win(battle)
             if res != -1:
                 if res < 2:
@@ -391,6 +420,9 @@ def put_in_pending_battles_from_queue():
                 player = player_choosing.participant
                 interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle waiting update': 0})
                 interprocess_queue.put(interprocess_dictionary)
+        if battle.is_ready():
+            battles_need_treating.put(battle)
+            pending_battles.pop(battle.id)
         battle = treated_battles.get()
     save_battles()
 

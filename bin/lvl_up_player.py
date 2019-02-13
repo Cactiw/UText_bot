@@ -149,6 +149,7 @@ def choose_skill(bot, update, user_data):
         s = "навыка"
     elif free_skill >= 5:
         s = "навыков"
+    print('skill lvl:', list(player.skill_lvl))
     bot.send_message(chat_id=update.message.chat_id,
                      text="Вы можете улучшить <b>{5}</b> {6}\n\nВыберите навык, который хотите улучшить\n\n"
                           "{7} - {0}-го уровня\n{8} - {1}-го уровня\n"

@@ -10,7 +10,11 @@ from libs.locations.resource_loc import *
 from libs.locations.tower import *
 from libs.bot_async_messaging import AsyncBot
 from libs.updater_async import AsyncUpdater
-from libs.skill import *
+from libs.skill import attack_skill, operator_first_skill, operator_second_skill, operator_third_skill, operator_fourth_skill, operator_fifth_skill, \
+                        hacker_first_skill, hacker_second_skill, hacker_third_skill, hacker_fourth_skill, hacker_fifth_skill, \
+                        gunner_first_skill, gunner_second_skill, gunner_third_skill, gunner_fourth_skill, gunner_fifth_skill, \
+                        biomechanic_first_skill, biomechanic_second_skill, biomechanic_third_skill, biomechanic_fourth_skill, biomechanic_fifth_skill, \
+                        skip_turn_skill
 
 try:
     from config import request_kwargs
