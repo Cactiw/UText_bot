@@ -69,6 +69,8 @@ class Player:
                 continue
             self.skill_cooldown.update({i.name: 0})
             self.skill_lvl.update({i.name: 0})
+            print('skill_cooldown in update_skills -', self.skill_cooldown)
+            print('skill_lvl in update_skills -', self.skill_lvl)
 
     def update_cooldown(self):
         class_skills = skills.get(self.game_class)
@@ -76,6 +78,7 @@ class Player:
             if i.name == 'Атака' or i.name == 'Пропуск хода':
                 continue
             self.skill_cooldown.update({i.name: 0})
+            print('skill_cooldown in update_cooldown -', self.skill_cooldown)
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id
@@ -230,6 +233,7 @@ class Player:
             if i in [0, len(skill_names) - 1]:
                 continue
             self.skill_lvl.update({skill_names[i]: row[12 + i - 1]})
+        print('got skill_lvl in update_from -', self.skill_lvl)
         """self.skill_lvl[0] = row[12]
         self.skill_lvl[1] = row[13]
         self.skill_lvl[2] = row[14]
