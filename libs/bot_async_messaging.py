@@ -44,9 +44,7 @@ class AsyncBot(Bot):
 
     def group_send_message(self, group, *args, **kwargs):
         message = MessageInQueue(*args, **kwargs)
-        print(group)
         if isinstance(group, int):
-            print(group)
             group = message_groups.get(group)
         if group is None:
             raise TypeError
@@ -157,7 +155,6 @@ class AsyncBot(Bot):
 
     def __group_work(self):
         group = groups_need_to_be_sent.get()
-        #print("got group")
         while self.processing and group is not None:
             while True:
                 message = group.get_message()
@@ -170,7 +167,6 @@ class AsyncBot(Bot):
                 self.actually_send_message(*message.args, **message.kwargs)
             if group is not None:
                 group.busy = False
-                #print("leaving lock", group.busy)
             group = groups_need_to_be_sent.get()
 
     def check_workers(self):
