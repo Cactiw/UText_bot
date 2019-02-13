@@ -23,6 +23,8 @@ def status_monitor():
         elif data.type == "battle status return":
             dispatcher.user_data.get(data.id).update({'status': dispatcher.user_data.get(data.id).get('saved_battle_status')})
             user_data = dispatcher.user_data.get(data.id)
+            if user_data.get('status') == None:
+                dispatcher.user_data.get(data.id).update({'status': 'In Location'})
             list_user_data = list(user_data)
             if 'saved_battle_status' in list_user_data:
                 user_data.pop('saved_battle_status')

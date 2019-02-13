@@ -7,7 +7,8 @@ def get_general_battle_buttons(player):
         return ReplyKeyboardRemove()
     stun = dispatcher.user_data.get(player.id).get('stunned')
     if stun is not None and stun > 0:
-        return ReplyKeyboardRemove()
+        #return ReplyKeyboardRemove()
+        return None
     __general_battle_buttons = []
     n_cols = 3
     class_skills = skills.get(player.game_class)

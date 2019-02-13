@@ -142,7 +142,6 @@ class Player:
         if int(skill_number) not in range(6):
             return None
         skill_names = list(skills.get(self.game_class))
-        print(skill_names)
         self.skill_lvl.update({skill_names[int(skill_number)]: int(self.skill_lvl.get(skill_names[int(skill_number)])) + 1})
 
     def lvl_up_point(self, stat):

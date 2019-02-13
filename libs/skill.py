@@ -9,18 +9,18 @@ class Skill:
         self.priority = priority    #0 - для пропуска хода
         self.use_func = func
 
-    def use_skill(self, targets, battle):
-        self.use_func(targets, battle)
+    def use_skill(self, targets, battle, player):
+        self.use_func(targets, battle, player)
 
 
-def skip_turn_func(targets, battle):
+def skip_turn_func(targets, battle, player):
     pass
 
 
 skip_turn_skill = Skill("Пропуск хода", "<b>{0}</b> пропустил ход", "buff", 0, skip_turn_func)
 
 
-def attack_func(targets, battle):
+def attack_func(targets, battle, player):
     for i in targets:
         i.hp -= 25
 
@@ -28,20 +28,20 @@ def attack_func(targets, battle):
 attack_skill = Skill("Атака", "<b>{0}</b>  Атаковал  <b>{1}</b> (-25)", "damage", 10, attack_func)
 
 
-def operator_first_func(targets, battle):
+def operator_first_func(targets, battle, player):
     pass
 
 
-def operator_second_func(targets, battle):
+def operator_second_func(targets, battle, player):
     pass
 
 
-def operator_third_func(targets, battle):
+def operator_third_func(targets, battle, player):
     for i in targets:
         i.hp -= 10
 
 
-def operator_fourth_func(targets, battle):
+def operator_fourth_func(targets, battle, player):
     for i in targets:
         if i.hp + 20 <= i.stats['endurance'] * 15:
             i.hp += 20
@@ -49,11 +49,12 @@ def operator_fourth_func(targets, battle):
             i.hp = i.stats['endurance'] * 15
 
 
-def operator_fifth_func(targets, battle):
+def operator_fifth_func(targets, battle, player):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1 + 1})
         interprocess_queue.put(interprocess_dict)
-        battle.stun_list.update({i.nickname: 2})
+        battle.stun_list.update({i.nickname: 1 + 1})
+        player.skill_cooldown.update({'Пятый навык': 3 + 1})
 
 
 operator_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 1, operator_first_func)
@@ -63,20 +64,20 @@ operator_fourth_skill = Skill("Четвертый навык", "<b>{0}</b>  ис
 operator_fifth_skill = Skill("Пятый навык", "<b>{0}</b>  использовал <b>Пятый навык</b> на  <b>{1}</b>\n", "buff", 2, operator_fifth_func)
 
 
-def hacker_first_func(targets, battle):
+def hacker_first_func(targets, battle, player):
     pass
 
 
-def hacker_second_func(targets, battle):
+def hacker_second_func(targets, battle, player):
     pass
 
 
-def hacker_third_func(targets, battle):
+def hacker_third_func(targets, battle, player):
     for i in targets:
         i.hp -= 10
 
 
-def hacker_fourth_func(targets, battle):
+def hacker_fourth_func(targets, battle, player):
     for i in targets:
         if i.hp + 20 <= i.stats['endurance'] * 15:
             i.hp += 20
@@ -84,11 +85,12 @@ def hacker_fourth_func(targets, battle):
             i.hp = i.stats['endurance'] * 15
 
 
-def hacker_fifth_func(targets, battle):
+def hacker_fifth_func(targets, battle, player):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1 + 1})
         interprocess_queue.put(interprocess_dict)
-        battle.stun_list.update({i.nickname: 2})
+        battle.stun_list.update({i.nickname: 1 + 1})
+        player.skill_cooldown.update({'Пятый навык': 3 + 1})
 
 
 hacker_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 1, hacker_first_func)
@@ -98,20 +100,20 @@ hacker_fourth_skill = Skill("Четвертый навык", "<b>{0}</b>  исп
 hacker_fifth_skill = Skill("Пятый навык", "<b>{0}</b>  использовал <b>Пятый навык</b> на  <b>{1}</b>\n", "buff", 4, hacker_fifth_func)
 
 
-def gunner_first_func(targets, battle):
+def gunner_first_func(targets, battle, player):
     pass
 
 
-def gunner_second_func(targets, battle):
+def gunner_second_func(targets, battle, player):
     pass
 
 
-def gunner_third_func(targets, battle):
+def gunner_third_func(targets, battle, player):
     for i in targets:
         i.hp -= 10
 
 
-def gunner_fourth_func(targets, battle):
+def gunner_fourth_func(targets, battle, player):
     for i in targets:
         if i.hp + 20 <= i.stats['endurance'] * 15:
             i.hp += 20
@@ -119,11 +121,12 @@ def gunner_fourth_func(targets, battle):
             i.hp = i.stats['endurance'] * 15
 
 
-def gunner_fifth_func(targets, battle):
+def gunner_fifth_func(targets, battle, player):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1 + 1})
         interprocess_queue.put(interprocess_dict)
-        battle.stun_list.update({i.nickname: 2})
+        battle.stun_list.update({i.nickname: 1 + 1})
+        player.skill_cooldown.update({'Пятый навык': 3 + 1})
 
 
 gunner_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 2, gunner_first_func)
@@ -133,20 +136,20 @@ gunner_fourth_skill = Skill("Четвертый навык", "<b>{0}</b>  исп
 gunner_fifth_skill = Skill("Пятый навык", "<b>{0}</b>  использовал <b>Пятый навык</b> на  <b>{1}</b>\n", "buff", 1, gunner_fifth_func)
 
 
-def biomechanic_first_func(targets, battle):
+def biomechanic_first_func(targets, battle, player):
     pass
 
 
-def biomechanic_second_func(targets, battle):
+def biomechanic_second_func(targets, battle, player):
     pass
 
 
-def biomechanic_third_func(targets, battle):
+def biomechanic_third_func(targets, battle, player):
     for i in targets:
         i.hp -= 10
 
 
-def biomechanic_fourth_func(targets, battle):
+def biomechanic_fourth_func(targets, battle, player):
     for i in targets:
         if i.hp + 20 <= i.stats['endurance'] * 15:
             i.hp += 20
@@ -154,13 +157,12 @@ def biomechanic_fourth_func(targets, battle):
             i.hp = i.stats['endurance'] * 15
 
 
-def biomechanic_fifth_func(targets, battle):
+def biomechanic_fifth_func(targets, battle, player):
     for i in targets:
-        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 2})
+        interprocess_dict = InterprocessDictionary(i.id, "user_data", {'stunned': 1 + 1})
         interprocess_queue.put(interprocess_dict)
-        stun = battle.stun_list.get(i.nickname)
-        if stun is None or stun <= 1:
-            battle.stun_list.update({i.nickname: 2})
+        battle.stun_list.update({i.nickname: 1 + 1})
+        player.skill_cooldown.update({'Пятый навык': 3 + 1})
 
 
 biomechanic_first_skill = Skill("Первый навык", "<b>{0}</b>  использовал <b>Первый навык</b> на  <b>{1}</b>\n", "buff", 2, biomechanic_first_func)
