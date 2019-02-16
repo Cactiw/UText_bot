@@ -6,6 +6,7 @@ from libs.myJob import MyJob, Chat_Id_Update
 from work_materials.filters.service_filters import filter_is_admin
 import pickle
 import time
+import logging, traceback
 
 
 def move_player(bot, job):
@@ -148,4 +149,4 @@ def parse_travel_jobs():
     except FileNotFoundError:
         logging.error("Data file not found")
     except:
-        logging.error(sys.exc_info()[0])
+        logging.error(traceback.format_exc())

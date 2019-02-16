@@ -6,7 +6,6 @@ import logging, traceback
 
 def loadData():
     try:
-        logging.error("test")
         f = open('backup/userdata', 'rb')
         work_materials.globals.dispatcher.user_data = pickle.load(f)
         f.close()
