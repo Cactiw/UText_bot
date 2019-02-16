@@ -17,8 +17,6 @@ def status_monitor():
                 keys.remove('status')
             for user_data_record in keys:
                 user_data.update({ user_data_record : data.data.get(user_data_record)})
-            print('updated user_data for', player.nickname)
-            print(user_data)
         elif data.type == "battles_pending":
             for record in keys:
                 pending_battles.update({ record: data.data.get(record)})
@@ -32,8 +30,8 @@ def status_monitor():
                 user_data.pop('saved_battle_status')
             if 'chosen skill' in list_user_data:
                 user_data.pop('chosen skill')
-            if 'Battle waiting update' in list_user_data:
-                user_data.pop('Battle waiting update')
+            if 'Battle_waiting_to_count' in list_user_data:
+                user_data.pop('Battle_waiting_to_count')
             if 'Battle id' in list_user_data:
                 user_data.pop('Battle id')
             if 'matchmaking' in list_user_data:

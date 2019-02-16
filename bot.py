@@ -1,12 +1,10 @@
 # Настройки
-from telegram.ext import CommandHandler, MessageHandler, Filters, Job, CallbackQueryHandler
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.error import (Unauthorized)
+from telegram.ext import CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 
 import threading
 import multiprocessing
 import work_materials.globals as globals
-import traceback, sys
+import sys
 from multiprocessing import Process
 
 from work_materials.filters.muted_filters import *
@@ -30,18 +28,14 @@ from bin.lvl_up_player import *
 from bin.auction import *
 from bin.auction_checker import *
 from bin.initiate_matchmaking import matchmaking_start, matchmaking_callback
-from bin.matchmaking import *
+from bin.matchmaking import matchmaking
 from bin.status_monitor import *
 from bin.merchant import *
 from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
+from bin.equip_items import add_resource, remove_resource, equip, unequip
 
 import work_materials.globals
-from libs.resorses import *
-from libs.equipment import *
 from bin.travel_functions import *
-from libs.battle_group import BattleGroup
-
-from libs.player_matchmaking import *
 from bin.battle_processing import choose_enemy_target, choose_friendly_target, set_target, battle_cancel_choosing, \
                                     battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue, \
                                     send_message_dead, kick_out_players, set_skill_on_enemy_team, set_skill_on_ally_team, \
@@ -68,46 +62,6 @@ logger.setLevel(logging.INFO)
 processing = 1
 
 work_materials.globals.processing = 1
-
-
-def add_resource(bot, update, args):
-    item = Resourse(int(args[0]))
-    player = get_player(update.message.from_user.id)
-
-
-def remove_resource(bot, update, args):
-    item = Resourse(int(args[0]))
-    player = get_player(update.message.from_user.id)
-
-
-def equip(bot, update):
-    id = update.message.text.partition('_')[2]
-    eqipment = Equipment(0, id, 0, 0, 0, 0, 0, 0, 0)
-    if eqipment.update_from_database() is None:
-        bot.send_message(chat_id=update.message.from_user.id, text="Этот предмет не найден в базе данных")
-        return
-    player = get_player(update.message.from_user.id)
-    return_code = player.equip(eqipment)
-    if return_code == 1:
-        bot.send_message(chat_id=update.message.from_user.id, text="Этого предмета нет в вашем инвентаре")
-        return
-    if return_code == -1:
-        bot.send_message(chat_id=update.message.from_user.id, text="Ошибка")
-        return
-    bot.send_message(chat_id = update.message.from_user.id, text = "Успешно экипировано")
-
-
-def unequip(bot, update):
-    id = update.message.from_user.id
-    player = get_player(id)
-    equipment_id = player.on_character.get(update.message.text.partition('_')[2])
-    if equipment_id is None:
-        bot.send_message(chat_id=update.message.from_user.id, text="Не найдено надетого предмета")
-        return
-    equipment = get_equipment(equipment_id)
-    player.unequip(equipment)
-    bot.send_message(chat_id = update.message.from_user.id, text = "Предмет успешно снят")
-
 
 
 def callback(bot, update, user_data):
@@ -201,18 +155,11 @@ dispatcher.add_handler(MessageHandler(Filters.text & filter_lots, lots, pass_use
 dispatcher.add_handler(MessageHandler(Filters.text & filter_my_lots, my_lots, pass_user_data=False))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_my_bids, my_bids, pass_user_data=False))
 
-
-
 dispatcher.add_handler(CommandHandler("matchmaking_start", matchmaking_start, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_start_battle, matchmaking_start, pass_user_data=True))
 
 
 dispatcher.add_handler(CallbackQueryHandler(callback, pass_update_queue=False, pass_user_data=True))
-
-
-
-
-
 
 
 #Команды для добавления и удаления предметов

@@ -115,7 +115,6 @@ def choose_skill(bot, update, user_data):
             KeyboardButton("Готово")
         ]
         buttons = ReplyKeyboardMarkup(build_menu(button_list, n_cols=2), resize_keyboard=True, one_time_keyboard=False)
-        print('skill_lvl in lvl_up -', player.skill_lvl)
         bot.send_message(chat_id = update.message.chat_id,
                          text = "У вас нет очков навыков\n\n"
                                  "{5} - {0}-го уровня\n{6} - {1}-го уровня\n"
@@ -150,7 +149,6 @@ def choose_skill(bot, update, user_data):
         s = "навыка"
     elif free_skill >= 5:
         s = "навыков"
-    print('skill_lvl in lvl_up -', player.skill_lvl)
     bot.send_message(chat_id=update.message.chat_id,
                      text="Вы можете улучшить <b>{5}</b> {6}\n\nВыберите навык, который хотите улучшить\n\n"
                           "{7} - {0}-го уровня\n{8} - {1}-го уровня\n"

@@ -1,9 +1,7 @@
 import datetime
 
-from libs.player import *
-from work_materials.globals import *
+from work_materials.globals import dispatcher, pending_battles
 from libs.interprocess_dictionaty import *
-from bin.show_general_buttons import show_general_buttons
 import time
 import random
 from work_materials.buttons.battle_buttons import get_general_battle_buttons
@@ -33,9 +31,20 @@ class Battle:
 
     def __init__(self, battle_starting):
         self.teams = [ [], [] ]
+        self.buff_list = {}
         for i in range(0, len(battle_starting.teams[0])):
             self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None, 0))
+            self.buff_list.update({battle_starting.teams[0][i].nickname: {'power': [],
+                                                                          'endurance': [],
+                                                                          'armor': [],
+                                                                          'charge': [],
+                                                                          'speed': []}})
             self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1))
+            self.buff_list.update({battle_starting.teams[1][i].nickname: {'power': [],
+                                                                          'endurance': [],
+                                                                          'armor': [],
+                                                                          'charge': [],
+                                                                          'speed': []}})
         self.id = None
         self.team_players_count = len(self.teams[0])
         self.last_tick_time = time.time()
@@ -44,6 +53,7 @@ class Battle:
         self.last_count_time = time.time()
         self.taunt_list = {1: [], 2: []}
         self.stun_list = {}
+
 
     def is_ready(self):
         for team in self.teams:

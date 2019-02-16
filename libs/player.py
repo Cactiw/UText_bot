@@ -2,7 +2,6 @@ import math
 import work_materials.globals as globals
 from work_materials.globals import dispatcher, players_need_update, skills
 from bin.equipment_service import *
-from work_materials.buttons.battle_buttons import get_general_battle_buttons
 
 
 class Player:
@@ -63,16 +62,12 @@ class Player:
         self.res_backpack = {}
 
     def update_skills(self):
-        print(skills)
         class_skills = skills.get(self.game_class)
-        print('list -', list(class_skills))
         for i in list(class_skills):
             if i == 'Атака' or i == 'Пропуск хода':
                 continue
             self.skill_cooldown.update({i: 0})
-            self.skill_lvl.update({i: 0})
-            print('skill_cooldown in update_skills -', self.skill_cooldown)
-            print('skill_lvl in update_skills -', self.skill_lvl)
+            self.skill_lvl.update({i: 1})
 
     def update_cooldown(self):
         class_skills = skills.get(self.game_class)
@@ -80,7 +75,6 @@ class Player:
             if i.name == 'Атака' or i.name == 'Пропуск хода':
                 continue
             self.skill_cooldown.update({i.name: 0})
-            print('skill_cooldown in update_cooldown -', self.skill_cooldown)
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id
@@ -235,12 +229,6 @@ class Player:
             if i in [0, len(skill_names) - 1]:
                 continue
             self.skill_lvl.update({skill_names[i]: row[12 + i - 1]})
-        print('got skill_lvl in update_from -', self.skill_lvl)
-        """self.skill_lvl[0] = row[12]
-        self.skill_lvl[1] = row[13]
-        self.skill_lvl[2] = row[14]
-        self.skill_lvl[3] = row[15]
-        self.skill_lvl[4] = row[16]"""
         self.stats.update(endurance = row[17], power = row[18], armor = row[19], charge = row[20], speed = row[21])
         self.charge = row[22]
         self.hp = row[23]

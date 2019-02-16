@@ -51,6 +51,7 @@ treated_battles = Queue()
 passwd = 'fiP3Gahz'
 
 conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
+conn.set_session(autocommit = True)
 cursor = conn.cursor()
 print("Connection successful, starting bot")
 
@@ -145,5 +146,6 @@ def reconnect_database():
     global conn
     global cursor
     conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
+    conn.set_session(autocommit=True)
     cursor = conn.cursor()
     print("reconnected")
