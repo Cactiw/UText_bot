@@ -4,7 +4,7 @@ from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_qu
 from bin.show_general_buttons import show_general_buttons
 
 
-def status_monitor():
+def interprocess_monitor():
     data = interprocess_queue.get()
     while data is not None:
         keys = list(data.data.keys())
@@ -50,6 +50,48 @@ def status_monitor():
             list_user_data = list(user_data)
             if "stunned" in list_user_data:
                 user_data.pop('stunned')
-
+        elif data.type == "change_player_state":
+			player = get_player(data.data[0])
+			list_keys = list(data.data[1:])
+			for key in list_keys:
+				change_value = data.data.get(key)
+				if key == "exp":
+					player.exp += change_value
+					player.lvl_check()
+				elif key == "dead":
+					player.dead = change_value
+				elif key == "resourses":
+					for new_key in change_value:
+						delta = change_value.get(new_key)
+						old_value = player.resourses.get(new_key)
+						if old_value is None:
+							continue
+						old_value += delta
+						player.resouses.update({new_key : old_value})
+				elif key == "eq_backpack":
+					for new_key in change_value:
+						delta = change_value.get(new_key)
+						old_value = player.eq_backpack.get(new_key)
+						if old_value is None:
+							continue
+						old_value += delta
+						player.resouses.update({new_key : old_value})
+				elif key == "al_backpack":
+					for new_key in change_value:
+						delta = change_value.get(new_key)
+						old_value = player.al_backpack.get(new_key)
+						if old_value is None:
+							continue
+						old_value += delta
+						player.resouses.update({new_key : old_value})	
+				elif key == "res_backpack":
+					for new_key in change_value:
+						delta = change_value.get(new_key)
+						old_value = player.res_backpack.get(new_key)
+						if old_value is None:
+							continue
+						old_value += delta
+						player.resouses.update({new_key : old_value})
+				players_need_update.put(player)
         data = interprocess_queue.get()
     return 0
