@@ -1,12 +1,12 @@
 import work_materials.globals
 from work_materials.globals import pending_battles
 import time, pickle
-import logging
+import logging, traceback
 
-log = logging.getLogger("Save load user data")
 
 def loadData():
     try:
+        logging.error("test")
         f = open('backup/userdata', 'rb')
         work_materials.globals.dispatcher.user_data = pickle.load(f)
         f.close()
@@ -22,7 +22,7 @@ def loadData():
     except FileNotFoundError:
         logging.error("Data file not found")
     except:
-        logging.error(work_materials.globals.sys.exc_info()[0])
+        logging.error(traceback.format_exc())
 
 
 def saveData():
@@ -36,9 +36,9 @@ def saveData():
                         exit = 1
                         break
             # Before pickling
-            log.debug("Writing data, do not shutdown bot...\r")
+            logging.debug("Writing data, do not shutdown bot...\r")
             if exit:
-                log.warning("Writing data last time, do not shutdown bot...")
+                logging.warning("Writing data last time, do not shutdown bot...")
 
             try:
                 to_dump = {}
@@ -55,9 +55,9 @@ def saveData():
                 f = open('backup/battles', 'wb+')
                 pickle.dump(pending_battles, f)
                 f.close()
-                log.debug("Data write completed\b")
+                logging.debug("Data write completed\b")
             except:
-                work_materials.globals.logging.error(work_materials.globals.sys.exc_info()[0])
+                logging.error(traceback.format_exc())
     except KeyboardInterrupt:
         print("Writing data last time, do not shutdown bot...")
         try:
@@ -69,5 +69,5 @@ def saveData():
             f.close()
             print("Data write completed")
         except:
-            work_materials.globals.logging.error(work_materials.globals.sys.exc_info()[0])
+            logging.error(traceback.format_exc())
         return
