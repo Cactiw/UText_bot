@@ -4,7 +4,7 @@ from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_qu
 from bin.show_general_buttons import show_general_buttons
 
 
-def status_monitor():
+def interprocess_monitor():
     data = interprocess_queue.get()
     while data is not None:
         keys = list(data.data.keys())

@@ -1,4 +1,3 @@
-# Настройки
 from telegram.ext import CommandHandler, MessageHandler, Filters, Job, CallbackQueryHandler
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.error import (Unauthorized)
@@ -31,7 +30,7 @@ from bin.auction import *
 from bin.auction_checker import *
 from bin.initiate_matchmaking import matchmaking_start, matchmaking_callback
 from bin.matchmaking import *
-from bin.status_monitor import *
+from bin.interprocess_monitor import interprocess_monitor
 from bin.merchant import *
 from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
 
@@ -261,9 +260,9 @@ spam_zeroing = threading.Thread(target = zeroing, args=(), name="Spam zeroing")
 spam_zeroing.start()
 processes.append(spam_zeroing)
 
-status_monitor = threading.Thread(target = status_monitor, args = (), name = "Player Status Monitor")
-status_monitor.start()
-processes.append(status_monitor)
+interprocess_monitor = threading.Thread(target = interprocess_monitor, args = (), name = "Interprocess Monitor")
+interprocess_monitor.start()
+processes.append(interprocess_monitor)
 
 battle_processing = Process(target= battle_count, args=(), name= "Battle Processing")
 battle_processing.start()
