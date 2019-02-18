@@ -1,6 +1,7 @@
 import datetime
 
 from work_materials.globals import dispatcher, pending_battles
+from work_materials.constants import game_classes_to_emoji
 from libs.interprocess_dictionaty import *
 import time
 import random
@@ -49,7 +50,7 @@ class Battle:
         self.team_players_count = len(self.teams[0])
         self.last_tick_time = time.time()
         self.skills_queue = []
-        self.dead_list = []
+        self.dead_list = []     #[nickname1, ...]
         self.last_count_time = time.time()
         self.taunt_list = {0: {}, 1: {}}    #{0: {nickname: turns}, 1: {-''-}}
         self.stun_list = {}
@@ -206,14 +207,20 @@ class BattleStarting:
         team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         for i in self.teams[0]:
-            team1_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+            team1_text += "<b>{0}</b>{4} {1}🔺️  {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                      game_classes_to_emoji.get(i.game_class))
         team1_text += "\nВаши соперники:\n"
         for i in self.teams[1]:
-            team1_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
-            team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+            team1_text += "<b>{0}</b>{4}  {1}🔺️   {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                       game_classes_to_emoji.get(i.game_class))
+            team2_text += "<b>{0}</b>{4}  {1}🔺   {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                      game_classes_to_emoji.get(i.game_class))
         team2_text += "\nВаши соперники:\n"
         for i in self.teams[0]:
-            team2_text += "<b>{0}</b> lvl: {1}\n".format(i.nickname, i.lvl)
+            team2_text += "<b>{0}</b>{4}  {1}🔺  {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                     game_classes_to_emoji.get(i.game_class))
+        team1_text += "\n/info_Имя Игрока - информация об игроке"
+        team2_text += "\n/info_Имя Игрока - информация об игроке"
         for j in range(2):
             for i in self.teams[j]:
                 dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))

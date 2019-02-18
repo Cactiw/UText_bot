@@ -67,11 +67,9 @@ def operator_third_func(targets, battle, player):
         for j in curr_buffs:
             power += j.buff
         i.hp -= 2 * power
-        curr_damage = battle.damage_change.get(i.nickname)
-        if curr_damage is None:
-            battle.damage_change.update({i.nickname: -2 * power})
-        else:
-            battle.damage_change.update({i.nickname: battle.damage_change.get(i.nickname) - 2 * power})
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: -2 * power})
 
 
 def operator_fourth_func(targets, battle, player):
@@ -84,11 +82,9 @@ def operator_fourth_func(targets, battle, player):
             i.hp += 20
         else:
             i.hp = endurance * 15
-        curr_damage = battle.damage_change.get(i.nickname)
-        if curr_damage is None:
-            battle.damage_change.update({i.nickname: 20})
-        else:
-            battle.damage_change.update({i.nickname: battle.damage_change.get(i.nickname) + 20})
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: 20})
 
 
 def operator_fifth_func(targets, battle, player):
@@ -123,6 +119,9 @@ def hacker_third_func(targets, battle, player):
         for j in curr_buffs:
             power += j.buff
         i.hp -= 2 * power
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: -2 * power})
 
 
 def hacker_fourth_func(targets, battle, player):
@@ -135,6 +134,9 @@ def hacker_fourth_func(targets, battle, player):
             i.hp += 20
         else:
             i.hp = endurance * 15
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: 20})
 
 
 def hacker_fifth_func(targets, battle, player):
@@ -169,6 +171,9 @@ def gunner_third_func(targets, battle, player):
         for j in curr_buffs:
             power += j.buff
         i.hp -= 2 * power
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: -2 * power})
 
 
 def gunner_fourth_func(targets, battle, player):
@@ -181,6 +186,9 @@ def gunner_fourth_func(targets, battle, player):
             i.hp += 20
         else:
             i.hp = endurance * 15
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: 20})
 
 
 def gunner_fifth_func(targets, battle, player):
@@ -216,6 +224,9 @@ def biomechanic_third_func(targets, battle, player):
         for j in curr_buffs:
             power += j.buff
         i.hp -= 2 * power
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: -2 * power})
 
 
 def biomechanic_fourth_func(targets, battle, player):
@@ -228,6 +239,9 @@ def biomechanic_fourth_func(targets, battle, player):
             i.hp += 20
         else:
             i.hp = endurance * 15
+        if battle.damage_change.get(i.nickname) is None:
+            battle.damage_change.update({i.nickname: {}})
+        battle.damage_change.get(i.nickname).update({player.nickname: 20})
 
 
 def biomechanic_fifth_func(targets, battle, player):

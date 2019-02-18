@@ -37,7 +37,7 @@ class Player:
                     'speed': 5}
 
         self.charge = self.stats['charge'] * 15
-        self.hp = self.stats['endurance'] * 15
+        self.hp = self.stats['endurance'] * 25
 
         self.location = 0
         self.saved_battle_status = None
@@ -75,6 +75,10 @@ class Player:
             if i.name == 'Атака' or i.name == 'Пропуск хода':
                 continue
             self.skill_cooldown.update({i.name: 0})
+
+    def update_stats(self):
+        self.charge = self.stats['charge'] * 15
+        self.hp = self.stats['endurance'] * 25
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id

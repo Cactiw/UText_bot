@@ -33,6 +33,10 @@ def interprocess_monitor():
             if 'Battle_waiting_to_count' in list_user_data:
                 user_data.pop('Battle_waiting_to_count')
             if 'Battle id' in list_user_data:
+                try:
+                    pending_battles.pop(user_data.get('Battle id'))
+                except KeyError:
+                    pass
                 user_data.pop('Battle id')
             if 'matchmaking' in list_user_data:
                 user_data.pop('matchmaking')

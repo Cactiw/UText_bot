@@ -28,6 +28,7 @@ def choose_points(bot, update, user_data):
         players_need_update.put(player)
         update_status(user_data.get('saved_lvl_up_status'), player, user_data)
         user_data.pop('saved_lvl_up_status')
+        player.update_stats()
         show_general_buttons(bot, update, user_data)
         return
 
@@ -66,6 +67,7 @@ def lvl_up_points(bot, update, user_data):
     if player is None:
         return
     if update.message.text == "Готово":
+        player.update_stats()
         update_status(user_data.get('saved_lvl_up_status'), player, user_data)
         user_data.pop('saved_lvl_up_status')
         show_general_buttons(bot, update, user_data)
@@ -77,7 +79,7 @@ def lvl_up_points(bot, update, user_data):
         players_need_update.put(player)
         if(update.message.text == "заряд"):
             bot.send_message(chat_id=update.message.chat_id,
-                             text="Увеличины <b>{0}</b>".format(update.message.text),
+                             text="Улучшен <b>{0}</b>".format(update.message.text),
                              parse_mode='HTML')
         else:
             bot.send_message(chat_id=update.message.chat_id,
