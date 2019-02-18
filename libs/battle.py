@@ -31,7 +31,7 @@ class Battle:
 
     def __init__(self, battle_starting):
         self.teams = [ [], [] ]
-        self.buff_list = {}
+        self.buff_list = {}         #{nickname: [Buff1, Buff2, ...]}
         for i in range(0, len(battle_starting.teams[0])):
             self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None, 0))
             self.buff_list.update({battle_starting.teams[0][i].nickname: {'power': [],
@@ -51,8 +51,9 @@ class Battle:
         self.skills_queue = []
         self.dead_list = []
         self.last_count_time = time.time()
-        self.taunt_list = {1: [], 2: []}
+        self.taunt_list = {0: {}, 1: {}}    #{0: {nickname: turns}, 1: {-''-}}
         self.stun_list = {}
+        self.damage_change = {}  #{target_nickname: {damage_dealer_nickname: damage, ...}, ...}
 
 
     def is_ready(self):

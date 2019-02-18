@@ -175,6 +175,9 @@ def set_target(bot, update, user_data):
         return
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
     new_target_choosing = get_player_choosing_from_battle_via_nick(battle, update.message.text)
+    if battle.taunt_list.get((user_data.get('Team') + 1) % 2) and battle.taunt_list.get((user_data.get('Team') + 1) % 2).get(new_target_choosing.participant.nickname) is None:
+        bot.send_message(chat_id=update.message.chat_id, text="Вы можете атаковать только провокаторов!")
+        return
     if new_target_choosing is None:
         bot.send_message(chat_id=update.message.chat_id, text="Нет игрока с ником '{0}'!".format(update.message.text))
         return
@@ -304,6 +307,8 @@ def battle_count():     #Тут считается битва в которой 
                     player = player_choosing.participant
                     if player.nickname in list(battle.stun_list) and battle.stun_list.get(player.nickname) > 1:
                         result_strings[i] += "💫({0})".format(battle.stun_list.get(player.nickname) - 1)
+                    if battle.taunt_list.get(i).get(player.nickname) is not None and battle.taunt_list.get(i).get(player.nickname) > 1:
+                        result_strings[i] += "🛡({0})".format(battle.taunt_list.get(i).get(player.nickname) - 1)
                     result_strings[i] += "<b>{0}</b> - <b>{1}</b>    {2} hp, {3} charge\n".format(player.nickname,
                                                                                                                player.game_class,
                                                                                                                player.hp,
@@ -313,10 +318,9 @@ def battle_count():     #Тут считается битва в которой 
                     for t in list(player_buff_list):
                         if not player_buff_list.get(t):
                             continue
-                        result_strings[i] += "    {0}:\n".format(t)
+                        #result_strings[i] += "    {0}:\n".format(t)
                         for k in player_buff_list.get(t):
-                            result_strings[i] += "        {2}{0} на {1} ходов\n".format(k.buff, k.turns, "+" if k.buff > 0 else "")
-                    result_strings[i] += "\n"
+                            result_strings[i] += "    <b>{2}{0}</b> {3} на {1} ходов\n".format(k.buff, k.turns, "+" if k.buff > 0 else "", t)
                     class_skills = skills.get(player.game_class)
                     for t in list(class_skills.values()):
                         if t.name not in ['Атака', 'Пропуск хода'] and player.skill_cooldown.get(t.name) > 0:
@@ -325,6 +329,7 @@ def battle_count():     #Тут считается битва в которой 
                             if cooldown == 0:
                                 continue
                             result_strings[i] += "    {0} - {1} ходов\n".format(t.name, cooldown)   #TODO разобраться с окончаниями
+                    result_strings[i] += '\0'
                     player_choosing.targets = None
                     player_choosing.skill = None
                     reply_markup = get_general_battle_buttons(player)
@@ -347,7 +352,7 @@ def battle_count():     #Тут считается битва в которой 
                     """if player.nickname in battle.dead_list: #or player.nickname in list(battle.stun_list):
                         reply_markup = ReplyKeyboardRemove()"""
                     message_group = get_message_group(player.id)
-                    dispatcher.bot.group_send_message(message_group, chat_id=player.id, text =result_strings[0] + result_strings[1] +
+                    dispatcher.bot.group_send_message(message_group, chat_id=player.id, text =result_strings[0] + "\n" + result_strings[1] +
                                                                          "\n/info_Имя Игрока - информация об игроке",
                                                 parse_mode="HTML", reply_markup=reply_markup)         #TODO Добавить баффы/дебаффы
 
@@ -360,6 +365,14 @@ def battle_count():     #Тут считается битва в которой 
                         player.dead = 1
                         player_choosing.skill = 6
                         player_choosing.targets = [player]
+                        try:
+                            battle.taunt_list.get(i).pop(player.nickname)
+                        except KeyError:
+                            pass
+                        try:
+                            battle.buff_list.pop(player.nickname)
+                        except KeyError:
+                            pass
                         message_group = get_message_group(player.id)
                         dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы мертвы!", reply_markup=ReplyKeyboardRemove())
                         interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle_dead'})
@@ -382,12 +395,25 @@ def battle_count():     #Тут считается битва в которой 
                     #Зануление баффов:
 
                     player_buff_list = battle.buff_list.get(player.nickname)
-                    for t in list(player_buff_list.values()):
-                        for k in t:
-                            if k.turns <= 1:
-                                t.remove(k)
-                            else:
-                                k.turns -= 1
+                    if player_buff_list is not None:
+                        for t in list(player_buff_list.values()):
+                            for k in t:
+                                if k.turns <= 1:
+                                    t.remove(k)
+                                else:
+                                    k.turns -= 1
+
+                #Зануление таунтов:
+
+                team_taunt_list = battle.taunt_list.get(i)
+                print(i, "-", team_taunt_list)
+                for t in list(team_taunt_list):
+                    if team_taunt_list.get(t) <= 1:
+                        team_taunt_list.pop(t)
+                    else:
+                        team_taunt_list.update({t: team_taunt_list.get(t) - 1})
+
+
 
 
             res = check_win(battle)

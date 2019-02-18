@@ -29,7 +29,7 @@ from bin.auction import *
 from bin.auction_checker import *
 from bin.initiate_matchmaking import matchmaking_start, matchmaking_callback
 from bin.matchmaking import matchmaking
-from bin.interprocess_monitor import interprocess_monitor
+from bin.interprocess_monitor import interprocess_monitor, interprocess_queue
 from bin.merchant import *
 from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
 from bin.equip_items import add_resource, remove_resource, equip, unequip
