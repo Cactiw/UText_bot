@@ -292,6 +292,7 @@ def battle_count():     #Тут считается битва в которой 
                 battle = battles_need_treating.get()
                 team_strings = ["Team 1:\n", "Team 2:\n"]
                 result_strings = ["Team 1:\n", "Team 2:\n"]
+                damage_dict = {}
                 for i in battle.skills_queue:
                     try:
                         if i.participant.nickname in battle.dead_list:
@@ -299,19 +300,32 @@ def battle_count():     #Тут считается битва в которой 
                             dispatcher.bot.group_send_message(message_group, chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                         text="<b>Вы мертвы</b>", parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
                             continue
-                        i.skill.use_skill(i.targets, battle, i.participant)
+                        damage = i.skill.use_skill(i.targets, battle, i.participant)
+                        str_damage = ""
+                        if damage is not None and damage != 0:
+                            for t in i.targets:
+                                record = damage_dict.get(t.nickname)
+                                if record is None:
+                                    damage_dict.update({t.nickname: damage})
+                                else:
+                                    damage_dict.update({t.nickname: record + damage})
+
+                            str_damage += "("
+                            str_damage += "+" if damage > 0 else ""
+                            str_damage += str(damage)
+                            str_damage += ")"
                         if i.skill.priority == 0:
                             team_strings[i.team] += i.skill.format_string.format(i.participant.nickname +
-                                                                                 game_classes_to_emoji.get(i.participant.game_class))
+                                                                                 game_classes_to_emoji.get(i.participant.game_class), "", "")
                         else:
                             if len(i.targets) > 1:
                                 team_strings[i.team] += i.skill.format_string.format(i.participant.nickname +
-                                                                                 game_classes_to_emoji.get(i.participant.game_class), "Команда противника")
+                                                                                 game_classes_to_emoji.get(i.participant.game_class), "Команда противника", str_damage)
                             else:
                                 team_strings[i.team] += i.skill.format_string.format(i.participant.nickname +
                                                                                      game_classes_to_emoji.get(i.participant.game_class),
                                                                                      i.targets[0].nickname +
-                                                                                     game_classes_to_emoji.get(i.targets[0].game_class))
+                                                                                     game_classes_to_emoji.get(i.targets[0].game_class), str_damage)
                     except Exception:
                         dispatcher.bot.group_send_message(get_message_group(i.participant.id), chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                           text="<b>Ошибка при обработке скиллов</b>", parse_mode="HTML")
@@ -330,10 +344,19 @@ def battle_count():     #Тут считается битва в которой 
                                     result_strings[i] += "💫({0})".format(battle.stun_list.get(player.nickname) - 1)
                                 if battle.taunt_list.get(i).get(player.nickname) is not None and battle.taunt_list.get(i).get(player.nickname) > 1:
                                     result_strings[i] += "🔰({0})".format(battle.taunt_list.get(i).get(player.nickname) - 1)
-                            result_strings[i] += "<b>{0}</b>{1}    {2}🧪 {3}⚡️   /info_{0}\n".format(player.nickname,
+                            curr_damage = damage_dict.get(player.nickname)
+                            str_damage = ""
+                            if curr_damage is not None and curr_damage != 0:
+                                str_damage += "("
+                                str_damage += "+" if curr_damage > 0 else ""
+                                str_damage += str(curr_damage)
+                                str_damage += ")"
+
+                            result_strings[i] += "<b>{0}</b>{1}  {2}🌡{4} {3}⚡️   /info_{0}\n".format(player.nickname,
                                                                                        game_classes_to_emoji.get(player.game_class),
                                                                                        player.hp,
-                                                                                       player.charge)   #TODO написать красиво
+                                                                                       player.charge,
+                                                                                       str_damage)   #TODO написать красиво
                             player_buff_list = battle.buff_list.get(player.nickname)
                             if player_buff_list is not None:
                                 for t in list(player_buff_list):
@@ -516,7 +539,7 @@ def battle_count():     #Тут считается битва в которой 
 #-----------------------------------------------------------------------------------------------------------------------------------------
 
 def send_waiting_msg(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text="Битва еще обарабывается")
+    bot.send_message(chat_id=update.message.chat_id, text="Битва еще обрабывается")
 
 
 def send_message_dead(bot, update):

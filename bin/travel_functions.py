@@ -7,6 +7,7 @@ from work_materials.filters.service_filters import filter_is_admin
 import pickle
 import time
 import logging, traceback
+from libs.interprocess_dictionaty import interprocess_queue, InterprocessDictionary
 
 
 def move_player(bot, job):
@@ -85,7 +86,7 @@ def return_to_location_admin(bot, update, user_data):
     j = travel_jobs.get(player.id)
     if pending_battles.get(user_data.get("Battle id")) is not None:
         pending_battles.pop(user_data.get("Battle id"))
-    list_user_data = list(user_data)
+    """list_user_data = list(user_data)
     if 'saved_battle_status' in list_user_data:
         user_data.pop('saved_battle_status')
     if 'chosen skill' in list_user_data:
@@ -97,9 +98,10 @@ def return_to_location_admin(bot, update, user_data):
     if 'matchmaking' in list_user_data:
         user_data.pop('matchmaking')
     if 'Team' in list_user_data:
-        user_data.pop('Team')
-    bot.send_message(chat_id=player_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
-    show_general_buttons(bot, update, user_data)
+        user_data.pop('Team')"""
+    interprocess_dict = InterprocessDictionary(player.id, "battle status return", {})
+    interprocess_queue.put(interprocess_dict)
+    #bot.send_message(chat_id=player_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
     if j is None:
         return
     j.job.schedule_removal()

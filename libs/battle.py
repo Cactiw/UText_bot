@@ -207,17 +207,17 @@ class BattleStarting:
         team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         for i in self.teams[0]:
-            team1_text += "<b>{0}</b>{4} {1}🔺️  {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+            team1_text += "<b>{0}</b>{4} {1}🔺️  {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
                                                                       game_classes_to_emoji.get(i.game_class))
         team1_text += "\nВаши соперники:\n"
         for i in self.teams[1]:
-            team1_text += "<b>{0}</b>{4}  {1}🔺️   {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+            team1_text += "<b>{0}</b>{4}  {1}🔺️   {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
                                                                        game_classes_to_emoji.get(i.game_class))
-            team2_text += "<b>{0}</b>{4}  {1}🔺   {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+            team2_text += "<b>{0}</b>{4}  {1}🔺   {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
                                                                       game_classes_to_emoji.get(i.game_class))
         team2_text += "\nВаши соперники:\n"
         for i in self.teams[0]:
-            team2_text += "<b>{0}</b>{4}  {1}🔺  {2}🧪 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+            team2_text += "<b>{0}</b>{4}  {1}🔺  {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
                                                                      game_classes_to_emoji.get(i.game_class))
         team1_text += "\n/info_Имя Игрока - информация об игроке"
         team2_text += "\n/info_Имя Игрока - информация об игроке"
