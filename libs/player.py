@@ -88,15 +88,14 @@ class Player:
         if quanty is None:
             quanty = int(count)
             list.update({item.id: quanty})
-            request = "INSERT INTO inventory(user_id, type, id, quanty) VALUES('{0}', '{1}', '{2}', '{3}')".format(self.id, item.type,
-                                                                                                 item.id, quanty)
-            cursor.execute(request)
+            request = "INSERT INTO inventory(user_id, type, id, quanty) VALUES(%s, %s, %s, %s)"
+            cursor.execute(request, (self.id, item.type, item.id, quanty))
             conn.commit()
             return
         quanty += int(count)
         list.update({item.id: quanty})
-        request = "UPDATE inventory SET quanty = '{2}' WHERE user_id = '{0}' and id = '{1}'".format(self.id, item.id, quanty)
-        cursor.execute(request)
+        request = "UPDATE inventory SET quanty = %s WHERE user_id = %s and id = %s"
+        cursor.execute(request, (self.id, item.id, quanty))
         conn.commit()
         return 0
 
@@ -108,15 +107,15 @@ class Player:
             return 1
         if quanty == count:
             list.pop(item.id)
-            request = "DELETE FROM inventory WHERE user_id = '{0}' and id = '{1}'".format(self.id, item.id)
-            cursor.execute(request)
+            request = "DELETE FROM inventory WHERE user_id = %s and id = %s"
+            cursor.execute(request, (self.id, item.id))
             conn.commit()
             return 0
         quanty -= int(count)
         list.update({item.id: quanty})
-        request = "UPDATE inventory SET type = '{1}', quanty = '{3}' WHERE user_id = '{0}'" \
-                  " and id = '{2}'".format(self.id, item.type, item.id, quanty)
-        cursor.execute(request)
+        request = "UPDATE inventory SET type = %s, quanty = %s WHERE user_id = %s" \
+                  " and id = %s"
+        cursor.execute(request, (self.id, item.type, item.id, quanty))
         conn.commit()
         return 0
 
@@ -211,8 +210,8 @@ class Player:
                   " exp, lvl, free_points, free_skill_points, fatigue, first_skill_lvl, second_skill_lvl, " \
                   "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, charge, speed, mana, hp," \
                   " location, gold, metal, wood, " \
-                  "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM players WHERE id = {0}".format(self.id)
-        cursor.execute(request)
+                  "head, body, shoulders, legs, feet, left_arm, right_arm, mount FROM players WHERE id = %s"
+        cursor.execute(request, (self.id,))
         row = cursor.fetchone()
         if row is None:
             return None
@@ -243,8 +242,8 @@ class Player:
                                  shoulders = row[30] if row[30] != 'None' else None, legs = row[31] if row[31] != 'None' else None,
                                  feet = row[32] if row[32] != 'None' else None, left_arm = row[33] if row[33] != 'None' else None,
                                  right_arm = row[34] if row[34] != 'None' else None, mount = row[35] if row[35] != 'None' else None)
-        request = "SELECT type, id, quanty FROM inventory WHERE user_id = '{0}'".format(self.id)
-        cursor.execute(request)
+        request = "SELECT type, id, quanty FROM inventory WHERE user_id = %s"
+        cursor.execute(request, (self.id,))
         row = cursor.fetchone()
         while row:
             type = row[0]
@@ -260,27 +259,25 @@ class Player:
         return self
 
     def update_to_database(self):
-        request = "UPDATE players SET id = '{0}', username = '{1}', nickname = '{2}', sex = '{3}', fraction = '{4}', " \
-                  "race = '{5}', game_class = '{6}', exp = '{7}', lvl = '{8}', free_points = '{9}', free_skill_points = '{10}', fatigue = '{11}', " \
-                  "first_skill_lvl = '{12}', second_skill_lvl = '{13}', third_skill_lvl = '{14}', fourth_skill_lvl = '{15}', " \
-                  "fifth_skill_lvl = '{16}', endurance = '{17}', power = '{18}', armor = '{19}', charge = '{20}', speed = '{21}', " \
-                  "mana = '{22}', hp = '{23}', location = '{24}', gold = '{25}', metal = '{26}', wood = '{27}', " \
-                  "head = '{28}', body = '{29}', shoulders = '{30}', legs = '{31}', feet = '{32}', left_arm = '{33}', " \
-                  "right_arm = '{34}', mount = '{35}' WHERE id = '{36}'".format(self.id, self.username, self.nickname, self.sex,
-                                                           self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.free_skill_points, self.fatigue,
-                                                           list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
-                                                           list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
-                                                           self.stats['power'], self.stats['armor'],
-                                                           self.stats['charge'], self.stats['speed'],
-                                                           self.charge, self.hp, self.location,
-                                                           self.resources['gold'], self.resources['metal'],
-                                                           self.resources['wood'], self.on_character['head'],
-                                                           self.on_character['body'], self.on_character['shoulders'],
-                                                           self.on_character['legs'], self.on_character['feet'],
-                                                           self.on_character['left_arm'], self.on_character['right_arm'],
-                                                           self.on_character['mount'], self.id)
-        globals.cursor.execute(request)
+        request = "UPDATE players SET id = %s, username = %s, nickname = %s, sex = %s, fraction = %s, " \
+                  "race = %s, game_class = %s, exp = %s, lvl = %s, free_points = %s, free_skill_points = %s, fatigue = %s, " \
+                  "first_skill_lvl = %s, second_skill_lvl = %s, third_skill_lvl = %s, fourth_skill_lvl = %s, " \
+                  "fifth_skill_lvl = %s, endurance = %s, power = %s, armor = %s, charge = %s, speed = %s, " \
+                  "mana = %s, hp = %s, location = %s, gold = %s, metal = %s, wood = %s, " \
+                  "head = %s, body = %s, shoulders = %s, legs = %s, feet = %s, left_arm = %s, " \
+                  "right_arm = %s, mount = %s WHERE id = %s"
+        globals.cursor.execute(request, (self.id, self.username, self.nickname, self.sex,
+                                         self.fraction, self.race, self.game_class, self.exp, self.lvl,
+                                         self.free_points, self.free_skill_points, self.fatigue,
+                                         list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
+                                         list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
+                                         self.stats['power'], self.stats['armor'], self.stats['charge'], self.stats['speed'],
+                                         self.charge, self.hp, self.location, self.resources['gold'], self.resources['metal'],
+                                         self.resources['wood'], self.on_character['head'],
+                                         self.on_character['body'], self.on_character['shoulders'],
+                                         self.on_character['legs'], self.on_character['feet'],
+                                         self.on_character['left_arm'], self.on_character['right_arm'],
+                                         self.on_character['mount'], self.id))
         globals.conn.commit()
 
     def add_to_database(self):
@@ -293,21 +290,16 @@ class Player:
                   "third_skill_lvl, fourth_skill_lvl, fifth_skill_lvl, endurance, power, armor, charge, speed, mana, hp," \
                   " location, gold, metal, wood, " \
                   "head, body, shoulders, legs, feet, left_arm, right_arm, mount)" \
-                  " VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', " \
-                  "'{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}'," \
-                  "'{16}', '{17}','{18}','{19}', '{20}', '{21}', '{22}', '{23}', '{24}'," \
-                  "'{25}', '{26}', '{27}', '{28}', '{29}', '{30}', '{31}', '{32}', '{33}', '{34}', '{35}')".format(self.id, self.username, self.nickname, self.sex,
-                                                           self.fraction, self.race, self.game_class, self.exp, self.lvl,
-                                                           self.free_points, self.free_skill_points, self.fatigue, list(self.skill_lvl.values())[0], list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
-                                                           list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
-                                                           self.stats['power'], self.stats['armor'],
-                                                           self.stats['charge'], self.stats['speed'],
-                                                           self.charge, self.hp, self.location,
-                                                           self.resources['gold'], self.resources['metal'],
-                                                           self.resources['wood'], self.on_character['head'],
-                                                           self.on_character['body'], self.on_character['shoulders'],
-                                                           self.on_character['legs'], self.on_character['feet'],
-                                                           self.on_character['left_arm'], self.on_character['right_arm'],
-                                                           self.on_character['mount'])
-        cursor.execute(request)
+                  " VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s," \
+                  "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(request, (self.id, self.username, self.nickname, self.sex,
+                                 self.fraction, self.race, self.game_class, self.exp, self.lvl,
+                                 self.free_points, self.free_skill_points, self.fatigue, list(self.skill_lvl.values())[0],
+                                 list(self.skill_lvl.values())[1], list(self.skill_lvl.values())[2],
+                                 list(self.skill_lvl.values())[3], list(self.skill_lvl.values())[4], self.stats['endurance'],
+                                 self.stats['power'], self.stats['armor'], self.stats['charge'], self.stats['speed'],
+                                 self.charge, self.hp, self.location, self.resources['gold'], self.resources['metal'],
+                                 self.resources['wood'], self.on_character['head'], self.on_character['body'],
+                                 self.on_character['shoulders'], self.on_character['legs'], self.on_character['feet'],
+                                 self.on_character['left_arm'], self.on_character['right_arm'], self.on_character['mount']))
         conn.commit()

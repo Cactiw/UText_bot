@@ -29,13 +29,13 @@ def auction_callback(bot, update, user_data):
         return
 
     request = "select lot_id, item_name, time_end, price, buyout_price from lots " \
-              "where item_type = '{0}' order by time_end limit 10".format(type)
-    cursor.execute(request)
+              "where item_type = %s order by time_end limit 10"
+    cursor.execute(request, (type,))
     row = cursor.fetchone()
     while row:
         time_end = row[2] - datetime.datetime.now(tz=pytz.timezone('UTC'))
         new_response = "<b>{0}</b>\nТекущая цена - 💰<b>{1}</b>\nВремя до окончания: <b>{2}</b>\nСделать ставку: /bet_{3}_[Новая цена]\n\n".format(
-            row[1], row[3], time_end, row[0])
+            row[1], row[3], ":".join(str(time_end).partition(".")[0].split(":")[0:3]), row[0])
         response += new_response
 
         row = cursor.fetchone()
@@ -78,8 +78,8 @@ def create_lot(bot, update):
 
 
 def cancel_lot(bot, update):
-    request = "select item_type, item_id, player_bid_id, price from lots where lot_id = '{0}' and player_created_id = '{1}'".format(update.message.text.split("_")[2], update.message.from_user.id)
-    cursor.execute(request)
+    request = "select item_type, item_id, player_bid_id, price from lots where lot_id = %s and player_created_id = %s"
+    cursor.execute(request, (update.message.text.split("_")[2], update.message.from_user.id))
     row = cursor.fetchone()
     if row is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Указанный лот не найден")
@@ -93,8 +93,8 @@ def cancel_lot(bot, update):
     list = item_response[0]
     item = item_response[1]
     player.add_item(list, item, 1)
-    request = "delete from lots where lot_id = '{0}'".format(update.message.text.split("_")[2])
-    cursor.execute(request)
+    request = "delete from lots where lot_id = %s"
+    cursor.execute(request, (update.message.text.split("_")[2],))
     conn.commit()
     if player_bid_id is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Лот успешно отменён")
@@ -108,8 +108,8 @@ def cancel_lot(bot, update):
 
 def bet(bot, update):
     args = update.message.text.split("_")
-    request = "select price, player_bid_id from lots where lot_id = '{0}'".format(args[1])
-    cursor.execute(request)
+    request = "select price, player_bid_id from lots where lot_id = %s"
+    cursor.execute(request, (args[1],))
     row = cursor.fetchone()
     if row is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Указанный лот не найден")
@@ -130,8 +130,8 @@ def bet(bot, update):
         return
     gold -= new_price
     player.resources.update(gold=gold)
-    request = "update lots set price = '{0}', player_bid_id = '{1}' where lot_id = '{2}'".format(new_price, update.message.from_user.id, args[1])   #TODO сделать увеличение времени, если оно почти кончилось
-    cursor.execute(request)
+    request = "update lots set price = %s, player_bid_id = %s where lot_id = %s"      #TODO сделать увеличение времени, если оно почти кончилось
+    cursor.execute(request, (new_price, update.message.from_user.id, args[1]))
     conn.commit()
     bot.send_message(chat_id=update.message.from_user.id, text="Ставка успешно сделана")
     if player_bid_id is not None:
@@ -143,13 +143,13 @@ def bet(bot, update):
 
 def lots(bot, update):
     item_name = "" + update.message.text.partition(" ")[2]
-    request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* '{0}' order by time_end".format(item_name)
-    cursor.execute(request)
+    request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* %s order by time_end"
+    cursor.execute(request, (item_name,))
     row = cursor.fetchone()
     response = "Список лотов:\n\n"
     while row:
         time_end = row[2] - datetime.datetime.now(tz = pytz.timezone('UTC'))
-        new_response = "<b>{0}</b>\nТекущая цена - 💰<b>{1}</b>\nВремя до окончания: <b>{2}</b>\nСделать ставку: /bet_{3}_[Новая цена]\n\n".format(row[1], row[3], time_end, row[0])
+        new_response = "<b>{0}</b>\nТекущая цена - 💰<b>{1}</b>\nВремя до окончания: <b>{2}</b>\nСделать ставку: /bet_{3}_[Новая цена]\n\n".format(row[1], row[3], ":".join(str(time_end).partition(".")[0].split(":")[0:3]), row[0])
 
         if len(response + new_response) >= 4096:
             bot.send_message(chat_id=update.message.from_user.id, text=response, parse_mode='HTML')
@@ -162,15 +162,14 @@ def lots(bot, update):
 
 def my_lots(bot, update):
     item_name = "" + update.message.text.partition(" ")[2]
-    request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* '{0}' and player_created_id = '{1}' order by time_end".format(
-        item_name, update.message.from_user.id)
-    cursor.execute(request)
+    request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* %s and player_created_id = %s order by time_end"
+    cursor.execute(request, (item_name, update.message.from_user.id))
     row = cursor.fetchone()
     response = "Список ваших лотов:\n\n"
     while row:
         time_end = row[2] - datetime.datetime.now(tz=pytz.timezone('UTC'))
         new_response = "<b>{0}</b>\nТекущая цена - 💰<b>{1}</b>\nВремя до окончания: <b>{2}</b>\n\n\n".format(
-            row[1], row[3], time_end)
+            row[1], row[3], ":".join(str(time_end).partition(".")[0].split(":")[0:3]))
         if len(response + new_response) >= 4096:
             bot.send_message(chat_id=update.message.from_user.id, text=response, parse_mode='HTML')
             response = ""
@@ -181,15 +180,14 @@ def my_lots(bot, update):
 
 def my_bids(bot, update):
     item_name = "" + update.message.text.partition(" ")[2]
-    request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* '{0}' and player_bid_id = '{1}' order by time_end".format(
-        item_name, update.message.from_user.id)
-    cursor.execute(request)
+    request = "select lot_id, item_name, time_end, price, buyout_price from lots where item_name ~* %s and player_bid_id = %s order by time_end"
+    cursor.execute(request, (item_name, update.message.from_user.id))
     row = cursor.fetchone()
     response = "Список ваших ставок:\n\n"
     while row:
         time_end = row[2] - datetime.datetime.now(tz=pytz.timezone('UTC'))
         new_response = "<b>{0}</b>\nТекущая цена - 💰<b>{1}</b>\nВремя до окончания: <b>{2}</b>\n\n\n".format(
-            row[1], row[3], time_end)
+            row[1], row[3], ":".join(str(time_end).partition(".")[0].split(":")[0:3]))
         if len(response + new_response) >= 4096:
             bot.send_message(chat_id=update.message.from_user.id, text=response, parse_mode='HTML')
             response = ""

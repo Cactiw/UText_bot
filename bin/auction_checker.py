@@ -15,8 +15,8 @@ def auction_checker():
         while True:
             try:
 
-                request = "select item_type, item_id, player_created_id, player_bid_id, price, lot_id from lots where time_end < '{0}'".format(datetime.datetime.now(tz = pytz.timezone('Europe/Moscow')))
-                cursor.execute(request)
+                request = "select item_type, item_id, player_created_id, player_bid_id, price, lot_id from lots where time_end < %s"
+                cursor.execute(request, (datetime.datetime.now(tz = pytz.timezone('Europe/Moscow'),)));
                 row = cursor.fetchone()
                 while row:
                     item_type = row[0]

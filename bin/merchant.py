@@ -29,8 +29,8 @@ def merchant_buy(bot, update, user_data):
         type = "e"
     location_id = player.location
     location_type = 0 if (location_id >= 14 and location_id <= 16) else 1
-    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = '{0}' and item_type = '{1}'".format(location_type, type)
-    cursor.execute(request)
+    request = "SELECT item_id, equipment_id, item_name, item_price FROM merchant_items WHERE location_type = %s and item_type = %s"
+    cursor.execute(request, (location_type, type))
     row = cursor.fetchone()
     if row is None:
         bot.send_message(chat_id=update.message.from_user.id, text="Пройдя в указанный продавцом угол, вы обнаружили"
@@ -44,8 +44,8 @@ def merchant_buy(bot, update, user_data):
 
 def buy(bot, update, user_data):
     player = get_player(update.message.from_user.id)
-    request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = '{0}'".format(update.message.text.partition('_')[2])
-    cursor.execute(request)
+    request = "SELECT equipment_id, item_price FROM merchant_items WHERE item_id = %s"
+    cursor.execute(request, (update.message.text.partition('_')[2],))
     row = cursor.fetchone()
     equipment = get_equipment(row[0])
     gold = player.resources.get("gold")

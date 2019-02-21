@@ -11,8 +11,8 @@ class Equipment(Item):
 
 
     def update_from_database(self):
-        request = "SELECT type, name, endurance, power, armor, charge, speed FROM equipment WHERE id = '{0}'".format(self.id)
-        cursor.execute(request)
+        request = "SELECT type, name, endurance, power, armor, charge, speed FROM equipment WHERE id = %s"
+        cursor.execute(request, (self.id,))
         row = cursor.fetchone()
         if row is None:
             return None

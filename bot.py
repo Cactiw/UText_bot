@@ -143,17 +143,17 @@ dispatcher.add_handler(MessageHandler(Filters.text & filter_return_to_location, 
 dispatcher.add_handler(MessageHandler(Filters.text & filter_merchant, merchant, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_merchant_buy, merchant_buy, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_return_from_merchant, return_from_merchant, pass_user_data=True))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_buy_equipment, buy, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_buy_equipment, buy, pass_user_data=True))
 
 
 #Фильтры для аукциона
 dispatcher.add_handler(MessageHandler(Filters.text & filter_auction, auction, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_create_lot, create_lot, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_cancel_lot, cancel_lot, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_bet, bet, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_lots, lots, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_my_lots, my_lots, pass_user_data=False))
-dispatcher.add_handler(MessageHandler(Filters.text & filter_my_bids, my_bids, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_create_lot, create_lot, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_cancel_lot, cancel_lot, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_bet, bet, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_lots, lots, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_my_lots, my_lots, pass_user_data=False))
+dispatcher.add_handler(MessageHandler(Filters.command & filter_my_bids, my_bids, pass_user_data=False))
 
 dispatcher.add_handler(CommandHandler("matchmaking_start", matchmaking_start, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_start_battle, matchmaking_start, pass_user_data=True))

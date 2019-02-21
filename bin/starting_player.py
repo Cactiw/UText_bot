@@ -6,8 +6,8 @@ from bin.show_general_buttons import show_general_buttons
 
 def start(bot, update, user_data):
     user_data.update(type = 1)
-    request = "SELECT * FROM players WHERE id = '{0}'".format(update.message.from_user.id)
-    cursor.execute(request)
+    request = "SELECT * FROM players WHERE id = %s"
+    cursor.execute(request, (update.message.from_user.id,))
     row = cursor.fetchone()
     if row is not None:
         bot.send_message(chat_id=update.message.chat_id, text='Вы уже в игре!')

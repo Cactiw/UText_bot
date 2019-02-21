@@ -4,6 +4,7 @@ from bin.player_service import get_player, update_status
 from bin.show_general_buttons import show_general_buttons
 from bin.lvl_up_player import start
 from libs.myJob import MyJob
+import sys
 
 
 def sql(bot, update, user_data):
@@ -58,9 +59,9 @@ def update_player(bot, update, args):
 
 def delete_self(bot, update, user_data):
     mes = update.message
-    request = "DELETE FROM players WHERE id = '{0}'".format(mes.from_user.id)
+    request = "DELETE FROM players WHERE id = %s"
     try:
-        cursor.execute(request)
+        cursor.execute(request, (mes.from_user.id,))
     except:
         error = sys.exc_info()
         response = ""
@@ -70,12 +71,12 @@ def delete_self(bot, update, user_data):
         return
     conn.commit()
     bot.send_message(chat_id = mes.from_user.id, text = "Игрок удалён из таблицы игроков")
-    request = "DELETE FROM inventory WHERE user_id = '{0}'".format(mes.from_user.id)
+    request = "DELETE FROM inventory WHERE user_id = %s"
     j = travel_jobs.get(mes.from_user.id)
     if j is not None:
         j.job.schedule_removal()
     try:
-        cursor.execute(request)
+        cursor.execute(request, (mes.from_user.id,))
     except:
         error = sys.exc_info()
         response = ""

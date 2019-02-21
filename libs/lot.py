@@ -19,10 +19,10 @@ class Lot:
 
         request = "insert into lots(item_type, item_id, item_name, player_created_id," \
                   " price, buyout_price, time_start, time_end) " \
-                  "values('{0}', '{1}', '{2}', '{3}'," \
-                  " '{4}', '{5}', '{6}', '{7}') returning lot_id".format(item_type, item_id, self.item.name, self.player_created.id,
-                                                 self.price, self.buyout_price, self.time_start, self.time_end)
-        cursor.execute(request)
+                  "values(%s, %s, %s, %s," \
+                  " %s, %s, %s, %s) returning lot_id"
+        cursor.execute(request, (item_type, item_id, self.item.name, self.player_created.id,
+                                                 self.price, self.buyout_price, self.time_start, self.time_end))
         conn.commit()
         id = cursor.fetchone()[0]
         return id
