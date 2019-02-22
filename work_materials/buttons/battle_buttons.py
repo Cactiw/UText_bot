@@ -4,7 +4,7 @@ from work_materials.globals import build_menu, skills, dispatcher
 
 def get_general_battle_buttons(player):
     user_data = dispatcher.user_data.get(player.id)
-    if user_data and user_data.get(player.id).get('status') == "Battle_dead":
+    if user_data and user_data.get('status') == "Battle_dead":
         return ReplyKeyboardRemove()
     stun = dispatcher.user_data.get(player.id).get('stunned')
     if stun is not None and stun > 0:

@@ -167,6 +167,7 @@ class BattleStarting:
 
     def start_battle(self):
         self.teams_avg_lvls = [0, 0]
+        self.teams_sum_lvls = [0, 0]
         self.players_need_to_be_distributed = self.players.copy()
         self.teams[0].clear()
         self.teams[1].clear()
@@ -180,6 +181,7 @@ class BattleStarting:
                 player = get_player(player_id)
                 player_in_battle = Player_in_battle(player, team, group)
                 self.teams[team].append(player)
+                self.teams_sum_lvls[team] += player.lvl
                 self.teams_avg_lvls[team] = 0
                 count = 0
                 for j in self.teams[team]:
@@ -187,9 +189,11 @@ class BattleStarting:
                     count += 1
                 self.teams_avg_lvls[team] /= count
                 self.players_need_to_be_distributed.remove(player_in_battle)
+        self.players_need_to_be_distributed.sort(key=lambda player_in_battle: player_in_battle.player.lvl, reverse=True)
         for i in range(len(self.players_need_to_be_distributed)):
-            if self.teams_avg_lvls[0] <= self.teams_avg_lvls[1] and len(self.teams[0]) < (self.need_players / 2):
+            if self.teams_sum_lvls[0] <= self.teams_sum_lvls[1] and len(self.teams[0]) < (self.need_players / 2):
                 self.teams[0].append(self.players_need_to_be_distributed[i].player)
+                self.teams_sum_lvls[0] += self.players_need_to_be_distributed[i].player.lvl
                 self.teams_avg_lvls[0] = 0
                 count = 0
                 for j in self.teams[0]:
@@ -198,6 +202,7 @@ class BattleStarting:
                 self.teams_avg_lvls[0] /= count
             else:
                 self.teams[1].append(self.players_need_to_be_distributed[i].player)
+                self.teams_sum_lvls[1] += self.players_need_to_be_distributed[i].player.lvl
                 self.teams_avg_lvls[1] = 0
                 count = 0
                 for j in self.teams[1]:
