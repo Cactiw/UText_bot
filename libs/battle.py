@@ -21,11 +21,12 @@ class Player_in_battle:
 
 class PlayerChoosing:	#Игрок выбирает ход
 
-    def __init__(self, player, targets, skill, team):
+    def __init__(self, player, targets, skill, team, number):
         self.participant = player  #class Player
         self.targets = targets
         self.skill = skill
         self.team = team
+        self.number = number
 
 
 class Battle:
@@ -33,21 +34,21 @@ class Battle:
     def __init__(self, battle_starting):
         self.teams = [ [], [] ]
         self.buff_list = {}         #{nickname: [Buff1, Buff2, ...]}
+        self.team_players_count = len(battle_starting.teams[0])
         for i in range(0, len(battle_starting.teams[0])):
-            self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None, 0))
+            self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None, 0, i))
             self.buff_list.update({battle_starting.teams[0][i].nickname: {'power': [],
                                                                           'endurance': [],
                                                                           'armor': [],
                                                                           'charge': [],
                                                                           'speed': []}})
-            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1))
+            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1, i + self.team_players_count))
             self.buff_list.update({battle_starting.teams[1][i].nickname: {'power': [],
                                                                           'endurance': [],
                                                                           'armor': [],
                                                                           'charge': [],
                                                                           'speed': []}})
         self.id = None
-        self.team_players_count = len(self.teams[0])
         self.last_tick_time = time.time()
         self.skills_queue = []
         self.dead_list = []     #[nickname1, ...]
@@ -206,21 +207,29 @@ class BattleStarting:
 
         team1_text = "Противники найдены, битва начинается!\nВаша команда:\n"
         team2_text = "Противники найдены, битва начинается!\nВаша команда:\n"
+        battle = Battle(self)
+        j = 0
         for i in self.teams[0]:
-            team1_text += "<b>{0}</b>{4} {1}🔺️  {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
-                                                                      game_classes_to_emoji.get(i.game_class))
+            team1_text += "<b>{0}</b>{4} {1}🔺️  {2}🌡 {3}⚡  /info_{5}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                      game_classes_to_emoji.get(i.game_class), battle.teams[0][j].number)
+            j += 1
         team1_text += "\nВаши соперники:\n"
+        j = 0
         for i in self.teams[1]:
-            team1_text += "<b>{0}</b>{4}  {1}🔺️   {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
-                                                                       game_classes_to_emoji.get(i.game_class))
-            team2_text += "<b>{0}</b>{4}  {1}🔺   {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
-                                                                      game_classes_to_emoji.get(i.game_class))
+            team1_text += "<b>{0}</b>{4}  {1}🔺️   {2}🌡 {3}⚡  /info_{5}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                       game_classes_to_emoji.get(i.game_class), battle.teams[1][j].number)
+            team2_text += "<b>{0}</b>{4}  {1}🔺   {2}🌡 {3}⚡  /info_{5}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                      game_classes_to_emoji.get(i.game_class), battle.teams[1][j].number)
+            j += 1
         team2_text += "\nВаши соперники:\n"
+        j = 0
         for i in self.teams[0]:
-            team2_text += "<b>{0}</b>{4}  {1}🔺  {2}🌡 {3}⚡  /info_{0}\n".format(i.nickname, i.lvl, i.hp, i.charge,
-                                                                     game_classes_to_emoji.get(i.game_class))
-        team1_text += "\n/info_Имя Игрока - информация об игроке"
-        team2_text += "\n/info_Имя Игрока - информация об игроке"
+            team2_text += "<b>{0}</b>{4}  {1}🔺  {2}🌡 {3}⚡  /info_{5}\n".format(i.nickname, i.lvl, i.hp, i.charge,
+                                                                     game_classes_to_emoji.get(i.game_class), battle.teams[0][j].number)
+            j += 1
+        j = 0
+        """team1_text += "\n/info_Имя Игрока - информация об игроке"
+        team2_text += "\n/info_Имя Игрока - информация об игроке"""
         for j in range(2):
             for i in self.teams[j]:
                 dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
@@ -228,7 +237,6 @@ class BattleStarting:
                 interprocess_queue.put(interprocess_dictionary)
                 status = InterprocessDictionary(i.id, "user_data", {'Team': j})
                 interprocess_queue.put(status)
-        battle = Battle(self)
         battle_id = random.randint(1, 4294967295)
         ids = list(pending_battles)
         while battle_id in ids:

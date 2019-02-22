@@ -76,6 +76,15 @@ def callback(bot, update, user_data):
         return
 
 
+
+
+#Фильтры на спам и бан
+dispatcher.add_handler(MessageHandler(filter_is_banned, ignore))
+dispatcher.add_handler(MessageHandler(~filter_in_white_list, ignore))
+dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 0)
+dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 1)
+dispatcher.add_handler(MessageHandler(Filters.text & filter_is_not_admin, commands_count), group = 1)
+
 #Фильтры на битву
 dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_dead, send_message_dead, pass_user_data=False))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_battle_waiting_update, send_waiting_msg, pass_user_data=False))
@@ -95,12 +104,6 @@ dispatcher.add_handler(CommandHandler("group_info", group_info, pass_user_data=T
 dispatcher.add_handler(CommandHandler("group_leave", group_leave, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.command & group_kick_filter, group_kick, pass_user_data=True))
 
-
-#Фильтры на спам
-dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 0)
-dispatcher.add_handler(MessageHandler(filter_is_not_admin & filter_player_muted, ignore), group = 1)
-dispatcher.add_handler(MessageHandler(Filters.text & filter_is_not_admin, commands_count), group = 1)
-
 #Фильтр на старт игры
 dispatcher.add_handler(CommandHandler("start", start, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_fractions, fraction_select, pass_user_data=True))
@@ -115,7 +118,7 @@ dispatcher.add_handler(CommandHandler("sql", sql, pass_user_data=True, filters =
 dispatcher.add_handler(CommandHandler("update_player", update_player, pass_args=True, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("delete_self", delete_self, pass_user_data=True))#, filters = filter_is_admin))
 dispatcher.add_handler(CommandHandler("kill_myself", delete_self, pass_user_data=True, filters = filter_is_admin))
-dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True, filters=filter_is_admin))
+dispatcher.add_handler(CommandHandler("showdata", show_data, pass_user_data=True))#, filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("fasttravel", fast_travel, pass_user_data=True, filters=filter_is_admin & fast_travel_filter))
 dispatcher.add_handler(CommandHandler("return", return_to_location_admin, pass_user_data=True)) #filters=filter_is_admin))
 dispatcher.add_handler(CommandHandler("buttons", show_general_buttons, pass_user_data=True, filters=filter_is_admin))

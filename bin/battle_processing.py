@@ -33,6 +33,10 @@ def get_player_choosing_from_battle_via_id(battle, player_id):
         if battle.teams[1][i].participant.id == player_id:
             return battle.teams[1][i]
 
+def get_player_choosing_from_battle_via_number(battle, number):
+    team = number / 3
+    return battle.teams[team][number % 3]
+
 
 def battle_cancel_choosing(bot, update, user_data):
     battle = get_battle(user_data.get('Battle id'))
@@ -176,7 +180,8 @@ def set_target(bot, update, user_data):
         return
     player_choosing = get_player_choosing_from_battle_via_id(battle, update.message.from_user.id)
     new_target_choosing = get_player_choosing_from_battle_via_nick(battle, update.message.text)
-    if battle.taunt_list.get((user_data.get('Team') + 1) % 2) and battle.taunt_list.get((user_data.get('Team') + 1) % 2).get(new_target_choosing.participant.nickname) is None:
+    if battle.taunt_list.get((user_data.get('Team') + 1) % 2) and battle.taunt_list.get((user_data.get('Team') + 1) % 2).get(new_target_choosing.participant.nickname) is None\
+            and new_target_choosing not in battle.teams[user_data.get('Team')]:
         bot.send_message(chat_id=update.message.chat_id, text="Вы можете атаковать только провокаторов!")
         return
     if new_target_choosing is None:
@@ -258,7 +263,7 @@ def kick_out_players():
             curr_time = time.time()
             for j in list(pending_battles):
                 i = pending_battles.get(j)
-                if curr_time - i.last_count_time >= 30:
+                if curr_time - i.last_count_time >= 300:
                     for t in range(2):
                         for l in range(i.team_players_count):
                             player_choosing = i.teams[t][l]
@@ -300,8 +305,17 @@ def battle_count():     #Тут считается битва в которой 
                             dispatcher.bot.group_send_message(message_group, chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                         text="<b>Вы мертвы</b>", parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
                             continue
-                        damage = i.skill.use_skill(i.targets, battle, i.participant)
-                        str_damage = ""
+                        skill_str = i.skill.use_skill(i.targets, battle, i.participant)
+                        damage = 0
+                        if skill_str is not None:
+                            try:
+                                damage = int(skill_str)
+                            except ValueError:
+                                damage = None
+                            if damage is not None and damage >= 0:
+                                skill_str = "(+" + skill_str + ")"
+                            else:
+                                skill_str = "(" + skill_str + ")"
                         if damage is not None and damage != 0:
                             for t in i.targets:
                                 record = damage_dict.get(t.nickname)
@@ -309,23 +323,18 @@ def battle_count():     #Тут считается битва в которой 
                                     damage_dict.update({t.nickname: damage})
                                 else:
                                     damage_dict.update({t.nickname: record + damage})
-
-                            str_damage += "("
-                            str_damage += "+" if damage > 0 else ""
-                            str_damage += str(damage)
-                            str_damage += ")"
                         if i.skill.priority == 0:
                             team_strings[i.team] += i.skill.format_string.format(i.participant.nickname +
                                                                                  game_classes_to_emoji.get(i.participant.game_class), "", "")
                         else:
                             if len(i.targets) > 1:
                                 team_strings[i.team] += i.skill.format_string.format(i.participant.nickname +
-                                                                                 game_classes_to_emoji.get(i.participant.game_class), "Команда противника", str_damage)
+                                                                                 game_classes_to_emoji.get(i.participant.game_class), "Команда противника", "<b>" + skill_str + "</b>")
                             else:
                                 team_strings[i.team] += i.skill.format_string.format(i.participant.nickname +
                                                                                      game_classes_to_emoji.get(i.participant.game_class),
                                                                                      i.targets[0].nickname +
-                                                                                     game_classes_to_emoji.get(i.targets[0].game_class), str_damage)
+                                                                                     game_classes_to_emoji.get(i.targets[0].game_class), "<b>" + skill_str + "</b>")
                     except Exception:
                         dispatcher.bot.group_send_message(get_message_group(i.participant.id), chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                           text="<b>Ошибка при обработке скиллов</b>", parse_mode="HTML")
@@ -352,23 +361,31 @@ def battle_count():     #Тут считается битва в которой 
                                 str_damage += str(curr_damage)
                                 str_damage += ")"
 
-                            result_strings[i] += "<b>{0}</b>{1}  {2}🌡{4} {3}⚡️   /info_{0}\n".format(player.nickname,
+                            result_strings[i] += "<b>{0}</b>{1}  {2}{4}🌡 {3}⚡️   /info_{5}\n".format(player.nickname,
                                                                                        game_classes_to_emoji.get(player.game_class),
                                                                                        player.hp,
                                                                                        player.charge,
-                                                                                       str_damage)   #TODO написать красиво
+                                                                                       str_damage,
+                                                                                       player_choosing.number)   #TODO написать красиво
                             player_buff_list = battle.buff_list.get(player.nickname)
+                            flag = 0
                             if player_buff_list is not None:
                                 for t in list(player_buff_list):
                                     if not player_buff_list.get(t):
                                         continue
+                                    else:
+                                        if flag == 0:
+                                            result_strings[i] += "    Баффы:\n"
+                                            flag = 1
+
                                     for k in player_buff_list.get(t):
-                                        result_strings[i] += "    <b>{2}{0}</b> {3} на {1} ходов\n".format(k.buff, k.turns, "+" if k.buff > 0 else "", t)
+                                        result_strings[i] += "        <b>{2}{0}</b> {3} на {1} ходов\n".format(k.buff, k.turns, "+" if k.buff > 0 else "", t)
                             else:
                                 logging.error("player_buff_list is None in battle_processing for " + player.nickname)
                                 logging.error("battle.buff_list: " + str(battle.buff_list))
 
                             class_skills = skills.get(player.game_class)
+                            flag = 0
                             if class_skills is not None:
                                 for t in list(class_skills.values()):
                                     if t.name not in ['Атака', 'Пропуск хода'] and player.skill_cooldown.get(t.name) > 0:
@@ -376,11 +393,15 @@ def battle_count():     #Тут считается битва в которой 
                                         cooldown = player.skill_cooldown.get(t.name)
                                         if cooldown == 0:
                                             continue
-                                        result_strings[i] += "    {0} - {1} ходов\n".format(t.name, cooldown)   #TODO разобраться с окончаниями
+                                        else:
+                                            if flag == 0:
+                                                result_strings[i] += "    Cooldown:\n"
+                                                flag = 1
+                                        result_strings[i] += "        {0} - {1} ходов\n".format(t.name, cooldown)   #TODO разобраться с окончаниями
                             else:
                                 logging.error("class_skills is None in battle_processing for " + player.nickname)
 
-                            result_strings[i] += '\0'
+                            result_strings[i] += '\n'
                             player_choosing.targets = None
                             player_choosing.skill = None
                             reply_markup = get_general_battle_buttons(player)
