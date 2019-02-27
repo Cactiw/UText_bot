@@ -160,7 +160,6 @@ class Player:
         else:
             return None
 
-    @staticmethod
     def lvl_up(self):
         self.lvl += 1
         self.free_points += 5 #TODO balance
@@ -170,18 +169,18 @@ class Player:
         self.stats["armor"] += 1
         self.stats["charge"] += 1
         self.stats["speed"] += 1
-        if self.game_class == "Warrior":
+        if self.game_class == "Оператор":
             self.stats["armor"] += 1
-        elif self.game_class == "Mage" or self.game_class == "Cleric":
+        elif self.game_class == "Хакер" or self.game_class == "Биомеханик":
             self.stats["charge"] += 1
-        elif self.game_class == "Archer":
+        elif self.game_class == "Канонир":
             self.stats["speed"] += 1
         dispatcher.bot.send_message(chat_id = self.id, text = "LEVELUP!\nUse /lvl_up to choose a skill to upgrade")
         #TODO send message + choose_skill
 
     def lvl_check(self):
         if self.lvl < 50 and self.exp >= int(((self.lvl + 1) ** 3) * math.log(self.lvl + 1, math.e)):
-            self.lvl_up(self)
+            self.lvl_up()
 
     def equip(self, equipment): # Надевание предмета
         if self.on_character[equipment.place] is not None:
