@@ -293,8 +293,8 @@ def battle_count():     #Тут считается битва в которой 
                                 #Возможно стоит едитить сообщение и проставлять галки для тех, кто уже готов
     try:
         while True:
+            battle = battles_need_treating.get()
             try:
-                battle = battles_need_treating.get()
                 team_strings = ["Team 1:\n", "Team 2:\n"]
                 result_strings = ["Team 1:\n", "Team 2:\n"]
                 damage_dict = {}
@@ -302,8 +302,13 @@ def battle_count():     #Тут считается битва в которой 
                     try:
                         if i.participant.nickname in battle.dead_list:
                             message_group = get_message_group(i.participant.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
+                            dispatcher.bot.group_send_message(message_group, chat_id=i.participant.id,
                                                         text="<b>Вы мертвы</b>", parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
+                            continue
+                        if i.participant.nickname in battle.stun_list:
+                            team_strings[i.team] += "•<b>{0}</b> Оглушен на {1} ходов".format(i.participant.nickname +
+                                                                                                  game_classes_to_emoji.get(i.participant.game_class),
+                                                                                                  battle.stun_list.get(i.participant.nickname) - 1)
                             continue
                         skill_str = i.skill.use_skill(i.targets, battle, i.participant)
                         damage = 0
@@ -533,7 +538,10 @@ def battle_count():     #Тут считается битва в которой 
                             if res == 2:
                                 text = "<b>Ничья</b>"
                             elif player_choosing.team == res:
-                                text = "<b>Ваша команда победила!</b>"
+                                text = "<b>Ваша команда победила! + 100exp</b>"
+                                interprocess_dictionary = InterprocessDictionary(player.id, "change_player_state",
+                                                                                 {player.id: None, "exp": 100})
+                                interprocess_queue.put(interprocess_dictionary)
                             else:
                                 text = "<b>Ваша команда проиграла</b>"
                             message_group = get_message_group(player.id)

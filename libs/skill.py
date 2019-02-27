@@ -1,4 +1,5 @@
 from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_queue
+import math
 
 
 class Skill:
@@ -29,12 +30,19 @@ skip_turn_skill = Skill("Пропуск хода", "•<b>{0}</b> пропуст
 
 def attack_func(targets, battle, player):       #Обычная атака
     power = player.stats.get('power')
+    armor = player.stats.get('armor')
+    curr_buffs_power = battle.buff_list.get(player.nickname).get('power')
+    for j in curr_buffs_power:
+        power += j.buff
+    curr_buffs_armor = battle.buff_list.get(player.nickname).get('armor')
+    for j in curr_buffs_armor:
+        armor += j.buff
+    damage = power * 20 + power ** (4 / 5) * player.lvl ** (3 / 2)
+    damage /= (1 - 0.052 * math.sqrt(armor - 5) / (0.9 + 0.048 * math.sqrt(armor - 5)))
+    damage = int(damage)
     for i in targets:
-        curr_buffs = battle.buff_list.get(player.nickname).get('power')
-        for j in curr_buffs:
-            power += j.buff
-        i.hp -= 5 * power
-    return str(-5 * power)
+        i.hp -= damage
+    return str(-damage)
 
 
 

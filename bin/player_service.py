@@ -133,7 +133,7 @@ def print_player(bot, update, user_data):
     lvl_up_str = "У вас остались нераспределенные очки /lvl_up\n" if (player.free_points != 0 or player.free_skill_points != 0) else ""
     bot.send_message(chat_id=update.message.chat_id, text="Ник - <b>{0}</b>\nПол - <b>{1}</b>\nРаса - <b>{2}</b>\nФракция - <b>{3}</b>\nСейчас вы в локации: {21}\n\nКласс - <b>{4}</b>"
                                                           "\nКредиты - <b>{23}</b>\nМеханизмы - <b>{24}</b>\nМетаполимены - <b>{25}</b>"
-                                                          "\n\nexp = <b>{5}</b>\nlvl = <b>{6}</b>\nFree_points = <b>{7}</b>"
+                                                          "\n\nexp = <b>{5}</b>/<b>{26}</b>\nlvl = <b>{6}</b>\nFree_points = <b>{7}</b>"
                                                           "\nFree_skill_points = <b>{8}</b>\nFatigue = <b>{9}</b>\n{22}\n"
                                                           "Первый навык - <b>{10}</b>-го уровня\nВторой навык - <b>{11}</b>-го уровня"
                                                           "\nТретий навык - <b>{12}</b>-го уровня\n"
@@ -147,7 +147,7 @@ def print_player(bot, update, user_data):
         list(player.skill_lvl.values())[0], list(player.skill_lvl.values())[1], list(player.skill_lvl.values())[2],
         list(player.skill_lvl.values())[3], list(player.skill_lvl.values())[4], player.stats["endurance"],
         player.stats["armor"], player.stats["power"], player.stats["speed"], player.stats["charge"], task,
-        locations.get(player.location).name, lvl_up_str, player.resources.get('gold'), player.resources.get('wood'), player.resources.get('metal')),  #25
+        locations.get(player.location).name, lvl_up_str, player.resources.get('gold'), player.resources.get('wood'), player.resources.get('metal'), player.get_next_lvl_exp()),  #25
         parse_mode="HTML", reply_markup=info_buttons)
     
     

@@ -34,13 +34,12 @@ class Player:
         self.skill_cooldown = {}
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
-                    'speed': 5}
+                    'speed': 5} #speed == Ловкость (evade)
 
-        self.charge = self.stats['charge'] * 15
-        self.hp = self.stats['endurance'] * 25
+        self.charge = int(self.stats['charge'] * (self.lvl ** (3/2) + 20))
+        self.hp = int(self.stats['endurance'] * 3 * (self.lvl ** (3/2) + 20))
 
         self.location = 0
-        self.saved_battle_status = None
 
         if self.fraction == 'Федералы':
             self.location = 14
@@ -77,8 +76,8 @@ class Player:
             self.skill_cooldown.update({i.name: 0})
 
     def update_stats(self):
-        self.charge = self.stats['charge'] * 15
-        self.hp = self.stats['endurance'] * 25
+        self.charge = int(self.stats['charge'] * (self.lvl ** (3 / 2) + 20))
+        self.hp = int(self.stats['endurance'] * 3 * (self.lvl ** (3 / 2) + 20))
 
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id
@@ -153,7 +152,7 @@ class Player:
             self.stats["armor"] += 1
         elif stat == "Сила":
             self.stats["power"] += 1
-        elif stat == "Скорость" :
+        elif stat == "Скорость":
             self.stats["speed"] += 1
         elif stat == "Заряд":
             self.stats["charge"] += 1
@@ -162,21 +161,13 @@ class Player:
 
     def lvl_up(self):
         self.lvl += 1
-        self.free_points += 5 #TODO balance
+        self.free_points += 3
         self.free_skill_points += 1
-        self.stats["endurance"] += 1
-        self.stats["power"] += 1
-        self.stats["armor"] += 1
-        self.stats["charge"] += 1
-        self.stats["speed"] += 1
-        if self.game_class == "Оператор":
-            self.stats["armor"] += 1
-        elif self.game_class == "Хакер" or self.game_class == "Биомеханик":
-            self.stats["charge"] += 1
-        elif self.game_class == "Канонир":
-            self.stats["speed"] += 1
-        dispatcher.bot.send_message(chat_id = self.id, text = "LEVELUP!\nUse /lvl_up to choose a skill to upgrade")
-        #TODO send message + choose_skill
+        dispatcher.bot.send_message(chat_id = self.id, text = "<b>LEVELUP!</b>\nUse /lvl_up to choose a skill to upgrade",
+                                    parse_mode="HTML")
+
+    def get_next_lvl_exp(self):
+        return int(((self.lvl + 1) ** 3) * math.log(self.lvl + 1, math.e))
 
     def lvl_check(self):
         if self.lvl < 50 and self.exp >= int(((self.lvl + 1) ** 3) * math.log(self.lvl + 1, math.e)):

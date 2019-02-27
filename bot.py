@@ -76,7 +76,9 @@ def callback(bot, update, user_data):
         return
 
 
-
+def check_player_lvl(bot, update):
+    player = get_player(update.message.from_user.id)
+    player.lvl_check()
 
 #Фильтры на спам и бан
 dispatcher.add_handler(MessageHandler(filter_is_banned, ignore))
@@ -133,6 +135,7 @@ dispatcher.add_handler(MessageHandler(Filters.text & filter_info_return, return_
 
 #Фильтры для повышения уровня игрока
 dispatcher.add_handler(CommandHandler("lvl_up", lvl_up, pass_user_data=True))
+dispatcher.add_handler(CommandHandler("lvl_check", check_player_lvl))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_lvl_up_skill, lvl_up_skill, pass_user_data=True))
 dispatcher.add_handler(CommandHandler("lvl_up_points", choose_points, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.text & filter_lvl_up_points, lvl_up_points, pass_user_data=True))

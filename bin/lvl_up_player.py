@@ -24,6 +24,7 @@ def choose_points(bot, update, user_data):
             player.stats.get("power"), player.stats.get("speed"),
             player.stats.get("charge")),
                          parse_mode = "HTML", reply_markup = ReplyKeyboardRemove())
+        player.update_stats()
         players.update({id: player})
         players_need_update.put(player)
         update_status(user_data.get('saved_lvl_up_status'), player, user_data)
@@ -71,6 +72,7 @@ def lvl_up_points(bot, update, user_data):
         update_status(user_data.get('saved_lvl_up_status'), player, user_data)
         user_data.pop('saved_lvl_up_status')
         show_general_buttons(bot, update, user_data)
+        player.lvl_check()
         return
     else:
         player.lvl_up_point(update.message.text)
@@ -128,10 +130,12 @@ def choose_skill(bot, update, user_data):
                                                               list(player.skill_lvl)[3], list(player.skill_lvl)[4]),
                          reply_markup = buttons)
         update_status("Lvl_up_points", player, user_data)
+        player.update_skills()
         players.update({id: player})
         players_need_update.put(player)
         choose_points(bot, update, user_data)
         show_general_buttons(bot, update, user_data)
+        player.lvl_check()
         return
 
     update_status("Lvl_up_skill", player, user_data)

@@ -55,8 +55,8 @@ def interprocess_monitor():
             if "stunned" in list_user_data:
                 user_data.pop('stunned')
         elif data.type == "change_player_state":
-            player = get_player(data.data[0])
-            list_keys = list(data.data[1:])
+            player = get_player(list(data.data)[0])
+            list_keys = list(data.data)[1:]
             for key in list_keys:
                 change_value = data.data.get(key)
                 if key == "exp":
