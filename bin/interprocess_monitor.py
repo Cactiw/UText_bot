@@ -64,14 +64,14 @@ def interprocess_monitor():
                     player.lvl_check()
                 elif key == "dead":
                     player.dead = change_value
-                elif key == "resourses":
+                elif key == "resources":
                     for new_key in change_value:
                         delta = change_value.get(new_key)
                         old_value = player.resourses.get(new_key)
                         if old_value is None:
                             continue
                         old_value += delta
-                        player.resouses.update({new_key : old_value})
+                        player.resources.update({new_key : old_value})
                 elif key == "eq_backpack":
                     for new_key in change_value:
                         delta = change_value.get(new_key)
@@ -79,7 +79,7 @@ def interprocess_monitor():
                         if old_value is None:
                             continue
                         old_value += delta
-                        player.resouses.update({new_key : old_value})
+                        player.resources.update({new_key : old_value})
                 elif key == "al_backpack":
                     for new_key in change_value:
                         delta = change_value.get(new_key)
@@ -87,7 +87,7 @@ def interprocess_monitor():
                         if old_value is None:
                             continue
                         old_value += delta
-                        player.resouses.update({new_key : old_value})    
+                        player.resources.update({new_key : old_value})    
                 elif key == "res_backpack":
                     for new_key in change_value:
                         delta = change_value.get(new_key)
@@ -95,7 +95,7 @@ def interprocess_monitor():
                         if old_value is None:
                             continue
                         old_value += delta
-                        player.resouses.update({new_key : old_value})
+                        player.resources.update({new_key : old_value})
                 players_need_update.put(player)
         data = interprocess_queue.get()
     return 0
