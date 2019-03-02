@@ -21,12 +21,15 @@ class Player_in_battle:
 
 class PlayerChoosing:	#Игрок выбирает ход
 
-    def __init__(self, player, targets, skill, team, number):
+    def __init__(self, player, targets, skill, team, number, is_ai=False):
         self.participant = player  #class Player
         self.targets = targets
         self.skill = skill
         self.team = team
         self.number = number
+        self.is_ai = is_ai
+        if not self.is_ai:
+            self.aggro = player.aggro_prob
 
 
 class Battle:
@@ -42,13 +45,17 @@ class Battle:
                                                                           'armor': [],
                                                                           'charge': [],
                                                                           'speed': []}})
-            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1, i + self.team_players_count))
+        for i in range(0, len(battle_starting.teams[1])):
+            is_ai = battle_starting.mode == "pve"
+            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1, i + self.team_players_count, is_ai))
             self.buff_list.update({battle_starting.teams[1][i].nickname: {'power': [],
                                                                           'endurance': [],
                                                                           'armor': [],
                                                                           'charge': [],
                                                                           'speed': []}})
         self.id = None
+        self.aggro_list = {}
+        self.mode = battle_starting.mode
         self.last_tick_time = time.time()
         self.skills_queue = []
         self.dead_list = []     #[nickname1, ...]
@@ -61,8 +68,9 @@ class Battle:
     def is_ready(self):
         for team in self.teams:
             for player_choosing in team:
-                if player_choosing.skill is None or player_choosing.targets is None:
-                    return False
+                if not player_choosing.is_ai:
+                    if player_choosing.skill is None or player_choosing.targets is None:
+                        return False
         self.skills_queue.sort(key=lambda player_choosing: player_choosing.skill.priority)
         return True
 
@@ -233,11 +241,18 @@ class BattleStarting:
                                                                      game_classes_to_emoji.get(i.game_class), battle.teams[0][j].number)
             j += 1
         j = 0
-        """team1_text += "\n/info_Имя Игрока - информация об игроке"
+        """team1_text += "\n/info_Имя Игрока - информация об игроке"`
         team2_text += "\n/info_Имя Игрока - информация об игроке"""
-        for j in range(2):
+        self.start_battle_without_balance(battle, team1_text, team2_text)
+
+
+    def start_battle_without_balance(self, battle, team1_text = "Начинается битва!", team2_text = ""):
+        num_teams_to_send_messages = 2
+        if self.mode == "pve":
+            num_teams_to_send_messages = 1
+        for j in range(num_teams_to_send_messages):
             for i in self.teams[j]:
-                dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
+                dispatcher.bot.sync_send_message(chat_id=i.id, text=team1_text if not j else team2_text, parse_mode='HTML', reply_markup = get_general_battle_buttons(i))
                 interprocess_dictionary = InterprocessDictionary(i.id, "user_data", {"status" : "Battle"})
                 interprocess_queue.put(interprocess_dictionary)
                 status = InterprocessDictionary(i.id, "user_data", {'Team': j})
@@ -246,11 +261,16 @@ class BattleStarting:
         ids = list(pending_battles)
         while battle_id in ids:
             battle_id = random.randint(1, 4294967295)
-        battle.id = battle_id
+        self.id = battle_id
+        battle.id = self.id
         for player in self.players:
+            try:
+                player = player.player
+            except AttributeError:
+                pass
             player.battle_id = battle_id
-            player.player.update_cooldown()
-            interprocess_dictionary = InterprocessDictionary(player.player.id, "user_data", {'Battle id': battle_id})
+            player.update_cooldown()
+            interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle id': battle_id})
             interprocess_queue.put(interprocess_dictionary)
         battle_status = InterprocessDictionary(None, "battles_pending", {battle_id: battle})
         interprocess_queue.put(battle_status)

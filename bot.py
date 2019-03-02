@@ -19,6 +19,7 @@ from work_materials.filters.merchant_filters import *
 from work_materials.filters.auction_filters import *
 from work_materials.filters.battle_filters import *
 from work_materials.filters.group_filters import group_kick_filter
+from work_materials.filters.farm_filters import farm_filter
 
 from bin.supervisor import *
 from bin.spam_resist import *
@@ -33,6 +34,7 @@ from bin.interprocess_monitor import interprocess_monitor, interprocess_queue
 from bin.merchant import *
 from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
 from bin.equip_items import add_resource, remove_resource, equip, unequip
+from bin.farm import farm
 
 import work_materials.globals
 from bin.travel_functions import *
@@ -40,6 +42,7 @@ from bin.battle_processing import choose_enemy_target, choose_friendly_target, s
                                     battle_skip_turn, battle_count, send_waiting_msg, put_in_pending_battles_from_queue, \
                                     send_message_dead, kick_out_players, set_skill_on_enemy_team, set_skill_on_ally_team, \
                                     battle_stunned
+from bin.ai_processing import bots_processing
 
 sys.path.append('../')
 
@@ -151,6 +154,9 @@ dispatcher.add_handler(MessageHandler(Filters.text & filter_merchant_buy, mercha
 dispatcher.add_handler(MessageHandler(Filters.text & filter_return_from_merchant, return_from_merchant, pass_user_data=True))
 dispatcher.add_handler(MessageHandler(Filters.command & filter_buy_equipment, buy, pass_user_data=True))
 
+#Фильтры для гринда
+dispatcher.add_handler(MessageHandler(Filters.text & farm_filter, farm, pass_user_data=True))
+
 
 #Фильтры для аукциона
 dispatcher.add_handler(MessageHandler(Filters.text & filter_auction, auction, pass_user_data=False))
@@ -221,6 +227,10 @@ processes.append(interprocess_monitor)
 battle_processing = Process(target= battle_count, args=(), name= "Battle Processing")
 battle_processing.start()
 processes.append(battle_processing)
+
+ai_processing = Process(target= bots_processing, args=(), name= "AI Processing")
+ai_processing.start()
+processes.append(ai_processing)
 
 updating_pending_battles = threading.Thread(target=put_in_pending_battles_from_queue, args=(), name="Updating pending battles")
 updating_pending_battles.start()

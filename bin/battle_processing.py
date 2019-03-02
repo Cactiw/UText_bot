@@ -2,7 +2,7 @@ import work_materials.globals as globals
 from work_materials.buttons.battle_buttons import get_allies_buttons, get_enemies_buttons, \
     get_all_targets_buttons, cancel_button, get_general_battle_buttons
 from work_materials.globals import pending_battles, dispatcher, battles_need_treating, treated_battles, skills,\
-                                    get_skill
+                                    get_skill, battle_with_bots_to_set
 from work_materials.constants import game_classes_to_emoji
 from bin.show_general_buttons import show_general_buttons
 import logging
@@ -36,6 +36,13 @@ def get_player_choosing_from_battle_via_id(battle, player_id):
 def get_player_choosing_from_battle_via_number(battle, number):
     team = number / 3
     return battle.teams[team][number % 3]
+
+
+def put_battle_in_battles_need_treating(battle):
+    if battle.mode == "pve":
+        battle_with_bots_to_set.put(battle)
+    else:
+        battles_need_treating.put(battle)
 
 
 def battle_cancel_choosing(bot, update, user_data):
@@ -118,8 +125,9 @@ def set_skill_on_enemy_team(bot, update, user_data):
     if battle.is_ready():
         for i in range(2):
             for j in battle.teams[i]:
-                dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
-        battles_need_treating.put(battle)
+                if not j.is_ai:
+                    dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
+        put_battle_in_battles_need_treating(battle)
 
 
 def set_skill_on_ally_team(bot, update, user_data):
@@ -144,7 +152,7 @@ def set_skill_on_ally_team(bot, update, user_data):
         for i in range(2):
             for j in battle.teams[i]:
                 dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
-        battles_need_treating.put(battle)
+        put_battle_in_battles_need_treating(battle)
 
 
 def add_chosen_skill(update, user_data):
@@ -196,8 +204,9 @@ def set_target(bot, update, user_data):
     if battle.is_ready():
         for i in range(2):
             for j in battle.teams[i]:
-                dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
-        battles_need_treating.put(battle)
+                if not j.is_ai:
+                    dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
+        put_battle_in_battles_need_treating(battle)
 
 
 def battle_skip_turn(bot, update, user_data):
@@ -218,8 +227,9 @@ def battle_skip_turn(bot, update, user_data):
     if battle.is_ready():
         for i in range(2):
             for j in battle.teams[i]:
-                dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
-        battles_need_treating.put(battle)
+                if not j.is_ai:
+                    dispatcher.user_data.get(j.participant.id).update({"Battle_waiting_to_count": 1})
+        put_battle_in_battles_need_treating(battle)
 
 
 def check_win(battle):
@@ -263,24 +273,27 @@ def kick_out_players():
             curr_time = time.time()
             for j in list(pending_battles):
                 i = pending_battles.get(j)
-                if curr_time - i.last_count_time >= 300:
+                #print("got battle")
+                if curr_time - i.last_count_time >= 10:
                     for t in range(2):
                         for l in range(i.team_players_count):
                             player_choosing = i.teams[t][l]
                             if player_choosing.skill is None or player_choosing.targets is None:
-                                player_choosing.skill = get_skill(player_choosing.participant.game_class, "Пропуск хода")
-                                targets = [player_choosing.participant]
-                                player_choosing.targets = targets
-                                i.skills_queue.append(player_choosing)
-                                dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
-                                message_group = get_message_group(player_choosing.participant.id)
-                                dispatcher.bot.group_send_message(message_group, chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
+                                if not player_choosing.is_ai:
+                                    player_choosing.skill = get_skill(player_choosing.participant.game_class, "Пропуск хода")
+                                    targets = [player_choosing.participant]
+                                    player_choosing.targets = targets
+                                    i.skills_queue.append(player_choosing)
+
+                                    dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
+                                    message_group = get_message_group(player_choosing.participant.id)
+                                    dispatcher.bot.group_send_message(message_group, chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
                                 if i.is_ready():
                                     for t in range(2):
                                         for l in i.teams[t]:
-                                            dispatcher.user_data.get(l.participant.id).update(
-                                                {"Battle_waiting_to_count": 1})
-                                    battles_need_treating.put(i)
+                                            if not l.is_ai:
+                                                dispatcher.user_data.get(l.participant.id).update({"Battle_waiting_to_count": 1})
+                                    put_battle_in_battles_need_treating(i)
             time.sleep(1)
         except Exception:
             logging.error(traceback.format_exc() + "\n")
@@ -301,11 +314,14 @@ def battle_count():     #Тут считается битва в которой 
                 for i in battle.skills_queue:
                     try:
                         if i.participant.nickname in battle.dead_list:
-                            message_group = get_message_group(i.participant.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=i.participant.id,
+                            #   Проверка на смэрт
+                            if not i.is_ai:
+                                message_group = get_message_group(i.participant.id)
+                                dispatcher.bot.group_send_message(message_group, chat_id=i.participant.id,
                                                         text="<b>Вы мертвы</b>", parse_mode="HTML", reply_markup=ReplyKeyboardRemove())
                             continue
                         if i.participant.nickname in battle.stun_list:
+                            #   Проверка на стан
                             team_strings[i.team] += "•<b>{0}</b> Оглушен на {1} ходов".format(i.participant.nickname +
                                                                                                   game_classes_to_emoji.get(i.participant.game_class),
                                                                                                   battle.stun_list.get(i.participant.nickname) - 1)
@@ -341,7 +357,8 @@ def battle_count():     #Тут считается битва в которой 
                                                                                      i.targets[0].nickname +
                                                                                      game_classes_to_emoji.get(i.targets[0].game_class), "<b>" + skill_str + "</b>")
                     except Exception:
-                        dispatcher.bot.group_send_message(get_message_group(i.participant.id), chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
+                        if not i.is_ai:
+                            dispatcher.bot.group_send_message(get_message_group(i.participant.id), chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,
                                                           text="<b>Ошибка при обработке скиллов</b>", parse_mode="HTML")
                         logging.error(traceback.format_exc())
                 team_strings[0] += '\n'
@@ -409,41 +426,46 @@ def battle_count():     #Тут считается битва в которой 
                             result_strings[i] += '\n'
                             player_choosing.targets = None
                             player_choosing.skill = None
-                            reply_markup = get_general_battle_buttons(player)
-                            if player.nickname in battle.dead_list:
-                                reply_markup = None
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                            if not player_choosing.is_ai:
+                                reply_markup = get_general_battle_buttons(player)
+                                if player.nickname in battle.dead_list:
+                                    reply_markup = None
+                                message_group = get_message_group(player.id)
+                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
                                                         text=team_strings[0] + '\n' + team_strings[1],
                                                         parse_mode="HTML", reply_markup=reply_markup)
                         except Exception:
                             logging.error(traceback.format_exc())
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id,
-                                                              text="<b>Ошибка при отправлении списка использованных скиллов</b>", parse_mode="HTML")
+                            if not player_choosing.is_ai:
+                                message_group = get_message_group(player.id)
+                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                                                                  text="<b>Ошибка при отправлении списка использованных скиллов</b>", parse_mode="HTML")
                 #Проставление статусов и зануление
                 for i in range(2):
                     for j in range(battle.team_players_count):
                         player_choosing = battle.teams[i][j]
-                        player = player_choosing.participant
-                        try:
-                            dict = {'status': 'Battle'}
-                            if player.dead == 1:
-                                dict.update({'status': 'Battle_dead'})
-                            interprocess_dictionary = InterprocessDictionary(player.id, "user_data", dict)
-                            interprocess_queue.put(interprocess_dictionary)
-                            reply_markup = get_general_battle_buttons(player)
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id,
-                                                              text=result_strings[0] + "\n" + result_strings[1],
-                                                              parse_mode="HTML",
-                                                              reply_markup=reply_markup)
-                        except Exception:
-                            logging.error(traceback.format_exc())
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id,
-                                                              text="<b>Ошибка при отправлении результата</b",
-                                                              parse_mode="HTML")
+                        if not player_choosing.is_ai:
+                            player = player_choosing.participant
+                            try:
+                                dict = {'status': 'Battle'}
+                                if player.dead == 1:
+                                    dict.update({'status': 'Battle_dead'})
+                                interprocess_dictionary = InterprocessDictionary(player.id, "user_data", dict)
+                                interprocess_queue.put(interprocess_dictionary)
+
+                                reply_markup = get_general_battle_buttons(player)
+                                message_group = get_message_group(player.id)
+                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                                                                  text=result_strings[0] + "\n" + result_strings[1],
+                                                                  parse_mode="HTML",
+                                                                  reply_markup=reply_markup)
+                            except Exception:
+                                logging.error(traceback.format_exc())
+                                if not player_choosing.is_ai:
+                                    message_group = get_message_group(player.id)
+                                    dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                                                                  text="<b>Ошибка при отправлении результата</b",
+                                                                  parse_mode="HTML")
 
 
                 #Смэрт и зануление
@@ -466,21 +488,22 @@ def battle_count():     #Тут считается битва в которой 
                                     battle.buff_list.pop(player.nickname)
                                 except KeyError:
                                     pass
-                                message_group = get_message_group(player.id)
-                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
-                                                                  text="<b>Вы мертвы!</b>", parse_mode="HTML")#, reply_markup=ReplyKeyboardRemove())
-                                interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle_dead'})
-                                interprocess_queue.put(interprocess_dictionary)
+                                if not player_choosing.is_ai:
+                                    message_group = get_message_group(player.id)
+                                    dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                                                                      text="<b>Вы мертвы!</b>", parse_mode="HTML")#, reply_markup=ReplyKeyboardRemove())
+                                    interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'status': 'Battle_dead'})
+                                    interprocess_queue.put(interprocess_dictionary)     #TODO сделать смерть ии
                             except Exception:
                                 logging.error(traceback.format_exc())
-                                message_group = get_message_group(player.id)
-                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                                if not player_choosing.is_ai:
+                                    message_group = get_message_group(player.id)
+                                    dispatcher.bot.group_send_message(message_group, chat_id=player.id,
                                                                   text="<b>Ошибка при обработке смерти</b",
                                                                   parse_mode="HTML")
                         #Проверка на стан
                         elif player.nickname in list(battle.stun_list):
                             try:
-                                message_group = get_message_group(player.id)
                                 stun = battle.stun_list.get(player.nickname)
                                 if stun <= 1:
                                     battle.stun_list.pop(player.nickname)
@@ -490,14 +513,17 @@ def battle_count():     #Тут считается битва в которой 
                                     player_choosing.skill = get_skill(player.game_class, "Пропуск хода")
                                     player_choosing.targets = [player]
                                     battle.stun_list.update({player.nickname: stun - 1})
-                                    dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы оглушены!", reply_markup=ReplyKeyboardRemove())
-                                    interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'stunned': battle.stun_list.get(player.nickname)})
-                                    interprocess_queue.put(interprocess_dictionary)
+                                    if not player_choosing.is_ai:
+                                        message_group = get_message_group(player.id)
+                                        dispatcher.bot.group_send_message(message_group, chat_id=player.id, text="Вы оглушены!", reply_markup=ReplyKeyboardRemove())
+                                        interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'stunned': battle.stun_list.get(player.nickname)})
+                                        interprocess_queue.put(interprocess_dictionary)
                                     battle.skills_queue.append(player_choosing)
                             except Exception:
                                 logging.error(traceback.format_exc())
-                                message_group = get_message_group(player.id)
-                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                                if not player_choosing.is_ai:
+                                    message_group = get_message_group(player.id)
+                                    dispatcher.bot.group_send_message(message_group, chat_id=player.id,
                                                                   text="<b>Ошибка при обработке стана</b",
                                                                   parse_mode="HTML")
 
@@ -513,8 +539,9 @@ def battle_count():     #Тут считается битва в которой 
                                             k.turns -= 1
                         except Exception:
                             logging.error(traceback.format_exc())
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id,
+                            if not player_choosing.is_ai:
+                                message_group = get_message_group(player.id)
+                                dispatcher.bot.group_send_message(message_group, chat_id=player.id,
                                                               text="<b>Ошибка при занулении баффов</b",
                                                               parse_mode="HTML")
 
@@ -533,29 +560,33 @@ def battle_count():     #Тут считается битва в которой 
                     for j in range(battle.team_players_count):
                         if res != -1:
                             player_choosing = battle.teams[i][j]
-                            player = player_choosing.participant
-                            text = ""
-                            if res == 2:
-                                text = "<b>Ничья</b>"
-                            elif player_choosing.team == res:
-                                text = "<b>Ваша команда победила! + 100exp</b>"
-                                interprocess_dictionary = InterprocessDictionary(player.id, "change_player_state",
-                                                                                 {player.id: None, "exp": 100})
-                                interprocess_queue.put(interprocess_dictionary)
-                            else:
-                                text = "<b>Ваша команда проиграла</b>"
-                            message_group = get_message_group(player.id)
-                            dispatcher.bot.group_send_message(message_group, chat_id=player.id, text=text, parse_mode="HTML")
-                            interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
-                            interprocess_queue.put(interprocess_dictionary)
-                            user_data = {'status' : player.saved_battle_status, 'location': player.location}
-                            show_general_buttons(dispatcher.bot, player.id, user_data, message_group)
-                            message_group.shedule_removal()
+                            if not player_choosing.is_ai:
+                                player = player_choosing.participant
+                                text = ""
+                                if res == 2:
+                                    text = "<b>Ничья</b>"
+                                elif player_choosing.team == res:
+                                    text = "<b>Ваша команда победила! + 100exp</b>"
+
+                                    interprocess_dictionary = InterprocessDictionary(player.id, "change_player_state",
+                                                                                     {player.id: None, "exp": 100})
+                                    interprocess_queue.put(interprocess_dictionary)
+                                else:
+                                    text = "<b>Ваша команда проиграла</b>"
+                                if not player_choosing.is_ai:
+                                    message_group = get_message_group(player.id)
+                                    dispatcher.bot.group_send_message(message_group, chat_id=player.id, text=text, parse_mode="HTML")
+                                    interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
+                                    interprocess_queue.put(interprocess_dictionary)
+                                    user_data = {'status' : player.saved_battle_status, 'location': player.location}
+                                    show_general_buttons(dispatcher.bot, player.id, user_data, message_group)
+                                    message_group.shedule_removal()
                         else:
                             player_choosing = battle.teams[i][j]
-                            player = player_choosing.participant
-                            message_group = get_message_group(player.id)
-                            message_group.shedule_removal()
+                            if not player_choosing.is_ai:
+                                player = player_choosing.participant
+                                message_group = get_message_group(player.id)
+                                message_group.shedule_removal()
                 battle.last_count_time = time.time()
                 if res == -1:
                     treated_battles.put(battle)
@@ -579,15 +610,17 @@ def put_in_pending_battles_from_queue():
     battle = treated_battles.get()
     while battle is not None:
         if battle.is_ready():
-            battles_need_treating.put(battle)
+            battles_need_treating.put(battle) # Возможно, стоит тоже  put_battle_in_battles_need_treating(battle)
         else:
+            print("battle_id =", battle.id)
             pending_battles.update({battle.id: battle})
             for i in range(2):
                 for j in range(battle.team_players_count):
                    player_choosing = battle.teams[i][j]
-                   player = player_choosing.participant
-                   interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle_waiting_to_count': 0})
-                   interprocess_queue.put(interprocess_dictionary)
+                   if not player_choosing.is_ai:
+                       player = player_choosing.participant
+                       interprocess_dictionary = InterprocessDictionary(player.id, "user_data", {'Battle_waiting_to_count': 0})
+                       interprocess_queue.put(interprocess_dictionary)
         battle = treated_battles.get()
     save_battles()
 

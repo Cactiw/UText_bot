@@ -2,6 +2,7 @@ import math
 import work_materials.globals as globals
 from work_materials.globals import dispatcher, players_need_update, skills
 from bin.equipment_service import *
+from work_materials.constants import aggro_probe_game_classes
 
 
 class Player:
@@ -35,6 +36,7 @@ class Player:
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
                     'speed': 5} #speed == Ловкость (evade)
+        self.aggro_prob = aggro_probe_game_classes.get(game_class)
 
         self.charge = int(self.stats['charge'] * (self.lvl ** (3/2) + 20))
         self.hp = int(self.stats['endurance'] * 3 * (self.lvl ** (3/2) + 20))

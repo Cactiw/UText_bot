@@ -8,13 +8,17 @@ class Enemy:
 		self.id = id
 		self.name = name
 		self.lvl = lvl
+		self.game_class = "ai"
+		self.is_ai = True
+		self.aggro_list = None
 
 
 class AIDSEnemy(Enemy):
 	def __init__(self, lvl):
 		super(AIDSEnemy, self).__init__(1, "AIDS", lvl)
+		self.nickname = "AIDS"
 
-		self.stats = {'endurance': 3, 'power': 3, 'armor': 3, 'charge': 3, 'speed': 3}
+		self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5, 'speed': 5}
 		for i in range(lvl):
 			j = randint(1, 5)
 			if j == 1:

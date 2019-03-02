@@ -46,6 +46,7 @@ matchmaking_players = Queue()
 pending_battles = {}
 battles_need_treating = Queue()
 treated_battles = Queue()
+battle_with_bots_to_set = Queue()
 
 #Подключаем базу данных, выставляем кодировку
 passwd = 'fiP3Gahz'
@@ -90,6 +91,10 @@ skills = {
         biomechanic_third_skill.name: biomechanic_third_skill,
         biomechanic_fourth_skill.name: biomechanic_fourth_skill,
         biomechanic_fifth_skill.name: biomechanic_fifth_skill,
+        skip_turn_skill.name: skip_turn_skill
+    },
+    'ai' : {
+        attack_skill.name: attack_skill,
         skip_turn_skill.name: skip_turn_skill
     }
 }
