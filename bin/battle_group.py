@@ -54,6 +54,7 @@ def battle_group_callback(bot, update, user_data):
     player = get_player(player_id)
     if user_data.get("status") != "In Location":
         bot.send_message(chat_id=chat_id, text="Сейчас вы заняты чем-то ещё")
+        bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
         return
     group_id = int(data.partition(" ")[2])
     group = dispatcher.user_data.get(group_id).get("battle_group")
@@ -66,6 +67,10 @@ def battle_group_callback(bot, update, user_data):
         bot.send_message(chat_id=player_id, text="Приглашение не найдено")
         return
     if data.find("bgiy") == 0:
+        if user_data.get("battle_group") is not None:
+            bot.send_message(chat_id=chat_id, text="Вы уже состоите в группе!")
+            bot.answerCallbackQuery(callback_query_id=update.callback_query.id)
+            return
         group.invitations.remove(player_id)
         group.players.append(player_id)
         user_data.update({"battle_group" : group})
