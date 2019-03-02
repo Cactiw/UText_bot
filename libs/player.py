@@ -214,6 +214,7 @@ class Player:
         self.fraction = row[4]
         self.race = row[5]
         self.game_class = row[6]
+        self.aggro_prob = aggro_probe_game_classes.get(self.game_class)
         self.exp = row[7]
         self.lvl = row[8]
         self.free_points = row[9]

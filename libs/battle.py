@@ -28,8 +28,10 @@ class PlayerChoosing:	#Игрок выбирает ход
         self.team = team
         self.number = number
         self.is_ai = is_ai
+        self.aggro = 0
         if not self.is_ai:
             self.aggro = player.aggro_prob
+            print("player.aggro_prob =", player.aggro_prob)
 
 
 class Battle:
@@ -37,7 +39,7 @@ class Battle:
     def __init__(self, battle_starting):
         self.teams = [ [], [] ]
         self.buff_list = {}         #{nickname: [Buff1, Buff2, ...]}
-        self.team_players_count = len(battle_starting.teams[0])
+        self.team_players_count = [len(battle_starting.teams[0]), len(battle_starting.teams[1])]
         for i in range(0, len(battle_starting.teams[0])):
             self.teams[0].append(PlayerChoosing(battle_starting.teams[0][i], None, None, 0, i))
             self.buff_list.update({battle_starting.teams[0][i].nickname: {'power': [],
@@ -47,7 +49,7 @@ class Battle:
                                                                           'speed': []}})
         for i in range(0, len(battle_starting.teams[1])):
             is_ai = battle_starting.mode == "pve"
-            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1, i + self.team_players_count, is_ai))
+            self.teams[1].append(PlayerChoosing(battle_starting.teams[1][i], None, None, 1, i + self.team_players_count[0], is_ai))
             self.buff_list.update({battle_starting.teams[1][i].nickname: {'power': [],
                                                                           'endurance': [],
                                                                           'armor': [],

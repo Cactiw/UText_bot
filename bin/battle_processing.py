@@ -19,19 +19,17 @@ def get_battle(battle_id):
 
 
 def get_player_choosing_from_battle_via_nick(battle, player_nickname):
-    for i in range(battle.team_players_count):
-        if battle.teams[0][i].participant.nickname == player_nickname:
-            return battle.teams[0][i]
-        if battle.teams[1][i].participant.nickname == player_nickname:
-            return battle.teams[1][i]
+    for j in range(2):
+        for i in range(battle.team_players_count[j]):
+            if battle.teams[j][i].participant.nickname == player_nickname:
+                return battle.teams[j][i]
 
 
 def get_player_choosing_from_battle_via_id(battle, player_id):
-    for i in range(battle.team_players_count):
-        if battle.teams[0][i].participant.id == player_id:
-            return battle.teams[0][i]
-        if battle.teams[1][i].participant.id == player_id:
-            return battle.teams[1][i]
+    for j in range(2):
+        for i in range(battle.team_players_count[j]):
+            if battle.teams[j][i].participant.id == player_id:
+                return battle.teams[j][i]
 
 def get_player_choosing_from_battle_via_number(battle, number):
     team = number / 3
@@ -40,8 +38,10 @@ def get_player_choosing_from_battle_via_number(battle, number):
 
 def put_battle_in_battles_need_treating(battle):
     if battle.mode == "pve":
+        #print("putting in pve")
         battle_with_bots_to_set.put(battle)
     else:
+        #print("putting into pvp")
         battles_need_treating.put(battle)
 
 
@@ -235,11 +235,12 @@ def battle_skip_turn(bot, update, user_data):
 def check_win(battle):
     team1_alive = 0
     team2_alive = 0
-    for i in range(battle.team_players_count):
+    for i in range(battle.team_players_count[0]):
         if team1_alive > 0 and team2_alive > 0:
             return -1
         if battle.teams[0][i].participant.nickname not in battle.dead_list:
             team1_alive += 1
+    for i in range(battle.team_players_count[1]):
         if battle.teams[1][i].participant.nickname not in battle.dead_list:
             team2_alive += 1
     if team1_alive > 0 and team2_alive > 0:
@@ -274,9 +275,10 @@ def kick_out_players():
             for j in list(pending_battles):
                 i = pending_battles.get(j)
                 #print("got battle")
-                if curr_time - i.last_count_time >= 10:
+                if curr_time - i.last_count_time >= 30:
                     for t in range(2):
-                        for l in range(i.team_players_count):
+                        for l in range(i.team_players_count[t]):
+                            #print("error where t = {0}, l = {1}, i.teams = {2}".format(t, l, i.teams))
                             player_choosing = i.teams[t][l]
                             if player_choosing.skill is None or player_choosing.targets is None:
                                 if not player_choosing.is_ai:
@@ -294,6 +296,7 @@ def kick_out_players():
                                             if not l.is_ai:
                                                 dispatcher.user_data.get(l.participant.id).update({"Battle_waiting_to_count": 1})
                                     put_battle_in_battles_need_treating(i)
+                                    break
             time.sleep(1)
         except Exception:
             logging.error(traceback.format_exc() + "\n")
@@ -364,7 +367,7 @@ def battle_count():     #Тут считается битва в которой 
                 team_strings[0] += '\n'
                 battle.skills_queue.clear()
                 for i in range(2):
-                    for j in range(battle.team_players_count):
+                    for j in range(battle.team_players_count[i]):
                         player_choosing = battle.teams[i][j]
                         player = player_choosing.participant
                         try:
@@ -442,7 +445,7 @@ def battle_count():     #Тут считается битва в которой 
                                                                   text="<b>Ошибка при отправлении списка использованных скиллов</b>", parse_mode="HTML")
                 #Проставление статусов и зануление
                 for i in range(2):
-                    for j in range(battle.team_players_count):
+                    for j in range(battle.team_players_count[i]):
                         player_choosing = battle.teams[i][j]
                         if not player_choosing.is_ai:
                             player = player_choosing.participant
@@ -470,7 +473,7 @@ def battle_count():     #Тут считается битва в которой 
 
                 #Смэрт и зануление
                 for i in range(2):
-                    for j in range(battle.team_players_count):
+                    for j in range(battle.team_players_count[i]):
                         player_choosing = battle.teams[i][j]
                         player = player_choosing.participant
                         #Проверка на смэрт
@@ -557,7 +560,7 @@ def battle_count():     #Тут считается битва в которой 
                 #Проверка победы
                 res = check_win(battle)
                 for i in range(2):
-                    for j in range(battle.team_players_count):
+                    for j in range(battle.team_players_count[i]):
                         if res != -1:
                             player_choosing = battle.teams[i][j]
                             if not player_choosing.is_ai:
@@ -578,8 +581,8 @@ def battle_count():     #Тут считается битва в которой 
                                     dispatcher.bot.group_send_message(message_group, chat_id=player.id, text=text, parse_mode="HTML")
                                     interprocess_dictionary = InterprocessDictionary(player.id, "battle status return", {})
                                     interprocess_queue.put(interprocess_dictionary)
-                                    user_data = {'status' : player.saved_battle_status, 'location': player.location}
-                                    show_general_buttons(dispatcher.bot, player.id, user_data, message_group)
+                                    #user_data = {'status' : player.saved_battle_status, 'location': player.location}   #TODO Глеб, разберись, тут ошибки: AttributeError: 'Player' object has no attribute 'saved_battle_status'
+                                    #show_general_buttons(dispatcher.bot, player.id, user_data, message_group)
                                     message_group.shedule_removal()
                         else:
                             player_choosing = battle.teams[i][j]
@@ -615,7 +618,7 @@ def put_in_pending_battles_from_queue():
             print("battle_id =", battle.id)
             pending_battles.update({battle.id: battle})
             for i in range(2):
-                for j in range(battle.team_players_count):
+                for j in range(battle.team_players_count[i]):
                    player_choosing = battle.teams[i][j]
                    if not player_choosing.is_ai:
                        player = player_choosing.participant

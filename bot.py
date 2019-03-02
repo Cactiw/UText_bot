@@ -204,11 +204,11 @@ save_user_data.start()
 processes.append(save_user_data)
 #Запуск процесса обновления игроков в бд
 
-updating_to_database = Process(target = players_update, args = (players_need_update,), name = "Database_cloud_updating")
+updating_to_database = Process(target = players_update, args = (players_need_update,), name = "Database Cloud Updating")
 updating_to_database.start()
 processes.append(updating_to_database)
 
-auction_checking = Process(target = auction_checker, args = (), name = "Auction checking")
+auction_checking = Process(target = auction_checker, args = (), name = "Auction Checking")
 auction_checking.start()
 processes.append(auction_checking)
 
