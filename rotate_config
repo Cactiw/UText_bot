@@ -1,0 +1,7 @@
+"./error.log" error.log {
+    rotate 5
+    mail www@my.org
+    size 100k
+    sharedscripts
+    endscript
+}
