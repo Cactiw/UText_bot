@@ -54,11 +54,12 @@ attack_skill = Skill("Атака", "•<b>{0}</b>  Атаковал  <b>{1}</b> 
 
 #Оператор - танк
 def operator_first_func(targets, battle, player):   #Поднять щиты, только для себя
-    curr_lvl = list(player.skill_lvl.values())[0]
+    team = 0
     for i in battle.teams[1]:
-        if curr_lvl < 5:
-            pass
-    return "+2 Броня"
+        if i.participant.nickname == player.nickname:
+            team = 1
+    battle.taunt_list.get(team).update({player.nickname: 2 + 1})
+    return "🔰"
 
 
 def operator_second_func(targets, battle, player):      #Бафф на атаку TODO разобаться - масс или таргет
