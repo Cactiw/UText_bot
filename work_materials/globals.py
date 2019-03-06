@@ -22,10 +22,11 @@ except ImportError:
     request_kwargs = None
 
 bot = AsyncBot(token='757939309:AAE3QMqbT8oeyZ44es-l6eSzxpy1toCf_Bk', workers=8, request_kwargs=request_kwargs)
-updater = AsyncUpdater(bot = bot)
+updater = AsyncUpdater(bot = bot, persistence=None)
 job = updater.job_queue
 
 dispatcher = updater.dispatcher
+print(dispatcher.user_data)
 
 STATUS_REPORT_CHANNEL_ID = -1001275825401
 ALERT_NOTIFICATIONS_CHANNEL_ID = -1001437688300
