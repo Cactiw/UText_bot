@@ -31,6 +31,7 @@ def get_player_choosing_from_battle_via_id(battle, player_id):
             if battle.teams[j][i].participant.id == player_id:
                 return battle.teams[j][i]
 
+
 def get_player_choosing_from_battle_via_number(battle, number):
     team = number / 3
     return battle.teams[team][number % 3]
@@ -38,10 +39,8 @@ def get_player_choosing_from_battle_via_number(battle, number):
 
 def put_battle_in_battles_need_treating(battle):
     if battle.mode == "pve":
-        print("putting in pve")
         battle_with_bots_to_set.put(battle)
     else:
-        print("putting into pvp")
         battles_need_treating.put(battle)
 
 
