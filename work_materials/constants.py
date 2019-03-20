@@ -5,7 +5,7 @@ game_classes_to_emoji = {
     "Канонир": "🖲",
     "Хакер": "📟",
     "Биомеханик": "⚙️",
-    "ai" : "🖥"
+    "AI_AIDSEnemy" : "🖥"
 }
 
 aggro_probe_game_classes = {

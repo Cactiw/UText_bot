@@ -38,10 +38,10 @@ def get_player_choosing_from_battle_via_number(battle, number):
 
 def put_battle_in_battles_need_treating(battle):
     if battle.mode == "pve":
-        #print("putting in pve")
+        print("putting in pve")
         battle_with_bots_to_set.put(battle)
     else:
-        #print("putting into pvp")
+        print("putting into pvp")
         battles_need_treating.put(battle)
 
 
@@ -277,6 +277,7 @@ def kick_out_players():
                 #print("got battle")
                 if curr_time - i.last_count_time >= 30:
                     for t in range(2):
+                        put_flag = False
                         for l in range(i.team_players_count[t]):
                             #print("error where t = {0}, l = {1}, i.teams = {2}".format(t, l, i.teams))
                             player_choosing = i.teams[t][l]
@@ -290,13 +291,16 @@ def kick_out_players():
                                     dispatcher.user_data.get(player_choosing.participant.id).update({'status': 'Battle waiting'})
                                     message_group = get_message_group(player_choosing.participant.id)
                                     dispatcher.bot.group_send_message(message_group, chat_id=player_choosing.participant.id, text="Вы не выбрали действие и пропускаете ход")
-                                if i.is_ready():
-                                    for t in range(2):
-                                        for l in i.teams[t]:
-                                            if not l.is_ai:
-                                                dispatcher.user_data.get(l.participant.id).update({"Battle_waiting_to_count": 1})
-                                    put_battle_in_battles_need_treating(i)
-                                    break
+                            if i.is_ready():
+                                for t in range(2):
+                                    for l in i.teams[t]:
+                                        if not l.is_ai:
+                                            dispatcher.user_data.get(l.participant.id).update({"Battle_waiting_to_count": 1})
+                                put_battle_in_battles_need_treating(i)
+                                put_flag = True
+                                break
+                        if put_flag:
+                            break
             time.sleep(1)
         except Exception:
             logging.error(traceback.format_exc() + "\n")
@@ -359,6 +363,27 @@ def battle_count():     #Тут считается битва в которой 
                                                                                      game_classes_to_emoji.get(i.participant.game_class),
                                                                                      i.targets[0].nickname +
                                                                                      game_classes_to_emoji.get(i.targets[0].game_class), "<b>" + skill_str + "</b>")
+                        print(battle.mode, damage)
+                        if battle.mode == "pve" and not i.participant.is_ai:
+                            if damage < 0:  #   damage < 0, если наносится урон
+                                #   Обработка агро
+                                for target in i.targets:
+                                    if target.is_ai:
+                                        print(battle.aggro_list)
+                                        player_agro_dict = battle.aggro_list.get(target.nickname)
+                                        #current_aggro = player_agro_dict.get(i.participant.nickname)]
+                                        current_aggro = None
+                                        for pib in player_agro_dict:
+                                            if pib.nickname == i.participant.nickname:
+                                                current_aggro = pib.aggro
+                                                if not current_aggro:
+                                                    print("current aggro is None!")
+                                                    current_aggro = 0
+                                                print(current_aggro, damage, i.participant.aggro_prob)
+                                                pib.aggro += damage * i.participant.aggro_prob
+                                                print("aggro for {0} updated, new value = {1}".format(i.participant.nickname, current_aggro))
+
+
                     except Exception:
                         if not i.is_ai:
                             dispatcher.bot.group_send_message(get_message_group(i.participant.id), chat_id=get_player_choosing_from_battle_via_nick(battle, i.participant.nickname).participant.id,

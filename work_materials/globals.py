@@ -10,6 +10,7 @@ from libs.locations.resource_loc import *
 from libs.locations.tower import *
 from libs.bot_async_messaging import AsyncBot
 from libs.updater_async import AsyncUpdater
+from libs.enemies import AIDSEnemy, AIDSEnemy_first_skill, AIDSEnemy_second_skill
 from libs.skill import attack_skill, operator_first_skill, operator_second_skill, operator_third_skill, operator_fourth_skill, operator_fifth_skill, \
                         hacker_first_skill, hacker_second_skill, hacker_third_skill, hacker_fourth_skill, hacker_fifth_skill, \
                         gunner_first_skill, gunner_second_skill, gunner_third_skill, gunner_fourth_skill, gunner_fifth_skill, \
@@ -94,7 +95,13 @@ skills = {
         biomechanic_fifth_skill.name: biomechanic_fifth_skill,
         skip_turn_skill.name: skip_turn_skill
     },
-    'ai' : {
+    'AI_AIDSEnemy' : {
+        attack_skill.name: attack_skill,
+        AIDSEnemy_first_skill.name: AIDSEnemy_first_skill,
+        AIDSEnemy_second_skill.name: AIDSEnemy_second_skill,
+        skip_turn_skill.name: skip_turn_skill
+    },
+    'AI' : {
         attack_skill.name: attack_skill,
         skip_turn_skill.name: skip_turn_skill
     }

@@ -244,8 +244,6 @@ supervisor = threading.Thread(target = process_monitor, args = (processes,), nam
 supervisor.start()
 
 updater.start_polling(clean=False)
-time.sleep(5)
-print(dispatcher.user_data)
 # Останавливаем бота, если были нажаты Ctrl + C
 updater.idle()
 # Разрываем подключение к базе данных

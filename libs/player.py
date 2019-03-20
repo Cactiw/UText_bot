@@ -62,6 +62,8 @@ class Player:
         self.al_backpack = {}
         self.res_backpack = {}
 
+        self.is_ai = False
+
     def update_skills(self):
         class_skills = skills.get(self.game_class)
         for i in list(class_skills):
