@@ -23,6 +23,7 @@ from work_materials.filters.farm_filters import farm_filter
 
 from bin.supervisor import *
 from bin.spam_resist import *
+from bin.unloading_players import player_monitor
 from bin.starting_player import *
 from bin.save_load_user_data import *
 from bin.lvl_up_player import *
@@ -219,6 +220,10 @@ processes.append(matchmaking)
 spam_zeroing = threading.Thread(target = zeroing, args=(), name="Spam zeroing")
 spam_zeroing.start()
 processes.append(spam_zeroing)
+
+loading_out_players = threading.Thread(target=player_monitor, args=(), name = 'Loading Out Players')
+loading_out_players.start()
+processes.append(loading_out_players)
 
 interprocess_monitor = threading.Thread(target = interprocess_monitor, args = (), name = "Interprocess Monitor")
 interprocess_monitor.start()

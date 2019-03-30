@@ -6,7 +6,7 @@ import work_materials.globals as globals
 from libs.message_group import message_groups, MessageGroup
 
 
-def get_player(id, notify_not_found = True):
+def get_player(id, notify_not_found=True):
     player = players.get(id)
     if player is not None:
         update_location(player.location, player, dispatcher.user_data[id])
@@ -14,11 +14,12 @@ def get_player(id, notify_not_found = True):
     player = Player(id, 0, 0, 0, 0, 0, 0)
     if player.update_from_database() is None:
         if notify_not_found:
-            dispatcher.bot.send_message(chat_id=id, text = "Вы не зарегистрированы в игре. Нажмите /start")
+            dispatcher.bot.send_message(chat_id=id, text="Вы не зарегистрированы в игре. Нажмите /start")
         return None
     update_location(player.location, player, dispatcher.user_data[id])
     players.update({player.id: player})
     return player
+
 
 def get_message_group(player_id):
     user_data = dispatcher.user_data.get(player_id)

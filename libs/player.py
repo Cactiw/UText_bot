@@ -62,6 +62,7 @@ class Player:
         self.al_backpack = {}
         self.res_backpack = {}
 
+        self.last_message_time = None
         self.is_ai = False
 
     def update_skills(self):

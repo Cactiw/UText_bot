@@ -1,5 +1,6 @@
 import time
 
+from bin.player_service import get_player
 import work_materials.globals as globals
 from work_materials.globals import *
 
@@ -29,15 +30,15 @@ def commands_count(bot, update):
         curr_ban += 1
         bans_per_player.update({curr_id: curr_ban})
 
-
     count += 1
-    messages_from_player.update({ curr_id : count})
-
-
+    messages_from_player.update({curr_id: count})
+    player = get_player(update.message.from_user.id, notify_not_found=False)
+    if player is not None:
+        player.last_message_time = time.time()
+        print('setting time: {}, id: {}'.format(player.last_message_time, player.id))
 
 def ignore(bot, update):
     pass
-
 
 
 def zeroing():

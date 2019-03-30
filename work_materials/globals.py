@@ -50,7 +50,7 @@ battles_need_treating = Queue()
 treated_battles = Queue()
 battle_with_bots_to_set = Queue()
 
-#Подключаем базу данных, выставляем кодировку
+# Подключаем базу данных, выставляем кодировку
 passwd = 'fiP3Gahz'
 
 conn = psycopg2.connect("dbname=UText_bot user=UText_bot password={0}".format(passwd))
