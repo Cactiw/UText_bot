@@ -4,6 +4,7 @@ from work_materials.lines.location_lines import *
 from work_materials.buttons.location_buttons import *
 from work_materials.buttons.merchant_buttons import *
 from work_materials.buttons.battle_buttons import get_general_battle_buttons
+from work_materials.buttons.farming_buttons import farming_buttons
 from bin.player_service import print_player
 
 def update_location(location, player, user_data):
@@ -77,3 +78,5 @@ def show_general_buttons(bot, update, user_data, message_group = None):
             bot.send_message(chat_id=chat_id, text="Вы оглушены", reply_markup=get_general_battle_buttons(player))
     elif status == 'Info':
         print_player(bot, update, user_data)
+    elif status == 'Farming':
+        bot.send_message(chat_id=chat_id, text="Вы исследуете окрестности локации", reply_markup=farming_buttons)

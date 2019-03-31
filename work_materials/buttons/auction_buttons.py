@@ -14,4 +14,5 @@ __auction_button_list = [
 __auction_footer_buttons = [
         InlineKeyboardButton("Пойти нахуй", callback_data="au nahuy")
     ]
-auction_reply_markup = InlineKeyboardMarkup(build_menu(__auction_button_list, n_cols=3, footer_buttons=__auction_footer_buttons))
+auction_reply_markup = InlineKeyboardMarkup(build_menu(__auction_button_list, n_cols=3,
+                                                       footer_buttons=__auction_footer_buttons))

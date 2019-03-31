@@ -5,6 +5,7 @@ from work_materials.globals import grinding_players, dispatcher
 import work_materials.globals as globals
 from libs.random_encounters import DropEncounter
 from bin.item_service import get_item
+from bin.show_general_buttons import show_general_buttons
 
 import time
 import logging
@@ -24,12 +25,25 @@ def drop_rate_percents(fatigue):
 
 def farm(bot, update, user_data):
     player = get_player(update.message.from_user.id)
-    bot.send_message(chat_id=update.message.chat_id, text="Вы отправились фармить")
-    update_status("farming", player, user_data)
+    update_status("Farming", player, user_data)
     print(player.status)
-    user_data.update({'farming_started': time.time()})
+    user_data.update({'Farming_started': time.time(), 'Farming': True})
     player.grind_started_time = time.time()
     grinding_players.append(player)
+    show_general_buttons(bot, update, user_data)
+
+
+def return_from_farm(bot, update, user_data):
+    player = get_player(update.message.from_user.id)
+    update_status("In Location", player, user_data)
+    try:
+        user_data.pop('Farming')
+        user_data.pop('Farming_started')
+    except KeyError:
+        pass
+    while player in grinding_players:
+        grinding_players.remove(player)
+    show_general_buttons(bot, update, user_data)
 
 
 def farm_monitor():
@@ -37,17 +51,17 @@ def farm_monitor():
         print(grinding_players)
         for player in grinding_players:
             print("checking grind for player {}".format(player.id))
-            print(player.status)
             user_data = dispatcher.user_data.get(player.id)
-            status = user_data.get('status')
-            if status == "farming":
+            farming = user_data.get('Farming')
+            print(farming)
+            if farming:
                 try:
                     player.fatigue = fatigue_count(player.grind_started_time)
                 except AttributeError:
                     user_data = dispatcher.user_data.get(player.id)
                     if not user_data:
                         continue
-                    player.fatigue = fatigue_count(time.time() - user_data.get('farming_started'))
+                    player.fatigue = fatigue_count(time.time() - user_data.get('Farming_started'))
                 print(player.fatigue)
                 if player.fatigue is None:
                     logging.warning("fatigue {} is None, possible an error".format(player.id))

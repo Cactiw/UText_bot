@@ -19,7 +19,7 @@ from work_materials.filters.merchant_filters import *
 from work_materials.filters.auction_filters import *
 from work_materials.filters.battle_filters import *
 from work_materials.filters.group_filters import group_kick_filter
-from work_materials.filters.farm_filters import farm_filter
+from work_materials.filters.farm_filters import farm_filter, return_from_farm_filter
 
 from bin.supervisor import *
 from bin.spam_resist import *
@@ -35,7 +35,7 @@ from bin.interprocess_monitor import interprocess_monitor, interprocess_queue
 from bin.merchant import *
 from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
 from bin.equip_items import add_resource, remove_resource, equip, unequip
-from bin.farm import farm, farm_monitor
+from bin.farm import farm, farm_monitor, return_from_farm
 
 import work_materials.globals
 from bin.travel_functions import *
@@ -157,6 +157,7 @@ dispatcher.add_handler(MessageHandler(Filters.command & filter_buy_equipment, bu
 
 #Фильтры для гринда
 dispatcher.add_handler(MessageHandler(Filters.text & farm_filter, farm, pass_user_data=True))
+dispatcher.add_handler(MessageHandler(Filters.text & return_from_farm_filter, return_from_farm, pass_user_data=True))
 
 
 #Фильтры для аукциона
