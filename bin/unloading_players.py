@@ -13,8 +13,6 @@ def player_monitor():
         try:
             players_list = list(players.values())
             for player in players_list:
-                print(player.last_message_time, time.time() - player.last_message_time)
-                print(player)
                 if player.last_message_time is not None and \
                         time.time() - player.last_message_time > LOAD_OUT_MINUTES_LIMIT * 60:
                     try:

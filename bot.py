@@ -35,7 +35,7 @@ from bin.interprocess_monitor import interprocess_monitor, interprocess_queue
 from bin.merchant import *
 from bin.battle_group import group_invite, group_info, group_kick, group_leave, battle_group_callback
 from bin.equip_items import add_resource, remove_resource, equip, unequip
-from bin.farm import farm
+from bin.farm import farm, farm_monitor
 
 import work_materials.globals
 from bin.travel_functions import *
@@ -216,6 +216,11 @@ processes.append(auction_checking)
 matchmaking = Process(target = matchmaking, args=(), name="Matchmaking")
 matchmaking.start()
 processes.append(matchmaking)
+
+
+farm_monitoring = threading.Thread(target=farm_monitor, name="Farm Monitoring")
+farm_monitoring.start()
+processes.append(farm_monitoring)
 
 spam_zeroing = threading.Thread(target = zeroing, args=(), name="Spam zeroing")
 spam_zeroing.start()

@@ -6,7 +6,6 @@ from telegram.error import BadRequest
 from work_materials.globals import *
 from work_materials.buttons.auction_buttons import auction_reply_markup
 from bin.service_commands import *
-from bin.equipment_service import *
 from bin.item_service import *
 from libs.lot import *
 

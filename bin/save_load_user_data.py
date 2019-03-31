@@ -1,5 +1,6 @@
 import work_materials.globals
-from work_materials.globals import pending_battles
+from bin.player_service import get_player
+from work_materials.globals import pending_battles, grinding_players
 import time, pickle
 import logging, traceback
 
@@ -16,7 +17,11 @@ def loadData():
             battle.last_count_time = time.time()
             pending_battles.update({i: battle})
         f.close()
-        print(work_materials.globals.pending_battles)
+        f = open('backup/grinding_players', 'rb')
+        grinding_players_ids = pickle.load(f)
+        for player_id in grinding_players_ids:
+            player = get_player(player_id)
+            grinding_players.append(player)
         print("Data picked up")
     except FileNotFoundError:
         logging.error("Data file not found")
@@ -44,6 +49,9 @@ def saveData():
                 for i in work_materials.globals.travel_jobs:
                     j = work_materials.globals.travel_jobs.get(i)
                     to_dump.update({i: [j.get_time_spent(), j.get_time_left()]})
+                grinding_players_ids = []
+                for player in grinding_players:
+                    grinding_players_ids.append(player.id)
 
                 f = open('backup/userdata', 'wb+')
                 pickle.dump(work_materials.globals.dispatcher.user_data, f)
@@ -54,8 +62,11 @@ def saveData():
                 f = open('backup/battles', 'wb+')
                 pickle.dump(pending_battles, f)
                 f.close()
+                f = open('backup/grinding_players', 'wb+')
+                pickle.dump(grinding_players_ids, f)
+                f.close()
                 logging.debug("Data write completed\b")
-            except:
+            except Exception:
                 logging.error(traceback.format_exc())
     except KeyboardInterrupt:
         print("Writing data last time, do not shutdown bot...")
@@ -67,6 +78,6 @@ def saveData():
             pickle.dump(to_dump, f)
             f.close()
             print("Data write completed")
-        except:
+        except Exception:
             logging.error(traceback.format_exc())
         return

@@ -99,8 +99,16 @@ def return_to_location_admin(bot, update, user_data):
         user_data.pop('matchmaking')
     if 'Team' in list_user_data:
         user_data.pop('Team')"""
+    if 'saved_info_status' in user_data:
+        user_data.pop('saved_info_status')
     interprocess_dict = InterprocessDictionary(player.id, "battle status return", {})
     interprocess_queue.put(interprocess_dict)
+    try:
+        grinding_players.remove(player)
+        user_data.pop('grind_started')
+        user_data.pop('farming_started')
+    except Exception:
+        pass
     #bot.send_message(chat_id=player_id,text="Вы вернулись в локацию: {0}".format(locations.get(player.location).name))
     if j is None:
         return

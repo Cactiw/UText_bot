@@ -43,6 +43,8 @@ players = {}
 players_need_update = Queue()
 travel_jobs = {}
 
+grinding_players = []
+
 matchmaking_players = Queue()
 
 pending_battles = {}
