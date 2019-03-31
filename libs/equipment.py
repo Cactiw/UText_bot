@@ -1,6 +1,7 @@
 from libs.item import *
 from work_materials.globals import conn, cursor
 
+
 class Equipment(Item):
 
     def __init__(self, type, id, name,  place, endurance, power, armor, agility, charge):
@@ -8,7 +9,6 @@ class Equipment(Item):
 
         self.place = place
         self.stats = {'endurance': endurance, 'power': power, 'armor': armor, 'speed': agility, 'charge': charge}
-
 
     def update_from_database(self):
         request = "SELECT type, name, endurance, power, armor, charge, speed FROM equipment WHERE id = %s"

@@ -1,7 +1,7 @@
 import math
 import work_materials.globals as globals
-from work_materials.globals import dispatcher, players_need_update, skills
-from bin.equipment_service import *
+from bin.item_service import get_equipment
+from work_materials.globals import dispatcher, players_need_update, skills, cursor
 from work_materials.constants import aggro_probe_game_classes
 
 
@@ -35,7 +35,7 @@ class Player:
         self.skill_cooldown = {}
 
         self.stats = {'endurance': 5, 'power': 5, 'armor': 5, 'charge': 5,
-                    'speed': 5} #speed == Ловкость (evade)
+                      'speed': 5}  # speed == Ловкость (evade)
         self.aggro_prob = aggro_probe_game_classes.get(game_class)
 
         self.charge = int(self.stats['charge'] * (self.lvl ** (3/2) + 20))
@@ -87,20 +87,25 @@ class Player:
     def __eq__(self, other):    # Два игрока равны ТИТТК равны их id
         return self.id == other.id
 
-    def add_item(self, list, item, count): # Добавление item в рюкзак list
+    def add_item(self, item, count, list=None):  # Добавление item в рюкзак list
+        if list is None:
+            if item.type.find("e") == 0:
+                list = self.eq_backpack
+            elif item.type.find("r") == 0:
+                list = self.res_backpack
+            else:
+                list = self.al_backpack
         quanty = list.get(item.id)
         if quanty is None:
             quanty = int(count)
             list.update({item.id: quanty})
             request = "INSERT INTO inventory(user_id, type, id, quanty) VALUES(%s, %s, %s, %s)"
             cursor.execute(request, (self.id, item.type, item.id, quanty))
-            conn.commit()
             return
         quanty += int(count)
         list.update({item.id: quanty})
         request = "UPDATE inventory SET quanty = %s WHERE user_id = %s and id = %s"
-        cursor.execute(request, (self.id, item.id, quanty))
-        conn.commit()
+        cursor.execute(request, (quanty, self.id, item.id))
         return 0
 
     def remove_item(self, list, item, count):
@@ -113,14 +118,12 @@ class Player:
             list.pop(item.id)
             request = "DELETE FROM inventory WHERE user_id = %s and id = %s"
             cursor.execute(request, (self.id, item.id))
-            conn.commit()
             return 0
         quanty -= int(count)
         list.update({item.id: quanty})
         request = "UPDATE inventory SET type = %s, quanty = %s WHERE user_id = %s" \
                   " and id = %s"
-        cursor.execute(request, (self.id, item.type, item.id, quanty))
-        conn.commit()
+        cursor.execute(request, (item.type, quanty, self.id, item.id))
         return 0
 
     def skill_avaliable(self, skill_name): #-1 - нет такого скилла, -2 - не разблокирован, -3 - КД
@@ -298,4 +301,3 @@ class Player:
                                  self.resources['wood'], self.on_character['head'], self.on_character['body'],
                                  self.on_character['shoulders'], self.on_character['legs'], self.on_character['feet'],
                                  self.on_character['left_arm'], self.on_character['right_arm'], self.on_character['mount']))
-        conn.commit()

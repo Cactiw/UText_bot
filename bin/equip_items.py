@@ -1,16 +1,18 @@
-from libs.resorses import Resourse
 from libs.equipment import Equipment
+from libs.resource import Resource
 from bin.item_service import get_equipment
 from bin.player_service import get_player
 
 
 def add_resource(bot, update, args):
-    item = Resourse(int(args[0]))
+    item = Resource(None, int(args[0]), None)
+    item.update_from_database()
     player = get_player(update.message.from_user.id)
 
 
 def remove_resource(bot, update, args):
-    item = Resourse(int(args[0]))
+    item = Resource(None, int(args[0]), None)
+    item.update_from_database()
     player = get_player(update.message.from_user.id)
 
 

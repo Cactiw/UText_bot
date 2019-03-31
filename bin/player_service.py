@@ -1,6 +1,6 @@
 from work_materials.globals import *
 from libs.player import *
-from bin.equipment_service import *
+from bin.item_service import get_equipment, get_resource
 from work_materials.filters.service_filters import filter_is_admin
 import work_materials.globals as globals
 from libs.message_group import message_groups, MessageGroup
@@ -100,6 +100,7 @@ def update_status(status, player, user_data):
 def print_player(bot, update, user_data):
     id = update.message.from_user.id
     player = get_player(id)
+    print(player.status)
     if player is None:
         return
     if player.status != 'Info' and player.status != user_data.get('saved_info_status'):
@@ -197,7 +198,6 @@ def print_backpacks(bot, update, user_data):
     text = '<em>Экипировка:</em>\n'
     for i in player.eq_backpack:
         eq = get_equipment(i)
-        print(eq.name)
         text += '<b>' + eq.name
         text += '</b>\n     '
         for j in eq.stats:
@@ -212,4 +212,7 @@ def print_backpacks(bot, update, user_data):
         text += '\n\n'
     text += '\n\n<em>Расходуемые:</em>\n'
     text += '\n\n<em>Ресурсы:</em>\n'
+    for resource_id, count in player.res_backpack.items():
+        resource = get_resource(resource_id)
+        text += "<b>{}</b> (<b>{}</b>)\n".format(resource.name, count)
     bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode = 'HTML')
