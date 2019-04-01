@@ -2,6 +2,7 @@ from work_materials.globals import dispatcher, matchmaking_players
 from libs.interprocess_dictionaty import InterprocessDictionary, interprocess_queue
 from libs.battle import BattleStarting
 import datetime
+import signal
 from queue import Empty
 
 MAX_TIME_WITHOUT_PLAYER = datetime.timedelta(minutes=2)
@@ -16,6 +17,7 @@ def matchmaking():
         while True:
             if data is not None:
                 group = data.group
+                signal.pthread_sigmask(signal.SIG_BLOCK, [signal.SIGINT])
                 if data.add_to_matchmaking == 0:    # Отмена мачмейкинга
 
                     for waiting_queue in waiting_players:
@@ -100,6 +102,7 @@ def matchmaking():
                             search_counts -= 1
                             players_in_search_count.update({player.player.id: search_counts})
                     battles.remove(battle)
+            signal.pthread_sigmask(signal.SIG_UNBLOCK, [signal.SIGINT])
             try:
                 data = matchmaking_players.get(timeout=datetime.timedelta(minutes=2).total_seconds())
             except Empty:

@@ -24,7 +24,8 @@ def bots_processing():
                         print(battle.taunt_list)
                         print("aggro list: ", i.participant.nickname in list(battle.taunt_list.get(0)), i.aggro)
                     ai.aggro_list.sort(key = lambda pib: (pib.participant.nickname not in battle.dead_list,
-                                                          battle.taunt_list.get(0).get(pib.participant.nickname) > 1 if i.participant.nickname in list(battle.taunt_list.get(0)) else False,
+                                                          battle.taunt_list.get(0).get(pib.participant.nickname) > 1 if
+                                                          i.participant.nickname in list(battle.taunt_list.get(0)) else False,
                                                           pib.aggro), reverse=True)
                     ai.skill = None
                     skills_list = skills.get(ai.participant.game_class)

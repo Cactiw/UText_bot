@@ -206,11 +206,11 @@ save_user_data.start()
 processes.append(save_user_data)
 #Запуск процесса обновления игроков в бд
 
-updating_to_database = Process(target = players_update, args = (players_need_update,), name = "Database Cloud Updating")
+updating_to_database = Process(target=players_update, args=(players_need_update,), name="Database Cloud Updating")
 updating_to_database.start()
 processes.append(updating_to_database)
 
-auction_checking = Process(target = auction_checker, args = (), name = "Auction Checking")
+auction_checking = Process(target = auction_checker, args = (), name="Auction Checking")
 auction_checking.start()
 processes.append(auction_checking)
 
@@ -227,11 +227,11 @@ spam_zeroing = threading.Thread(target = zeroing, args=(), name="Spam zeroing")
 spam_zeroing.start()
 processes.append(spam_zeroing)
 
-loading_out_players = threading.Thread(target=player_monitor, args=(), name = 'Loading Out Players')
+loading_out_players = threading.Thread(target=player_monitor, args=(), name='Loading Out Players')
 loading_out_players.start()
 processes.append(loading_out_players)
 
-interprocess_monitor = threading.Thread(target = interprocess_monitor, args = (), name = "Interprocess Monitor")
+interprocess_monitor = threading.Thread(target = interprocess_monitor, args = (), name="Interprocess Monitor")
 interprocess_monitor.start()
 processes.append(interprocess_monitor)
 
