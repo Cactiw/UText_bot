@@ -16,7 +16,14 @@ class Player:
 
         self.dead = 0
 
-        self.status = "In Location"
+        user_data = dispatcher.user_data.get(id)
+        status = None
+        if user_data is not None:
+            status = user_data.get("status")
+        if user_data is None or status is None:
+            self.status = "In Location"
+        else:
+            self.status = status
 
         self.sex = sex
         self.race = race

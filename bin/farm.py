@@ -46,6 +46,8 @@ def return_from_farm(bot, update, user_data):
     show_general_buttons(bot, update, user_data)
 
 
+# Функция, выполняющаяся в отдельном потоке. Раз в 60 секунд пробегается по всем фармящим игрокам, с определённым
+# шансом вызывает событие.
 def farm_monitor():
     while globals.processing:
         print(grinding_players)
@@ -56,11 +58,12 @@ def farm_monitor():
             print(farming)
             if farming:
                 try:
-                    player.fatigue = fatigue_count(player.grind_started_time)
+                    player.fatigue = fatigue_count(time.time() - player.grind_started_time)
                 except AttributeError:
                     user_data = dispatcher.user_data.get(player.id)
                     if not user_data:
                         continue
+                    print(time.time(), user_data.get('Farming_started'), time.time() - user_data.get('Farming_started'))
                     player.fatigue = fatigue_count(time.time() - user_data.get('Farming_started'))
                 print(player.fatigue)
                 if player.fatigue is None:
@@ -73,7 +76,7 @@ def farm_monitor():
                     print("encounter happens")
                     enc = DropEncounter('Usual', 'Поздравляем, вы нашли грибы!', [get_item('r', 1)], None)
                     enc.run(player)
-        for i in range(20):
+        for i in range(60):
             if not globals.processing:
                 return 0
             time.sleep(1)
