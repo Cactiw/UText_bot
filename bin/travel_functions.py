@@ -153,7 +153,7 @@ def parse_travel_jobs():
             update = Chat_Id_Update(player.id)
             contexts = {'chat_id': player.id, 'location_id': user_data.get('new_location'), 'player': player,
                         'update': update, 'user_data': user_data}
-            j = MyJob(job.run_once(move_player, t[1], context=contexts), t[1], player.id)
+            j = MyJob(job.run_once(move_player, t[1], context=contexts), t[1], player.id)  # TODO неверно работает, необходимо сохранять не сколько осталось, а когда заканчивается
             j.start_time = time.time() - t[0]
             travel_jobs.update({i: j})
     except FileNotFoundError:

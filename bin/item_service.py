@@ -1,6 +1,7 @@
 from libs.item import *
 from libs.equipment import *
 from libs.resource import Resource
+from work_materials.globals import cursor
 
 
 def get_equipment(id):
@@ -13,6 +14,15 @@ def get_resource(id):
     resource = Resource(None, id, None)
     resource.update_from_database()
     return resource
+
+
+def get_resource_by_rarity(rarity):
+    request = "select item_id, item_name, item_type from items where item_rarity = %s order by random() limit 1"
+    cursor.execute(request, (rarity,))
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    return Resource(row[0], row[1], row[2], rarity)
 
 
 def get_item(type, id):

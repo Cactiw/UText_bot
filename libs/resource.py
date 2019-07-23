@@ -4,9 +4,8 @@ from work_materials.globals import cursor
 
 class Resource(Item):
 
-    def __init__(self, type, id, name):
-
-        super(Resource, self).__init__(type, id, name)
+    def __init__(self, type, id, name, rarity=None):
+        super(Resource, self).__init__(type, id, name, rarity)
 
     def update_from_database(self):
         request = "select item_type, item_name from items where item_id = %s"
